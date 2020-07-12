@@ -1,22 +1,39 @@
 import React from "react"
-import { createStackNavigator } from "@react-navigation/stack"
+import {
+  StackNavigationProp,
+  createStackNavigator,
+} from "@react-navigation/stack"
+import { CompositeNavigationProp } from "@react-navigation/native"
+
 import LoginScreen from "../screens/auth/LoginScreen"
 import SignInScreen from "../screens/auth/SignInScreen"
 import SignUpScreen from "../screens/auth/SignUpScreen"
 
-export type AuthStackParamList = {
+import { RootStackNavigationProps } from "./RootStack"
+
+type AuthStackParamList = {
+  default: undefined
   Login: undefined
   SignIn: undefined
   SignUp: undefined
 }
 
-const AuthStack_ = createStackNavigator<AuthStackParamList>();
+type NavigationProps<
+  T extends keyof AuthStackParamList = "default"
+> = StackNavigationProp<AuthStackParamList, T>
 
+type AuthStackNavigationProps<
+  T extends keyof AuthStackParamList = "default"
+> = CompositeNavigationProp<
+  NavigationProps<T>,
+  RootStackNavigationProps<"AuthStack">
+>
 
 const AuthStack = () => {
   console.log("AuthStack")
 
-  const Stack = createStackNavigator()
+  const Stack = createStackNavigator<AuthStackParamList>()
+
   return (
     <Stack.Navigator initialRouteName="Login" headerMode="none">
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -26,4 +43,4 @@ const AuthStack = () => {
   )
 }
 
-export default AuthStack
+export { AuthStack, AuthStackParamList, AuthStackNavigationProps }

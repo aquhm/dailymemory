@@ -10,6 +10,8 @@ import {
   Dimensions,
 } from "react-native"
 
+import { AuthStackNavigationProps } from "../../routes/AuthStack"
+
 import Firebase from "../../Firebase"
 import * as _ from "lodash"
 
@@ -18,23 +20,36 @@ import Theme from "../../constants/Styles"
 
 const { width, height } = Dimensions.get("window")
 
-class SignInScreen extends React.Component {
-  constructor(props) {
-    super(props)
+interface Props {
+  navigation: AuthStackNavigationProps<"SignIn">
+}
 
-    this.state = {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      disabled: true,
-      isFocused: false,
-    }
+type State = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  disabled: boolean
+  isFocused: boolean
+}
+
+class SignInScreen extends React.Component<Props, State> {
+  state: State = {
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    disabled: true,
+    isFocused: false,
+  }
+
+  constructor(props: Props) {
+    super(props)
 
     console.log("SignInScreen")
   }
 
-  isEmail = (email) => {
+  isEmail = (email: string) => {
     const emailRegex = /^(([^<>()\[\].,;:\s@"]+(\.[^<>()\[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i
 
     return emailRegex.test(email)
@@ -47,11 +62,11 @@ class SignInScreen extends React.Component {
     this.SignInCondition()
   }
 
-  onChangeEmail = (email) => {
+  onChangeEmail = (email:string) => {
     this.setState({ email: email })
     this.SignInCondition()
   }
-  onChangePassword = (password) => {
+  onChangePassword = (password:) => {
     this.setState({ password: password })
     this.SignInCondition()
   }

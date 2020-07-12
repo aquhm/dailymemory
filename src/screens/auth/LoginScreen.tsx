@@ -1,4 +1,9 @@
 import React from "react"
+import { StackNavigationProp } from "@react-navigation/stack"
+import {
+  NavigationContainer,
+  CompositeNavigationProp,
+} from "@react-navigation/native"
 import {
   Image,
   View,
@@ -10,6 +15,8 @@ import {
   Platform,
 } from "react-native"
 
+import { AuthStackNavigationProps } from "../../routes/AuthStack"
+
 import { LinearGradient } from "expo-linear-gradient"
 //import { Ionicons } from "@expo/vector-icons"
 import { SocialIcon, Button } from "react-native-elements"
@@ -20,17 +27,19 @@ import Theme from "../../constants/Styles"
 
 //import LoginButton from "../../components/LoginButton"
 
-
+interface Props {
+  navigation: AuthStackNavigationProps<"SignUp">
+}
 const { height, width } = Dimensions.get("window")
 
-class LoginScreen extends React.Component<> {
-  constructor(props) {
+class LoginScreen extends React.Component<Props> {
+  constructor(props: Props) {
     console.log("LoginScreen")
     super(props)
   }
 
   render() {
-    const { navigation } = this.props
+    const navigate = this.props.navigation.navigate
 
     return (
       <View style={styles.container}>
@@ -82,9 +91,9 @@ class LoginScreen extends React.Component<> {
             <View style={styles.emailButton}>
               <Button
                 icon={<Icon name="email" size={20} color="white" />}
-                iconLeft
+                /*iconLeft*/
                 title="  Sign In Email"
-                onPress={() => navigation.navigate("SignIn")}
+                onPress={() => navigate("SignIn")}
               />
             </View>
           </View>

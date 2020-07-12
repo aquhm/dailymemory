@@ -1,17 +1,46 @@
 import React from "react"
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import {
+  BottomTabNavigationProp,
+  createBottomTabNavigator,
+} from "@react-navigation/bottom-tabs"
+
+import { CompositeNavigationProp } from "@react-navigation/native"
+
 import DiaryScreen from "../screens/main/DiaryScreen"
 import LobbyScreen from "../screens/main/LobbyScreen"
 import NoticeScreen from "../screens/main/NoticeScreen"
 import ProfileScreen from "../screens/main/ProfileScreen"
 import SubscribeScreen from "../screens/main/SubscribeScreen"
 
+import { RootStackNavigationProps } from "./RootStack"
+
+type MainStackParamList = {
+  default: undefined
+  Lobby: undefined
+  Diary: undefined
+  Subscribe: undefined
+  Notice: undefined
+  Profile: undefined
+}
+
+type NavigationProps<
+  T extends keyof MainStackParamList = "default"
+> = BottomTabNavigationProp<MainStackParamList, T>
+
+type MainStackNavigationProps<
+  T extends keyof MainStackParamList = "default"
+> = CompositeNavigationProp<
+  NavigationProps<T>,
+  RootStackNavigationProps<"MainStack">
+>
+
 const MainStack = () => {
   console.log("MainStack")
 
-  const BottomTab = createBottomTabNavigator()
+  const BottomTab = createBottomTabNavigator<MainStackParamList>()
+
   return (
-    <BottomTab.Navigator initialRouteName="Lobby" headerMode="none">
+    <BottomTab.Navigator initialRouteName="Lobby">
       <BottomTab.Screen name="Lobby" component={LobbyScreen} />
       <BottomTab.Screen name="Diary" component={DiaryScreen} />
       <BottomTab.Screen name="Subscribe" component={SubscribeScreen} />
@@ -21,4 +50,4 @@ const MainStack = () => {
   )
 }
 
-export default MainStack
+export { MainStack, MainStackNavigationProps, MainStackParamList }
