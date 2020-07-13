@@ -2,7 +2,13 @@ import React from "react"
 import { View, Text, StyleSheet, SafeAreaView } from "react-native"
 import { MainHeader } from "../../components/Header"
 
-class DiaryScreen extends React.Component {
+import { MainStackNavigationProps } from "../../routes/MainStack"
+
+interface Props {
+  navigation: MainStackNavigationProps<"Diary">
+}
+
+class DiaryScreen extends React.Component<Props> {
   componentDidMount() {
     console.log(" componentDidMount DiaryScreen")
   }
@@ -12,7 +18,7 @@ class DiaryScreen extends React.Component {
   }
 
   render() {
-    const { navigation } = this.props
+    const navigation = this.props.navigation
 
     return (
       <>

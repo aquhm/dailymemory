@@ -14,21 +14,35 @@ import Firebase from "../../Firebase"
 import { AuthHeader } from "../../components/Header"
 import * as _ from "lodash"
 
+import { AuthStackNavigationProps } from "../../routes/AuthStack"
+
 const { height, width } = Dimensions.get("window")
 
-class SignUpScreen extends React.Component {
-  constructor(props) {
+interface Props {
+  navigation: AuthStackNavigationProps<"SignUp">
+}
+
+type State = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  trySignUp: boolean
+}
+
+class SignUpScreen extends React.Component<Props, State> {
+  state: State = {
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    trySignUp: false,
+  }
+
+  constructor(props: Props) {
     super(props)
 
     console.log("SignUpScreen")
-
-    this.state = {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      trySignUp: false,
-    }
   }
 
   componentWillMount() {
@@ -44,33 +58,34 @@ class SignUpScreen extends React.Component {
       )
 
       const { emailVerified } = user
+      const navigate = this.props.navigation.navigate
 
       if (emailVerified == false) {
-        this.props.navigation.navigate("SignIn")
+        navigate("SignIn")
       } else {
-        this.props.navigation.navigate("MainStack")
+        navigate("MainStack")
       }
     } else {
     }
   }
 
-  onChangeName = (name) => this.setState({ name: name })
-  onChangeEmail = (email) => this.setState({ email: email })
-  onChangePassword = (password) => this.setState({ password: password })
-  onChangeConfirmPassword = (confirmPassword) =>
+  onChangeName = (name: string) => this.setState({ name: name })
+  onChangeEmail = (email: string) => this.setState({ email: email })
+  onChangePassword = (password: string) => this.setState({ password: password })
+  onChangeConfirmPassword = (confirmPassword: string) =>
     this.setState({ confirmPassword: confirmPassword })
 
-  isEmailValid = () => {
+  isEmailValid = (): boolean => {
     const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 
-    return reg.test(String(this.email).toLowerCase)
+    return reg.test(String(this.state.email).toLowerCase)
   }
 
   vertify = () => {
-    const name = _.isEmpty(this.name)
-    const email = _.isEmpty(this.namemaile)
-    const password = _.isEmpty(this.password)
-    const confirmPassword = _.isEmpty(this.confirmPassword)
+    const name = _.isEmpty(this.state.name)
+    const email = _.isEmpty(this.state.email)
+    const password = _.isEmpty(this.state.password)
+    const confirmPassword = _.isEmpty(this.state.confirmPassword)
 
     return (
       name ||
@@ -85,11 +100,11 @@ class SignUpScreen extends React.Component {
     Firebase.setAuthStateChange(this.onAuthStateChanged)
 
     const { name, email, password } = this.state
-    const { navigation } = this.props
+    const navigate = this.props.navigation.navigate
 
     console.log("onSubmit() name = " + name + email + password)
 
-    if (this.isEmailValid === false) {
+    if (this.isEmailValid() === false) {
       Alert.alert("Email is Not Correct")
       return
     }
@@ -142,7 +157,7 @@ class SignUpScreen extends React.Component {
                 style={styles.input}
                 placeholder="email"
                 placeholderTextColor="#9a73ef"
-                value={this.email}
+                value={this.state.email}
                 onChangeText={this.onChangeEmail}
               />
             </View>
@@ -155,7 +170,7 @@ class SignUpScreen extends React.Component {
                 placeholderTextColor="#9a73ef"
                 secureTextEntry
                 autoCapitalize="none"
-                value={this.password}
+                value={this.state.password}
                 onChangeText={this.onChangePassword}
               />
             </View>

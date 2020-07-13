@@ -1,5 +1,5 @@
 import React from "react"
-import { StackNavigationProp } from "@react-navigation/stack"
+
 import {
   NavigationContainer,
   CompositeNavigationProp,

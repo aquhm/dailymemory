@@ -20,3 +20,8 @@ yarn add @react-navigation/bottom-tabs @react-navigation/drawer @react-navigatio
 yarn add -D @babel/plugin-proposal-decorators
 
 yarn add mobx mobx-react
+
+
+lodash
+yarn add lodash
+yarn add --dev @types/lodash

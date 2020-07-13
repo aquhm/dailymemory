@@ -3,8 +3,14 @@ import { View, Text, StyleSheet, ToastAndroid, BackHandler } from "react-native"
 import { MainHeader } from "../../components/Header"
 import HandleBack from "../../components/HandleBack"
 
-class LobbyScreen extends React.Component {
-  constructor(props) {
+import { MainStackNavigationProps } from "../../routes/MainStack"
+
+interface Props {
+  navigation: MainStackNavigationProps<"Lobby">
+}
+
+class LobbyScreen extends React.Component<Props> {
+  constructor(props:Props) {
     super(props)
   }
   componentDidMount() {

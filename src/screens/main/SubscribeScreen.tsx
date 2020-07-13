@@ -1,7 +1,13 @@
 import React from "react"
 import { View, Text, StyleSheet } from "react-native"
 
-class SubscribeScreen extends React.Component {
+import { MainStackNavigationProps } from "../../routes/MainStack"
+
+interface Props {
+  navigation: MainStackNavigationProps<"Subscribe">
+}
+
+class SubscribeScreen extends React.Component<Props> {
   componentDidMount() {
     console.log(" componentDidMount SubscribeScreen")
   }

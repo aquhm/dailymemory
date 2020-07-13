@@ -1,8 +1,14 @@
 import React from "react"
 import { View, Text, StyleSheet } from "react-native"
 
-class NoticeScreen extends React.Component {
-  constructor(props) {
+import { MainStackNavigationProps } from "../../routes/MainStack"
+
+interface Props {
+  navigation: MainStackNavigationProps<"Notice">
+}
+
+class NoticeScreen extends React.Component<Props> {
+  constructor(props: Props) {
     super(props)
     this.props.navigation.addListener("didFocus", () => {
       console.log(" focus NoticeScreen")

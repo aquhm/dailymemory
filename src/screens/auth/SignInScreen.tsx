@@ -45,11 +45,10 @@ class SignInScreen extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
-
     console.log("SignInScreen")
   }
 
-  isEmail = (email: string) => {
+  isEmail = (email: string): boolean => {
     const emailRegex = /^(([^<>()\[\].,;:\s@"]+(\.[^<>()\[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i
 
     return emailRegex.test(email)
@@ -62,18 +61,18 @@ class SignInScreen extends React.Component<Props, State> {
     this.SignInCondition()
   }
 
-  onChangeEmail = (email:string) => {
+  onChangeEmail = (email: string): void => {
     this.setState({ email: email })
     this.SignInCondition()
   }
-  onChangePassword = (password:) => {
+  onChangePassword = (password: string) => {
     this.setState({ password: password })
     this.SignInCondition()
   }
 
   SignInCondition = () => this.setState({ disabled: this.verify() === false })
 
-  isEmailValid = () => {
+  isEmailValid = (): boolean => {
     const { email } = this.state
     console.log("isEmailValid = " + email)
 
@@ -89,7 +88,7 @@ class SignInScreen extends React.Component<Props, State> {
     return true
   }
 
-  isPasswordValid = () => {
+  isPasswordValid = (): boolean => {
     const { password } = this.state
 
     console.log("isPasswordValid = " + password + " " + String(password).length)
@@ -102,7 +101,7 @@ class SignInScreen extends React.Component<Props, State> {
     return true
   }
 
-  verify = () => {
+  private verify = (): boolean => {
     const { email, password } = this.state
     const _email = _.isEmpty(email)
     const _password = _.isEmpty(password)
@@ -136,12 +135,12 @@ class SignInScreen extends React.Component<Props, State> {
 
     console.log("OnPress onSignIn email = " + email + " " + password)
 
-    if (this.verify == false) {
+    if (this.verify() == false) {
       Alert.alert("Email is Not Correct")
       return
     }
 
-    if (this.isEmailValid === false) {
+    if (this.isEmailValid() === false) {
       Alert.alert("Email is Not Correct")
       return
     }
