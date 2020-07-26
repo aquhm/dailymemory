@@ -13,6 +13,7 @@
     "@react-navigation/drawer": "^5.8.4",
     "@react-navigation/native": "^5.6.1",
     "@react-navigation/stack": "^5.6.2",
+    "@types/firebase": "^3.2.1",
     "@types/lodash": "^4.14.157",
     "expo": "~38.0.8",
     "expo-linear-gradient": "~8.2.1",
@@ -37,7 +38,7 @@
     "@babel/core": "^7.8.6",
     "@babel/plugin-proposal-decorators": "^7.10.4",
     "@types/react": "~16.9.41",
-    "@types/react-native": "~0.62.13",
+    "@types/react-native": "0.62.2",
     "typescript": "~3.9.5"
   },
   "private": true

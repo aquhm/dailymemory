@@ -49,7 +49,7 @@ class SignUpScreen extends React.Component<Props, State> {
     //Firebase.setAuthStateChange(this.onAuthStateChanged)
   }
 
-  onAuthStateChanged = (user) => {
+  onAuthStateChanged = (user: any) => {
     console.log("onAuthStateChanged user = " + JSON.stringify(user))
 
     if (user !== null) {
@@ -75,13 +75,15 @@ class SignUpScreen extends React.Component<Props, State> {
   onChangeConfirmPassword = (confirmPassword: string) =>
     this.setState({ confirmPassword: confirmPassword })
 
-  isEmailValid = (): boolean => {
-    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+  isEmailValid = () => {
+    const { email } = this.state
 
-    return reg.test(String(this.state.email).toLowerCase)
+    const reg: RegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+
+    return reg.test(email.toLowerCase())
   }
 
-  vertify = () => {
+  onVertify = () => {
     const name = _.isEmpty(this.state.name)
     const email = _.isEmpty(this.state.email)
     const password = _.isEmpty(this.state.password)
@@ -97,7 +99,7 @@ class SignUpScreen extends React.Component<Props, State> {
   }
 
   onSubmit = () => {
-    Firebase.setAuthStateChange(this.onAuthStateChanged)
+    Firebase.Instance.setAuthStateChange(this.onAuthStateChanged)
 
     const { name, email, password } = this.state
     const navigate = this.props.navigation.navigate
@@ -110,19 +112,19 @@ class SignUpScreen extends React.Component<Props, State> {
     }
 
     const sendEmailVerify = true
-    Firebase.createUserWithEmailAndPassword(
+    Firebase.Instance.createUserWithEmailAndPassword(
       email,
       password,
       name,
       sendEmailVerify
     )
-      .then(() => {
+      ?.then(() => {
         Alert.alert("Please verify your email")
         //if (sendEmailVerify) {
         //  navigation.navigate("SignIn")
         //}
       })
-      .catch((error) => {
+      .catch((error: any) => {
         Alert.alert("error = " + error)
         console.log("error = " + error)
       })
@@ -130,6 +132,7 @@ class SignUpScreen extends React.Component<Props, State> {
 
   render() {
     const { navigation } = this.props
+    const { name, email, password, confirmPassword } = this.state
     return (
       <>
         <AuthHeader
@@ -141,49 +144,49 @@ class SignUpScreen extends React.Component<Props, State> {
         <View style={styles.container}>
           <View style={styles.form}>
             <View>
-              <Text stype={styles.inputTitle}>Name</Text>
+              <Text style={styles.inputTitle}>Name</Text>
               <TextInput
                 style={styles.input}
                 placeholder="name"
                 placeholderTextColor="#9a73ef"
-                value={this.name}
+                value={name}
                 onChangeText={this.onChangeName}
               />
             </View>
 
             <View style={{ marginTop: 32 }}>
-              <Text stype={styles.inputTitle}>Email</Text>
+              <Text style={styles.inputTitle}>Email</Text>
               <TextInput
                 style={styles.input}
                 placeholder="email"
                 placeholderTextColor="#9a73ef"
-                value={this.state.email}
+                value={email}
                 onChangeText={this.onChangeEmail}
               />
             </View>
 
             <View style={{ marginTop: 32 }}>
-              <Text stype={styles.inputTitle}>Password</Text>
+              <Text style={styles.inputTitle}>Password</Text>
               <TextInput
                 style={styles.input}
                 placeholder="password"
                 placeholderTextColor="#9a73ef"
                 secureTextEntry
                 autoCapitalize="none"
-                value={this.state.password}
+                value={password}
                 onChangeText={this.onChangePassword}
               />
             </View>
 
             <View style={{ marginTop: 32 }}>
-              <Text stype={styles.inputTitle}>Confirm Password</Text>
+              <Text style={styles.inputTitle}>Confirm Password</Text>
               <TextInput
                 style={styles.input}
                 placeholder="password"
                 placeholderTextColor="#9a73ef"
                 secureTextEntry
                 autoCapitalize="none"
-                value={this.confirmPassword}
+                value={confirmPassword}
                 onChangeText={this.onChangeConfirmPassword}
               />
             </View>
@@ -191,7 +194,7 @@ class SignUpScreen extends React.Component<Props, State> {
             <TouchableOpacity
               style={[{ marginTop: 32 }, styles.button]}
               onPress={this.onSubmit}
-              enable={this.vertify}
+              disabled={this.onVertify()}
             >
               <Text style={{ color: "#ffffff", fontWeight: "400" }}>
                 Sign Up

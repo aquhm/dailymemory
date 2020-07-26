@@ -10,11 +10,11 @@ interface Props {
 class NoticeScreen extends React.Component<Props> {
   constructor(props: Props) {
     super(props)
-    this.props.navigation.addListener("didFocus", () => {
+    this.props.navigation.addListener("focus", () => {
       console.log(" focus NoticeScreen")
     })
 
-    this.props.navigation.addListener("didBlur", () => {
+    this.props.navigation.addListener("blur", () => {
       console.log(" blur NoticeScreen")
     })
   }

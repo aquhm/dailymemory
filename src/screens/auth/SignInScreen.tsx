@@ -109,7 +109,7 @@ class SignInScreen extends React.Component<Props, State> {
     return _email === false && _password === false
   }
 
-  onAuthStateChanged = (user) => {
+  onAuthStateChanged = (user: any) => {
     console.log("onAuthStateChanged user = " + JSON.stringify(user))
 
     if (user !== null) {
@@ -128,9 +128,7 @@ class SignInScreen extends React.Component<Props, State> {
     }
   }
 
-  onSignIn = () => {
-    Firebase.setAuthStateChange(this.onAuthStateChanged)
-
+  onSignIn = async () => {
     const { email, password } = this.state
 
     console.log("OnPress onSignIn email = " + email + " " + password)
@@ -145,7 +143,11 @@ class SignInScreen extends React.Component<Props, State> {
       return
     }
 
-    Firebase.signInWithEmailAndPassword(email, password).catch((error) => {
+    await Firebase.Instance.Login(
+      email,
+      password,
+      this.onAuthStateChanged
+    )?.catch((error) => {
       Alert.alert("SignIn Fail " + error)
     })
   }
@@ -155,10 +157,10 @@ class SignInScreen extends React.Component<Props, State> {
   }
 
   render() {
+    const { email, password } = this.state
     return (
       <>
         <AuthHeader
-          navigation={this.props.navigation}
           title="Sign In"
           backAction={() => {
             this.props.navigation.goBack()
@@ -172,7 +174,7 @@ class SignInScreen extends React.Component<Props, State> {
                 style={styles.input}
                 placeholder="email"
                 placeholderTextColor={Theme.COLOR.INPUT}
-                value={this.email}
+                value={email}
                 onEndEditing={this.isEmailValid}
                 onChangeText={this.onChangeEmail}
                 onFocus={this.handleInputFocus}
@@ -189,7 +191,7 @@ class SignInScreen extends React.Component<Props, State> {
                 secureTextEntry
                 autoCapitalize="none"
                 onEndEditing={this.isPasswordValid}
-                value={this.password}
+                value={password}
                 onChangeText={this.onChangePassword}
               />
             </View>

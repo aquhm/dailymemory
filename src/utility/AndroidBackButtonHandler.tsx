@@ -1,80 +1,109 @@
-import { ToastAndroid, Alert, BackHandler } from "react-native"
+import {
+  ToastAndroid,
+  Alert,
+  BackHandler,
+  NativeEventSubscription,
+} from "react-native"
 import Firebase from "../Firebase"
 import * as common from "./common"
 
-let exitApp = false
-let timeout = 0
-let latestBackHandler = null
-let backAction = null
+class AndroidBackButtonHandler {
+  static _instance?: AndroidBackButtonHandler
+  private _exitApp: boolean = false
+  private _timeout?: NodeJS.Timeout
+  private _latestBackHandler?: NativeEventSubscription
+  private _backAction?: () => boolean
 
-const getLastestBackHandler = () => {
-  return latestBackHandler
-}
+  public static get Instance() {
+    if (!this._instance) {
+      this._instance = new AndroidBackButtonHandler()
+      return this._instance
+    } else {
+      return this._instance
+    }
+  }
+  private constructor() {}
 
-const handleAndroidBackButton = (callBack) => {
-  common.getFunctionCallerName()
-
-  backAction = () => {
-    callBack()
-    return true
+  get getLastestBackHandler() {
+    return this._latestBackHandler
   }
 
-  latestBackHandler = BackHandler.addEventListener(
-    "hardwareBackPress",
-    backAction
-  )
+  handleAndroidBackButton = (
+    callBack: () => any = this.exitSecondTimeAlert
+  ) => {
+    common.getFunctionCallerName()
 
-  return latestBackHandler
-}
+    this._backAction = () => {
+      console.log(
+        "AndroidBackButtonHandler handleAndroidBackButton _backAction "
+      )
 
-const removeAndroidBackButtonHandler = () => {
-  common.getFunctionCallerName()
-  latestBackHandler.remove()
+      callBack()
+      return true
+    }
 
-  if (backAction !== null)
-    BackHandler.removeEventListener("hardwareBackPress", backAction)
-
-  console.log("removeAndroidBackButtonHandler = " + getLastestBackHandler())
-}
-
-const exitSecondTimeAlert = () => {
-  if (!exitApp) {
-    console.log("this.exitApp = " + exitApp)
-    ToastAndroid.show("한번 더 누르시면 종료됩니다.", ToastAndroid.SHORT)
-    exitApp = true
-
-    timeout = setTimeout(
-      () => {
-        exitApp = false
-      },
-      2 * 1000 // 2초
+    this._latestBackHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      this._backAction
     )
-  } else {
-    clearTimeout(timeout)
-    ToastAndroid.show("", 0)
-    Firebase.signOut()
+    console.log(
+      "AndroidBackButtonHandler this._latestBackHandler = " +
+        this._latestBackHandler
+    )
+    return this._latestBackHandler
+  }
 
-    BackHandler.exitApp() // 앱 종료
+  removeAndroidBackButtonHandler = () => {
+    common.getFunctionCallerName()
+
+    this._latestBackHandler?.remove()
+
+    if (this._backAction != null) {
+      BackHandler.removeEventListener("hardwareBackPress", this._backAction)
+    } else {
+    }
+
+    console.log(
+      "removeAndroidBackButtonHandler = " + this.getLastestBackHandler
+    )
+  }
+
+  exitSecondTimeAlert = () => {
+    if (!this._exitApp) {
+      console.log("this.exitApp = " + this._exitApp)
+      ToastAndroid.show("한번 더 누르시면 종료됩니다.", ToastAndroid.SHORT)
+      this._exitApp = true
+
+      this._timeout = setTimeout(
+        () => {
+          this._exitApp = false
+        },
+        2 * 1000 // 2초
+      )
+    } else {
+      if (this._timeout != null) {
+        clearTimeout(this._timeout)
+      }
+
+      ToastAndroid.show("", 0)
+      Firebase.Instance.signOut()
+
+      BackHandler.exitApp() // 앱 종료
+    }
+  }
+
+  exitAlert = () => {
+    Alert.alert("Confirm exit", "Do you want to quit the app?", [
+      { text: "CANCEL", style: "cancel" },
+      {
+        text: "OK",
+        onPress: () => {
+          Firebase.Instance.signOut()
+          BackHandler.exitApp()
+        },
+      },
+    ])
   }
 }
 
-const exitAlert = () => {
-  Alert.alert("Confirm exit", "Do you want to quit the app?", [
-    ({ text: "CANCEL", style: "cancel" },
-    {
-      text: "OK",
-      onPress: () => {
-        Firebase.signOut()
-        BackHandler.exitApp()
-      },
-    }),
-  ])
-}
-
-export {
-  handleAndroidBackButton,
-  removeAndroidBackButtonHandler,
-  exitSecondTimeAlert,
-  exitAlert,
-  getLastestBackHandler,
-}
+export default AndroidBackButtonHandler

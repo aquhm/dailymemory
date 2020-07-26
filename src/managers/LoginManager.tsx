@@ -1,18 +1,24 @@
 import GoogleLoginBehaviour from "../behaviour/login/GoogleLoginBehaviour"
 import FacebookLoginBehaviour from "../behaviour/login/FacebookLoginBehaviour"
-import LoginScreen from "../screens/LoginScreen"
 
 class LoginManager {
-  constructor() {
+  private _googleLoginBehaviour: GoogleLoginBehaviour
+  private _faceBookLoginBehaviour: FacebookLoginBehaviour
+
+  static _instance?: LoginManager
+
+  public static get Instance() {
+    if (!this._instance) {
+      this._instance = new LoginManager()
+      return this._instance
+    } else {
+      return this._instance
+    }
+  }
+  private constructor() {
     this._googleLoginBehaviour = new GoogleLoginBehaviour()
     this._faceBookLoginBehaviour = new FacebookLoginBehaviour()
-
-    initialize()
   }
-
-  initialize = () => {}
 }
-
-const LoginManager = new LoginScreen()
 
 export default LoginManager

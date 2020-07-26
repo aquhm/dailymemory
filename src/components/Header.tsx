@@ -5,7 +5,13 @@ import PropTypes from "prop-types"
 
 import Theme from "../constants/Styles"
 
-const AuthHeader = (props) => {
+interface AuthHeaderProps {
+  title: string
+  backAction: () => void
+  menuAction?: () => void
+}
+
+const AuthHeader = (props: AuthHeaderProps) => {
   console.log("AuthHeader props = " + JSON.stringify(props))
   const { title, backAction, menuAction } = props
 
@@ -24,7 +30,7 @@ const AuthHeader = (props) => {
   )
 }
 
-const MainHeader = (props) => {
+const MainHeader = (props: AuthHeaderProps) => {
   console.log("MainHeader props = " + JSON.stringify(props))
   const { title, menuAction } = props
 
@@ -70,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: Theme.COLOR.TITLE,
+    color: Theme.COLOR.HEADER_TITLE,
   },
 })
 

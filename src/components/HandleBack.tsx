@@ -1,13 +1,10 @@
-import React, { useState } from "react"
+import React, { useState, useCallback } from "react"
+
+import { NativeEventSubscription } from "react-native"
 //import { withNavigation } from "react-navigation"
 import { useFocusEffect } from "@react-navigation/native"
 
-import {
-  handleAndroidBackButton,
-  removeAndroidBackButtonHandler,
-  exitSecondTimeAlert,
-  exitAlert,
-} from "../utility/AndroidBackButtonHandler"
+import AndroidBackButtonHandler from "../utility/AndroidBackButtonHandler"
 
 /*
 class HandleBack extends React.Component {
@@ -33,30 +30,31 @@ class HandleBack extends React.Component {
 }
 */
 
-const HandleBack = (props) => {
-  const [backHandler, setBackHandler] = useState(null)
+const HandleBack = () => {
+  const [backHandler, setBackHandler] = useState<NativeEventSubscription>()
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // Do something when the screen is focused
-      if (backHandler !== null) backHandler.remove()
+  const onBack = useCallback(() => {
+    console.log("HandleBack backHandler = " + backHandler)
+    // Do something when the screen is focused
+    if (backHandler != null) backHandler.remove()
 
+    console.log("HandleBack backHandler = " + backHandler)
+    console.log("HandleBack mount")
+    setBackHandler(AndroidBackButtonHandler.Instance.handleAndroidBackButton())
+    console.log("HandleBack backHandler = " + backHandler)
+
+    return () => {
+      console.log("HandleBack unmount")
       console.log("HandleBack backHandler = " + backHandler)
-      console.log("HandleBack " + "mount")
-      setBackHandler(handleAndroidBackButton(exitSecondTimeAlert))
+      // Do something when the screen is unfocused
+      // Useful for cleanup functions
+      setBackHandler(undefined)
+      AndroidBackButtonHandler.Instance.removeAndroidBackButtonHandler()
       console.log("HandleBack backHandler = " + backHandler)
+    }
+  }, [])
 
-      return () => {
-        console.log("HandleBack " + "unmount")
-        console.log("HandleBack backHandler = " + backHandler)
-        // Do something when the screen is unfocused
-        // Useful for cleanup functions
-        setBackHandler(null)
-        removeAndroidBackButtonHandler()
-        console.log("HandleBack backHandler = " + backHandler)
-      }
-    }, [])
-  )
+  useFocusEffect(onBack)
 
   return null
 }

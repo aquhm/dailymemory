@@ -10,7 +10,7 @@ interface Props {
 }
 
 class LobbyScreen extends React.Component<Props> {
-  constructor(props:Props) {
+  constructor(props: Props) {
     super(props)
   }
   componentDidMount() {
