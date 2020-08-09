@@ -3,12 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Dimensions,
 } from "react-native"
+
+import { Formik, useFormik } from "formik"
+import * as Yup from "yup"
 
 import { AuthStackNavigationProps } from "../../routes/AuthStack"
 
@@ -18,27 +20,33 @@ import * as _ from "lodash"
 import { AuthHeader } from "../../components/Header"
 import Theme from "../../constants/Styles"
 
-const { width, height } = Dimensions.get("window")
+import LoginTextInput from "../../components/Form/TextInput"
+
+const { width } = Dimensions.get("window")
+
+const SignInSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string()
+    .min(8, "Too Short!")
+    .max(16, "Too Long!")
+    .required("Required"),
+})
 
 interface Props {
   navigation: AuthStackNavigationProps<"SignIn">
 }
 
 type State = {
-  name: string
   email: string
   password: string
-  confirmPassword: string
   disabled: boolean
   isFocused: boolean
 }
 
 class SignInScreen extends React.Component<Props, State> {
   state: State = {
-    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
     disabled: true,
     isFocused: false,
   }
@@ -46,12 +54,6 @@ class SignInScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     console.log("SignInScreen")
-  }
-
-  isEmail = (email: string): boolean => {
-    const emailRegex = /^(([^<>()\[\].,;:\s@"]+(\.[^<>()\[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i
-
-    return emailRegex.test(email)
   }
 
   handleInputFocus = () => this.setState({ isFocused: true })
@@ -71,35 +73,6 @@ class SignInScreen extends React.Component<Props, State> {
   }
 
   SignInCondition = () => this.setState({ disabled: this.verify() === false })
-
-  isEmailValid = (): boolean => {
-    const { email } = this.state
-    console.log("isEmailValid = " + email)
-
-    if (_.isEmpty(email) === false) {
-      console.log(" email valid = " + this.isEmail(email))
-
-      if (this.isEmail(email) === false) {
-        Alert.alert("Invalid Email")
-        return false
-      }
-    }
-
-    return true
-  }
-
-  isPasswordValid = (): boolean => {
-    const { password } = this.state
-
-    console.log("isPasswordValid = " + password + " " + String(password).length)
-
-    //if (String(password).length < 8) {
-    //  Alert.alert("Invalid password")
-    //  return false
-    //}
-
-    return true
-  }
 
   private verify = (): boolean => {
     const { email, password } = this.state
@@ -138,11 +111,6 @@ class SignInScreen extends React.Component<Props, State> {
       return
     }
 
-    if (this.isEmailValid() === false) {
-      Alert.alert("Email is Not Correct")
-      return
-    }
-
     await Firebase.Instance.Login(
       email,
       password,
@@ -156,8 +124,11 @@ class SignInScreen extends React.Component<Props, State> {
     this.props.navigation.navigate("SignUp")
   }
 
+  isValid = (email: boolean, password: boolean) => {
+    console.log("email = " + email + " password = " + password)
+  }
+
   render() {
-    const { email, password } = this.state
     return (
       <>
         <AuthHeader
@@ -166,76 +137,104 @@ class SignInScreen extends React.Component<Props, State> {
             this.props.navigation.goBack()
           }}
         />
-        <View style={styles.container}>
-          <View style={styles.form}>
-            <View style={{ marginTop: 32 }}>
-              <Text style={styles.inputTitle}>Email</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="email"
-                placeholderTextColor={Theme.COLOR.INPUT}
-                value={email}
-                onEndEditing={this.isEmailValid}
-                onChangeText={this.onChangeEmail}
-                onFocus={this.handleInputFocus}
-                onBlur={this.handleInputBlur}
-              />
+
+        <Formik
+          validationSchema={SignInSchema}
+          initialValues={{ email: "", password: "" }}
+          onSubmit={(values, actions) => {
+            actions.setSubmitting(true)
+            // same shape as initial values
+            console.log(values)
+            console.log("여기")
+            actions.setSubmitting(false)
+          }}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting,
+            /* and other goodies */
+          }) => (
+            <View style={styles.container}>
+              <View style={styles.form}>
+                <View style={{ marginTop: 16 }}>
+                  <LoginTextInput
+                    title="Email"
+                    icon="mail"
+                    touched={touched.email}
+                    error={errors.email}
+                    placeholder="Enter your Email"
+                    placeholderTextColor={Theme.COLOR.INPUT}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    value={values.email}
+                  />
+                </View>
+                <View style={{ marginTop: 16 }}>
+                  <LoginTextInput
+                    title="Password"
+                    icon="lock"
+                    touched={touched.password}
+                    error={errors.password}
+                    placeholder="Enter your Password"
+                    placeholderTextColor={Theme.COLOR.INPUT}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    value={values.password}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={[
+                    { marginTop: 32 },
+                    errors.email == undefined && errors.password == undefined
+                      ? styles.button
+                      : styles.disabledButton,
+                  ]}
+                  onPress={handleSubmit}
+                  disabled={isSubmitting}
+                  //</View>disabled={this.state.disabled}
+                >
+                  <Text style={{ color: "#ffffff", fontWeight: "400" }}>
+                    Sign In
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  alignSelf: "center",
+                  marginTop: 24,
+                  alignItems: "center",
+                }}
+                onPress={this.onSignUp}
+              >
+                <Text
+                  style={{
+                    color: "#000",
+                    fontWeight: "100",
+                  }}
+                >
+                  Create New Account?
+                </Text>
+                <Text
+                  style={{
+                    marginLeft: 6,
+                    color: "#E9446A",
+                    fontWeight: "600",
+                  }}
+                >
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
             </View>
-
-            <View style={{ marginTop: 32 }}>
-              <Text style={styles.inputTitle}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="password"
-                placeholderTextColor={Theme.COLOR.INPUT}
-                secureTextEntry
-                autoCapitalize="none"
-                onEndEditing={this.isPasswordValid}
-                value={password}
-                onChangeText={this.onChangePassword}
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={[
-              { marginTop: 32 },
-              this.state.disabled ? styles.disabledButton : styles.button,
-            ]}
-            onPress={this.onSignIn}
-            disabled={this.state.disabled}
-          >
-            <Text style={{ color: "#ffffff", fontWeight: "400" }}>Sign In</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignSelf: "center",
-              marginTop: 24,
-              alignItems: "center",
-            }}
-            onPress={this.onSignUp}
-          >
-            <Text
-              style={{
-                color: "#000",
-                fontWeight: "100",
-              }}
-            >
-              Create New Account?
-            </Text>
-            <Text
-              style={{
-                marginLeft: 6,
-                color: "#E9446A",
-                fontWeight: "600",
-              }}
-            >
-              Sign Up
-            </Text>
-          </TouchableOpacity>
-        </View>
+          )}
+        </Formik>
       </>
     )
   }
@@ -246,6 +245,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    alignContent: "center",
   },
   disabled: {
     opacity: 0.5,
@@ -253,7 +253,10 @@ const styles = StyleSheet.create({
   form: {
     width: width * 0.8,
     marginBottom: 24,
-    marginHorizontal: 30,
+
+    //justifyContent: "center",
+    //alignContent: "center",
+    //alignItems: "center",
   },
   inputTitle: {
     color: "#8A8F9E",

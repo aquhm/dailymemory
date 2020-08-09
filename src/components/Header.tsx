@@ -11,6 +11,11 @@ interface AuthHeaderProps {
   menuAction?: () => void
 }
 
+interface MenuHeaderProps {
+  title: string
+  menuAction?: () => void
+}
+
 const AuthHeader = (props: AuthHeaderProps) => {
   console.log("AuthHeader props = " + JSON.stringify(props))
   const { title, backAction, menuAction } = props
@@ -30,7 +35,7 @@ const AuthHeader = (props: AuthHeaderProps) => {
   )
 }
 
-const MainHeader = (props: AuthHeaderProps) => {
+const MainHeader = (props: MenuHeaderProps) => {
   console.log("MainHeader props = " + JSON.stringify(props))
   const { title, menuAction } = props
 
