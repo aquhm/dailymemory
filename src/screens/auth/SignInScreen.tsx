@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from "react-native"
 
-import { Formik, useFormik } from "formik"
+import { Formik, FormikHelpers } from "formik"
 import * as Yup from "yup"
 
 import { AuthStackNavigationProps } from "../../routes/AuthStack"
@@ -36,52 +36,11 @@ interface Props {
   navigation: AuthStackNavigationProps<"SignIn">
 }
 
-type State = {
-  email: string
-  password: string
-  disabled: boolean
-  isFocused: boolean
-}
-
-class SignInScreen extends React.Component<Props, State> {
-  state: State = {
-    email: "",
-    password: "",
-    disabled: true,
-    isFocused: false,
-  }
-
+class SignInScreen extends React.Component<Props> {
   constructor(props: Props) {
     super(props)
     console.log("SignInScreen")
   }
-
-  handleInputFocus = () => this.setState({ isFocused: true })
-
-  handleInputBlur = () => {
-    this.setState({ isFocused: false })
-    this.SignInCondition()
-  }
-
-  onChangeEmail = (email: string): void => {
-    this.setState({ email: email })
-    this.SignInCondition()
-  }
-  onChangePassword = (password: string) => {
-    this.setState({ password: password })
-    this.SignInCondition()
-  }
-
-  SignInCondition = () => this.setState({ disabled: this.verify() === false })
-
-  private verify = (): boolean => {
-    const { email, password } = this.state
-    const _email = _.isEmpty(email)
-    const _password = _.isEmpty(password)
-
-    return _email === false && _password === false
-  }
-
   onAuthStateChanged = (user: any) => {
     console.log("onAuthStateChanged user = " + JSON.stringify(user))
 
@@ -101,31 +60,25 @@ class SignInScreen extends React.Component<Props, State> {
     }
   }
 
-  onSignIn = async () => {
-    const { email, password } = this.state
-
-    console.log("OnPress onSignIn email = " + email + " " + password)
-
-    if (this.verify() == false) {
-      Alert.alert("Email is Not Correct")
-      return
-    }
-
-    await Firebase.Instance.Login(
+  onSignIn = async (email: string, password: string) => {
+    const result = await Firebase.Instance.Login(
       email,
       password,
       this.onAuthStateChanged
-    )?.catch((error) => {
-      Alert.alert("SignIn Fail " + error)
-    })
+    )
+      ?.then(() => {
+        return true
+      })
+      .catch((error) => {
+        Alert.alert("SignIn Fail " + error)
+        return false
+      })
+
+    return result
   }
 
   onSignUp = () => {
     this.props.navigation.navigate("SignUp")
-  }
-
-  isValid = (email: boolean, password: boolean) => {
-    console.log("email = " + email + " password = " + password)
   }
 
   render() {
@@ -141,12 +94,18 @@ class SignInScreen extends React.Component<Props, State> {
         <Formik
           validationSchema={SignInSchema}
           initialValues={{ email: "", password: "" }}
+          isInitialValid={false}
           onSubmit={(values, actions) => {
             actions.setSubmitting(true)
-            // same shape as initial values
-            console.log(values)
-            console.log("여기")
-            actions.setSubmitting(false)
+            this.onSignIn(values.email, values.password)
+              .then(() => {
+                console.log("onSignIn success")
+                actions.setSubmitting(false)
+              })
+              .catch(() => {
+                console.log("onSignIn fail")
+                actions.setSubmitting(false)
+              })
           }}
         >
           {({
@@ -157,6 +116,7 @@ class SignInScreen extends React.Component<Props, State> {
             handleBlur,
             handleSubmit,
             isSubmitting,
+            isValid,
             /* and other goodies */
           }) => (
             <View style={styles.container}>
@@ -192,12 +152,10 @@ class SignInScreen extends React.Component<Props, State> {
                 <TouchableOpacity
                   style={[
                     { marginTop: 32 },
-                    errors.email == undefined && errors.password == undefined
-                      ? styles.button
-                      : styles.disabledButton,
+                    isValid ? styles.button : styles.disabledButton,
                   ]}
                   onPress={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isValid}
                   //</View>disabled={this.state.disabled}
                 >
                   <Text style={{ color: "#ffffff", fontWeight: "400" }}>
