@@ -131,6 +131,44 @@ class Firebase {
       })
   }
 
+  public SighUp = async (
+    name: string,
+    email: string,
+    password: string,
+    onAuthStateChange: any,
+    rememberSession: boolean = true,
+    emailVerification: boolean = false
+  ) => {
+    try {
+      const _rememberSession: string = rememberSession
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION
+
+      this.setAuthStateChange(onAuthStateChange)
+      await this._auth?.setPersistence(_rememberSession)
+
+      return this._auth
+        ?.createUserWithEmailAndPassword(email, password)
+        .then((userCredential: firebase.auth.UserCredential) => {
+          console.log("userCredential  = " + userCredential)
+
+          var promise = userCredential?.user?.updateProfile({
+            displayName: name.trim(),
+          })
+
+          if (!emailVerification) {
+            return promise
+          } else {
+            return promise?.then(() => {
+              return userCredential?.user?.sendEmailVerification()
+            })
+          }
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   public Login = async (
     email: string,
     password: string,

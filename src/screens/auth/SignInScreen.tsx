@@ -1,18 +1,18 @@
-import React from "react"
+import React, { createRef } from "react"
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Alert,
-  KeyboardAvoidingView,
   Dimensions,
 } from "react-native"
 
-import { Formik, FormikHelpers } from "formik"
+import { Formik } from "formik"
 import * as Yup from "yup"
 
 import { AuthStackNavigationProps } from "../../routes/AuthStack"
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
 
 import Firebase from "../../Firebase"
 import * as _ from "lodash"
@@ -37,6 +37,8 @@ interface Props {
 }
 
 class SignInScreen extends React.Component<Props> {
+  passwordRef = createRef<typeof LoginTextInput>()
+
   constructor(props: Props) {
     super(props)
     console.log("SignInScreen")
@@ -132,10 +134,16 @@ class SignInScreen extends React.Component<Props> {
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     value={values.email}
+                    autoCapitalize="none"
+                    autoCompleteType="email"
+                    returnKeyType="done"
+                    returnKeyLabel="done"
+                    onSubmitEditing={() => this.passwordRef.current?.focus()}
                   />
                 </View>
                 <View style={{ marginTop: 16 }}>
                   <LoginTextInput
+                    ref={this.passwordRef}
                     title="Password"
                     icon="lock"
                     touched={touched.password}
@@ -147,6 +155,11 @@ class SignInScreen extends React.Component<Props> {
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}
                     value={values.password}
+                    autoCapitalize="none"
+                    autoCompleteType="password"
+                    returnKeyType="done"
+                    returnKeyLabel="done"
+                    onSubmitEditing={() => handleSubmit()}
                   />
                 </View>
                 <TouchableOpacity

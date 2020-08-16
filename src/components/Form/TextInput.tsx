@@ -1,4 +1,4 @@
-import React from "react"
+import React, { forwardRef, RefObject } from "react"
 import { TextInput as RNTextInput, View, Text, StyleSheet } from "react-native"
 import { Feather as Icon } from "@expo/vector-icons"
 import Style from "../../constants/Styles"
@@ -14,54 +14,48 @@ interface TextInputProps {
   value?: string
 }
 
-const TextInput = ({
-  title,
-  icon,
-  touched,
-  error,
-  value,
+const TextInput = forwardRef(
+  ({ title, icon, touched, error, value, ...props }: TextInputProps, ref) => {
+    const empty = _.isEmpty(value)
 
-  ...props
-}: TextInputProps) => {
-  const empty = _.isEmpty(value)
+    const color: string =
+      !touched || empty
+        ? Style.COLOR.PLACEHOLDER
+        : !error
+        ? Style.COLOR.ACTIVE
+        : Style.COLOR.ERROR
 
-  const color: string =
-    !touched || empty
-      ? Style.COLOR.PLACEHOLDER
-      : !error
-      ? Style.COLOR.ACTIVE
-      : Style.COLOR.ERROR
-
-  const validCheckIcon = touched && !empty && (
-    <View
-      style={[
-        styles.icon,
-        { backgroundColor: !error ? Style.COLOR.ACTIVE : Style.COLOR.ERROR },
-      ]}
-    >
-      <Icon name={!error ? "check" : "x"} color="white" size={16} />
-    </View>
-  )
-  console.log(" error = " + error)
-  return (
-    <View>
-      <Text style={styles.inputTitle}>{title}</Text>
-      <View style={[styles.inputContainer, { borderColor: color }]}>
-        <View style={styles.iconContainer}>
-          <Icon name={icon} {...{ color }} size={16} />
-        </View>
-        <View style={styles.subInputContainer}>
-          <RNTextInput
-            underlineColorAndroid="transparent"
-            placeholderTextColor={Style.COLOR.PLACEHOLDER}
-            {...props}
-          />
-          {validCheckIcon}
+    const validCheckIcon = touched && !empty && (
+      <View
+        style={[
+          styles.icon,
+          { backgroundColor: !error ? Style.COLOR.ACTIVE : Style.COLOR.ERROR },
+        ]}
+      >
+        <Icon name={!error ? "check" : "x"} color="white" size={16} />
+      </View>
+    )
+    return (
+      <View>
+        <Text style={styles.inputTitle}>{title}</Text>
+        <View style={[styles.inputContainer, { borderColor: color }]}>
+          <View style={styles.iconContainer}>
+            <Icon name={icon} {...{ color }} size={16} />
+          </View>
+          <View style={styles.subInputContainer}>
+            <RNTextInput
+              underlineColorAndroid="transparent"
+              placeholderTextColor={Style.COLOR.PLACEHOLDER}
+              {...{ ref }}
+              {...props}
+            />
+            {validCheckIcon}
+          </View>
         </View>
       </View>
-    </View>
-  )
-}
+    )
+  }
+)
 
 const styles = StyleSheet.create({
   inputTitle: {
