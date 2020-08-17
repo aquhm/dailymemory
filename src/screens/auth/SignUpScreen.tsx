@@ -82,17 +82,8 @@ class SignUpScreen extends React.Component<Props, State> {
     }
   };
 
-  onSignUp = async (name: string, email: string, password: string) => {
-    const result = await Firebase.Instance.SighUp(name, email, password, this.onAuthStateChanged)
-      ?.then(() => {
-        return true;
-      })
-      .catch((error) => {
-        Alert.alert("SignIn Fail " + error);
-        return false;
-      });
-    return result;
-  };
+  onSignUp = async (name: string, email: string, password: string) =>
+    await Firebase.Instance.SighUp(name, email, password, this.onAuthStateChanged);
 
   render() {
     const { navigation } = this.props;
@@ -115,15 +106,15 @@ class SignUpScreen extends React.Component<Props, State> {
           isInitialValid={false}
           onSubmit={async (values, actions) => {
             actions.setSubmitting(true);
-            await this.onSignUp(values.name, values.email, values.password)
-              .then(() => {
-                console.log("onSignUp success");
-                actions.setSubmitting(false);
-              })
-              .catch(() => {
-                console.log("onSignUp fail");
-                actions.setSubmitting(false);
-              });
+
+            const res = await this.onSignUp(values.name, values.email, values.password);
+            if (res) {
+              console.log("onSignUp success");
+              actions.setSubmitting(false);
+            } else {
+              console.log("onSignUp fail");
+              actions.setSubmitting(false);
+            }
           }}
         >
           {({
