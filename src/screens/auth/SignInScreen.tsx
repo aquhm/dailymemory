@@ -53,9 +53,7 @@ class SignInScreen extends React.Component<Props> {
   onSignIn = async (email: string, password: string) =>
     await Firebase.Instance.Login(email, password, this.onAuthStateChanged);
 
-  onSignUp = () => {
-    this.props.navigation.navigate("SignUp");
-  };
+  onSignUp = () => this.props.navigation.navigate("SignUp");
 
   render() {
     return (

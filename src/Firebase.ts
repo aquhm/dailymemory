@@ -71,30 +71,18 @@ class Firebase {
     return this.auth.currentUser;
   }
 
-  public signInAnonymously = () => {
-    this._auth?.signInAnonymously().catch((error: any) => {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // ...
-    });
+  get userCollection() {
+    return this.db.collection("users");
+  }
+
+  public signInAnonymously = async () => {
+    try {
+      await this.auth.signInAnonymously();
+    } catch (error) {
+      throw new Error(`Function [${this.signInAnonymously.name}] ${error}`);
+    }
   };
 
-  /*
-  public updateUserData(userID: string, data: any) {
-    // Add each property individually so we don't overwrite any data...
-
-    console.log("updateUserData. userID  = " + userID + " data = " + data)
-    var paths = {}
-    Object.keys(data).forEach((dataKey) => {
-      paths["users/" + userID + "/" + dataKey] = data[dataKey]
-    })
-
-    console.log("updateUserData. paths  = " + paths)
-    // Perform the update...
-    return firebase.database().ref().update(paths)
-  }
-*/
   public setAuthStateChange(callback: any) {
     return this._auth?.onAuthStateChanged(callback);
   }
@@ -112,26 +100,42 @@ class Firebase {
 
       const userCredential = await this._auth?.createUserWithEmailAndPassword(email, password);
 
-      if (userCredential !== undefined) {
-        const userCollection = this.db.collection("users");
-        const userDoc = userCollection.doc(userCredential.user?.uid);
-
-        await userDoc?.set(
-          {
+      if (userCredential != null) {
+        if (userCredential.user != null)
+          await this.writeUserDate(userCredential.user?.uid, {
             name: name,
             email: email,
-          },
-          { merge: true }
-        );
-      }
+          });
 
-      if (emailVerification) {
-        await this.user.sendEmailVerification();
+        if (emailVerification) {
+          this.user.sendEmailVerification();
+        }
+
+        return true;
       }
     } catch (error) {
-      console.log(`Function [SighUp] ${error}`);
+      throw new Error(`Function [${this.SighUp.name}] ${error}`);
     }
+
+    return false;
   };
+
+  public async writeUserDate(userId: string, userData: firebase.firestore.DocumentData) {
+    const userDoc = this.userCollection.doc(userId);
+
+    await userDoc?.set(userData, { merge: true });
+  }
+
+  public async getUserData(userId: string) {
+    try {
+      const user = await this.userCollection.doc(userId).get();
+      if (user.exists) {
+        return user.data();
+      }
+    } catch (error) {
+      throw new Error(`Function [${this.getUserData.name}] ${error}`);
+    }
+  }
 
   public Login = async (email: string, password: string, onAuthStateChange: any, rememberSession: boolean = false) => {
     let ret = false;
@@ -144,11 +148,8 @@ class Firebase {
       await this._auth?.setPersistence(_rememberSession);
 
       ret = (await this._auth?.signInWithEmailAndPassword(email, password)) != null;
-      // return (await this._auth?.signInWithEmailAndPassword(email, password)) != null;
-
-      // ret = true;
     } catch (error) {
-      console.log(`Function [Login] ${error}`);
+      throw new Error(`Function [${this.Login.name}] ${error}`);
     }
 
     return ret;
@@ -163,25 +164,21 @@ class Firebase {
 
   signInWithGithub = () => this._auth?.signInWithPopup(this._githubProvider)
 */
-  public signOut = () => this._auth?.signOut();
-
+  public signOut = () => this.auth.signOut();
   public sendEmailVerification = () => {
-    console.log("sendEmailVerification = " + this._auth?.currentUser);
-    //return this._auth?.currentUser?.sendEmailVerification({
-    //  url: ApiKeys.FirebaseConfig.messagingSenderId,
-    return this.User?.sendEmailVerification();
+    try {
+      this.user.sendEmailVerification();
+    } catch (error) {
+      throw new Error(error);
+    }
   };
 
-  public get User() {
-    if (!this._auth?.currentUser) {
-      throw new Error("this._auth.currentUser is null");
-    }
-
-    return this._auth?.currentUser;
-  }
-
   public passwordUpdate = (password: string) => {
-    this.User?.updatePassword(password);
+    try {
+      this.user.updatePassword(password);
+    } catch (error) {
+      throw new Error(error);
+    }
   };
 
   /*
