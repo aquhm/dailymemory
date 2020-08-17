@@ -17,13 +17,13 @@ class LoginButton extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flext: 1,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     alignContent: "center",
   },
   buttonContainer: {
-    flext: 1,
+    flex: 1,
     marginHorizontal: 20,
     marginBottom: 30,
     alignItems: "center",

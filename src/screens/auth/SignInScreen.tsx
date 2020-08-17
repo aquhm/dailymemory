@@ -1,87 +1,61 @@
-import React, { createRef } from "react"
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Dimensions,
-} from "react-native"
+import React, { createRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions } from "react-native";
 
-import { Formik } from "formik"
-import * as Yup from "yup"
+import { Formik } from "formik";
+import * as Yup from "yup";
 
-import { AuthStackNavigationProps } from "../../routes/AuthStack"
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
+import { AuthStackNavigationProps } from "../../routes/AuthStack";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import Firebase from "../../Firebase"
-import * as _ from "lodash"
+import Firebase from "../../Firebase";
+import * as _ from "lodash";
 
-import { AuthHeader } from "../../components/Header"
-import Theme from "../../constants/Styles"
+import { AuthHeader } from "../../components/Header";
+import Theme from "../../constants/Styles";
 
-import LoginTextInput from "../../components/Form/TextInput"
+import LoginTextInput from "../../components/Form/TextInput";
 
-const { width } = Dimensions.get("window")
+const { width } = Dimensions.get("window");
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
-  password: Yup.string()
-    .min(8, "Too Short!")
-    .max(16, "Too Long!")
-    .required("Required"),
-})
+  password: Yup.string().min(8, "Too Short!").max(16, "Too Long!").required("Required"),
+});
 
 interface Props {
-  navigation: AuthStackNavigationProps<"SignIn">
+  navigation: AuthStackNavigationProps<"SignIn">;
 }
 
 class SignInScreen extends React.Component<Props> {
-  passwordRef = createRef<typeof LoginTextInput>()
+  passwordRef = createRef<typeof LoginTextInput>();
 
   constructor(props: Props) {
-    super(props)
-    console.log("SignInScreen")
+    super(props);
+    console.log("SignInScreen");
   }
   onAuthStateChanged = (user: any) => {
-    console.log("onAuthStateChanged user = " + JSON.stringify(user))
+    console.log("onAuthStateChanged user = " + JSON.stringify(user));
 
     if (user !== null) {
-      console.log(
-        "SignInScreen create user succeed user = " + JSON.stringify(user)
-      )
+      console.log("SignInScreen create user succeed user = " + JSON.stringify(user));
 
-      const { emailVerified } = user
+      const { emailVerified } = user;
 
       if (emailVerified == false) {
-        Alert.alert("Please verify your email.")
+        Alert.alert("Please verify your email.");
       } else {
-        this.props.navigation.navigate("MainStack")
+        this.props.navigation.navigate("MainStack");
       }
     } else {
     }
-  }
+  };
 
-  onSignIn = async (email: string, password: string) => {
-    const result = await Firebase.Instance.Login(
-      email,
-      password,
-      this.onAuthStateChanged
-    )
-      ?.then(() => {
-        return true
-      })
-      .catch((error) => {
-        Alert.alert("SignIn Fail " + error)
-        return false
-      })
-
-    return result
-  }
+  onSignIn = async (email: string, password: string) =>
+    await Firebase.Instance.Login(email, password, this.onAuthStateChanged);
 
   onSignUp = () => {
-    this.props.navigation.navigate("SignUp")
-  }
+    this.props.navigation.navigate("SignUp");
+  };
 
   render() {
     return (
@@ -89,7 +63,7 @@ class SignInScreen extends React.Component<Props> {
         <AuthHeader
           title="Sign In"
           backAction={() => {
-            this.props.navigation.goBack()
+            this.props.navigation.goBack();
           }}
         />
 
@@ -97,17 +71,20 @@ class SignInScreen extends React.Component<Props> {
           validationSchema={SignInSchema}
           initialValues={{ email: "", password: "" }}
           isInitialValid={false}
-          onSubmit={(values, actions) => {
-            actions.setSubmitting(true)
-            this.onSignIn(values.email, values.password)
-              .then(() => {
-                console.log("onSignIn success")
-                actions.setSubmitting(false)
-              })
-              .catch(() => {
-                console.log("onSignIn fail")
-                actions.setSubmitting(false)
-              })
+          onSubmit={async (
+            values: { email: string; password: string },
+            actions: { setSubmitting: (arg0: boolean) => void }
+          ) => {
+            actions.setSubmitting(true);
+
+            const res = await this.onSignIn(values.email, values.password);
+            if (res) {
+              console.log("onSignIn success");
+              actions.setSubmitting(false);
+            } else {
+              console.log("onSignIn fail");
+              actions.setSubmitting(false);
+            }
           }}
         >
           {({
@@ -163,17 +140,12 @@ class SignInScreen extends React.Component<Props> {
                   />
                 </View>
                 <TouchableOpacity
-                  style={[
-                    { marginTop: 32 },
-                    isValid ? styles.button : styles.disabledButton,
-                  ]}
+                  style={[{ marginTop: 32 }, isValid ? styles.button : styles.disabledButton]}
                   onPress={handleSubmit}
                   disabled={isSubmitting || !isValid}
                   //</View>disabled={this.state.disabled}
                 >
-                  <Text style={{ color: "#ffffff", fontWeight: "400" }}>
-                    Sign In
-                  </Text>
+                  <Text style={{ color: "#ffffff", fontWeight: "400" }}>Sign In</Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
@@ -207,7 +179,7 @@ class SignInScreen extends React.Component<Props> {
           )}
         </Formik>
       </>
-    )
+    );
   }
 }
 
@@ -260,6 +232,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default SignInScreen
+export default SignInScreen;

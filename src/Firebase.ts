@@ -1,78 +1,84 @@
-//import * as firebase from "firebase"
-//import firebase from "firebase/app"
-import * as firebase from "firebase/app"
-import "firebase/auth"
-import "firebase/database"
-//import firebase from 'firebase/app';
-//import 'firebase/auth';
-//
-import ApiKeys from "./constants/ApiKeys"
+import * as firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/database";
+import "firebase/firestore";
+
+import ApiKeys from "./constants/ApiKeys";
 
 class Firebase {
   //private firebase.auth.AuthProvider _googleProvider;
 
-  private _app?: firebase.app.App
-  private _auth?: firebase.auth.Auth
-  private _db?: firebase.database.Database
-  static _firebase?: Firebase
+  private _app?: firebase.app.App;
+  private _auth?: firebase.auth.Auth;
+  private _db?: firebase.firestore.Firestore;
+  static _firebase?: Firebase;
 
   static get Instance() {
     if (!this._firebase) {
-      this._firebase = new Firebase()
-      return this._firebase
+      this._firebase = new Firebase();
+      return this._firebase;
     } else {
-      return this._firebase
+      return this._firebase;
     }
   }
 
   private constructor() {
-    this.init()
+    this.init();
   }
 
   init = () => {
-    console.log("Firebase app length = ", firebase.apps.length)
+    console.log("Firebase app length = ", firebase.apps.length);
 
     try {
       if (firebase.apps.length == 0) {
-        this._app = firebase.initializeApp(ApiKeys.FirebaseConfig)
+        this._app = firebase.initializeApp(ApiKeys.FirebaseConfig);
       }
     } catch (err) {
       // we skip the "already exists" message which is
       // not an actual error when we're hot-reloading
-      console.error("Firebase initialization error : ", err.stack)
+      console.error("Firebase initialization error : ", err.stack);
     }
 
-    this._auth = firebase.auth()
-    this._db = firebase.database()
+    this._auth = firebase.auth();
+    this._db = firebase.firestore();
     //this._googleProvider = new firebase.auth.GoogleAuthProvider()
     //this._facebookProvider = new firebase.auth.FacebookAuthProvider()
 
-    console.log("Firebase Initialized")
-  }
+    console.log("Firebase Initialized");
+  };
 
   get db() {
-    return this._db
+    if (!this.db) {
+      throw new Error("db is null");
+    }
+
+    return <firebase.firestore.Firestore>this._db;
   }
 
   get auth() {
-    return this._auth
+    if (!this._auth) {
+      throw new Error("auth is null");
+    }
+
+    return this._auth;
   }
 
-  public getRef(path?: string): firebase.database.Reference {
-    if (!this._db) {
-      throw new Error("db is null")
+  get user() {
+    if (!this.auth.currentUser) {
+      throw new Error("auth.currentUser is null");
     }
-    return this._db.ref(path)
+
+    return this.auth.currentUser;
   }
 
   public signInAnonymously = () => {
     this._auth?.signInAnonymously().catch((error: any) => {
       // Handle Errors here.
-      var errorCode = error.code
-      var errorMessage = error.message
+      var errorCode = error.code;
+      var errorMessage = error.message;
       // ...
-    })
-  }
+    });
+  };
 
   /*
   public updateUserData(userID: string, data: any) {
@@ -90,45 +96,7 @@ class Firebase {
   }
 */
   public setAuthStateChange(callback: any) {
-    return this._auth?.onAuthStateChanged(callback)
-  }
-
-  public createUserWithEmailAndPassword = (
-    email: string,
-    password: string,
-    name: string,
-    emailVerification: boolean
-  ) => {
-    console.log(
-      "createUserWithEmailAndPassword email = " +
-        email +
-        " password = " +
-        password +
-        " emailVerification = " +
-        emailVerification +
-        " name = " +
-        name.trim()
-    )
-
-    return this._auth
-      ?.createUserWithEmailAndPassword(email, password)
-      .then((userCredential: firebase.auth.UserCredential) => {
-        console.log("userCredential  = " + userCredential)
-
-        var promise = userCredential?.user?.updateProfile({
-          displayName: name.trim(),
-        })
-
-        //var promise = updateUserData(user.uid, { email: email })
-
-        if (!emailVerification) {
-          return promise
-        } else {
-          return promise?.then(() => {
-            return userCredential?.user?.sendEmailVerification()
-          })
-        }
-      })
+    return this._auth?.onAuthStateChanged(callback);
   }
 
   public SighUp = async (
@@ -140,53 +108,51 @@ class Firebase {
     emailVerification: boolean = false
   ) => {
     try {
-      const _rememberSession: string = rememberSession
-        ? firebase.auth.Auth.Persistence.LOCAL
-        : firebase.auth.Auth.Persistence.SESSION
+      this.setAuthStateChange(onAuthStateChange);
 
-      this.setAuthStateChange(onAuthStateChange)
-      await this._auth?.setPersistence(_rememberSession)
+      const userCredential = await this._auth?.createUserWithEmailAndPassword(email, password);
 
-      return this._auth
-        ?.createUserWithEmailAndPassword(email, password)
-        .then((userCredential: firebase.auth.UserCredential) => {
-          console.log("userCredential  = " + userCredential)
+      if (userCredential !== undefined) {
+        const userCollection = this.db.collection("users");
+        const userDoc = userCollection.doc(userCredential.user?.uid);
 
-          var promise = userCredential?.user?.updateProfile({
-            displayName: name.trim(),
-          })
+        await userDoc?.set(
+          {
+            name: name,
+            email: email,
+          },
+          { merge: true }
+        );
+      }
 
-          if (!emailVerification) {
-            return promise
-          } else {
-            return promise?.then(() => {
-              return userCredential?.user?.sendEmailVerification()
-            })
-          }
-        })
+      if (emailVerification) {
+        await this.user.sendEmailVerification();
+      }
     } catch (error) {
-      console.log(error)
+      console.log(`Function [SighUp] ${error}`);
     }
-  }
+  };
 
-  public Login = async (
-    email: string,
-    password: string,
-    onAuthStateChange: any,
-    rememberSession: boolean = true
-  ) => {
+  public Login = async (email: string, password: string, onAuthStateChange: any, rememberSession: boolean = false) => {
+    let ret = false;
     try {
       const _rememberSession: string = rememberSession
         ? firebase.auth.Auth.Persistence.LOCAL
-        : firebase.auth.Auth.Persistence.SESSION
+        : firebase.auth.Auth.Persistence.SESSION;
 
-      this.setAuthStateChange(onAuthStateChange)
-      await this._auth?.setPersistence(_rememberSession)
-      return this._auth?.signInWithEmailAndPassword(email, password)
+      this.setAuthStateChange(onAuthStateChange);
+      await this._auth?.setPersistence(_rememberSession);
+
+      ret = (await this._auth?.signInWithEmailAndPassword(email, password)) != null;
+      // return (await this._auth?.signInWithEmailAndPassword(email, password)) != null;
+
+      // ret = true;
     } catch (error) {
-      console.log(error)
+      console.log(`Function [Login] ${error}`);
     }
-  }
+
+    return ret;
+  };
 
   /*
   signInWithGoogle = () => this._auth?.signInWithPopup(this._googleProvider)
@@ -197,26 +163,26 @@ class Firebase {
 
   signInWithGithub = () => this._auth?.signInWithPopup(this._githubProvider)
 */
-  public signOut = () => this._auth?.signOut()
+  public signOut = () => this._auth?.signOut();
 
   public sendEmailVerification = () => {
-    console.log("sendEmailVerification = " + this._auth?.currentUser)
+    console.log("sendEmailVerification = " + this._auth?.currentUser);
     //return this._auth?.currentUser?.sendEmailVerification({
     //  url: ApiKeys.FirebaseConfig.messagingSenderId,
-    return this.User?.sendEmailVerification()
-  }
+    return this.User?.sendEmailVerification();
+  };
 
   public get User() {
     if (!this._auth?.currentUser) {
-      throw new Error("this._auth.currentUser is null")
+      throw new Error("this._auth.currentUser is null");
     }
 
-    return this._auth?.currentUser
+    return this._auth?.currentUser;
   }
 
   public passwordUpdate = (password: string) => {
-    this.User?.updatePassword(password)
-  }
+    this.User?.updatePassword(password);
+  };
 
   /*
   on = callback =>
@@ -234,4 +200,4 @@ class Firebase {
 
 //let _firebase = new Firebase()
 
-export default Firebase
+export default Firebase;

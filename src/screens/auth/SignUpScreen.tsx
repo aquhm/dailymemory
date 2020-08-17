@@ -1,60 +1,46 @@
-import React, { createRef } from "react"
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput as RNTextInput,
-  TouchableOpacity,
-  Alert,
-  Dimensions,
-} from "react-native"
+import React, { createRef } from "react";
+import { View, Text, StyleSheet, TextInput as RNTextInput, TouchableOpacity, Alert, Dimensions } from "react-native";
 
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import { Formik } from "formik"
-import * as Yup from "yup"
+import { Formik } from "formik";
+import * as Yup from "yup";
 
-import Firebase from "../../Firebase"
-import { AuthHeader } from "../../components/Header"
-import Theme from "../../constants/Styles"
+import Firebase from "../../Firebase";
+import { AuthHeader } from "../../components/Header";
+import Theme from "../../constants/Styles";
 
-import * as _ from "lodash"
+import * as _ from "lodash";
 
-import { AuthStackNavigationProps } from "../../routes/AuthStack"
+import { AuthStackNavigationProps } from "../../routes/AuthStack";
 
-import LoginTextInput from "../../components/Form/TextInput"
+import LoginTextInput from "../../components/Form/TextInput";
 
-const { width } = Dimensions.get("window")
+const { width } = Dimensions.get("window");
 
 const SignUpSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(5, "Too Short!")
-    .max(16, "Too Long!")
-    .required("Required"),
+  name: Yup.string().min(5, "Too Short!").max(16, "Too Long!").required("Required"),
 
   email: Yup.string().email("Invalid email").required("Required"),
 
-  password: Yup.string()
-    .min(8, "Too Short!")
-    .max(16, "Too Long!")
-    .required("Required"),
+  password: Yup.string().min(8, "Too Short!").max(16, "Too Long!").required("Required"),
 
   confirmPassword: Yup.string()
     .equals([Yup.ref("password")], "password don't match")
     .required("Required"),
-})
+});
 
 interface Props {
-  navigation: AuthStackNavigationProps<"SignUp">
+  navigation: AuthStackNavigationProps<"SignUp">;
 }
 
 type State = {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
-  trySignUp: boolean
-}
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  trySignUp: boolean;
+};
 
 class SignUpScreen extends React.Component<Props, State> {
   state: State = {
@@ -63,62 +49,59 @@ class SignUpScreen extends React.Component<Props, State> {
     password: "",
     confirmPassword: "",
     trySignUp: false,
-  }
+  };
 
-  passwordRef = createRef<typeof LoginTextInput>()
-  confirmPasswordRef = createRef<typeof LoginTextInput>()
-  emailRef = createRef<typeof LoginTextInput>()
+  passwordRef = createRef<typeof LoginTextInput>();
+  confirmPasswordRef = createRef<typeof LoginTextInput>();
+  emailRef = createRef<typeof LoginTextInput>();
 
   constructor(props: Props) {
-    super(props)
+    super(props);
 
-    console.log("SignUpScreen")
+    console.log("SignUpScreen");
   }
 
   onAuthStateChanged = (user: any) => {
-    console.log("onAuthStateChanged user = " + JSON.stringify(user))
+    console.log("onAuthStateChanged user = " + JSON.stringify(user));
 
     if (user !== null) {
-      console.log(
-        "SignInScreen create user succeed user = " + JSON.stringify(user)
-      )
+      console.log("SignUpScreen create user succeed user = " + JSON.stringify(user));
 
-      const { emailVerified } = user
+      Alert.alert("create user success.");
 
-      if (emailVerified == false) {
-        Alert.alert("Please verify your email.")
-      } else {
-        this.props.navigation.navigate("MainStack")
-      }
+      //const { emailVerified } = user
+
+      //if (emailVerified == false) {
+      //        Alert.alert("Please verify your email.")
+      //      } else {
+      //        Alert.alert("Please verify your email.")
+      //this.props.navigation.navigate("MainStack")
+      //      }
     } else {
+      Alert.alert("create user fail.");
     }
-  }
+  };
 
   onSignUp = async (name: string, email: string, password: string) => {
-    const result = await Firebase.Instance.SighUp(
-      name,
-      email,
-      password,
-      this.onAuthStateChanged
-    )
+    const result = await Firebase.Instance.SighUp(name, email, password, this.onAuthStateChanged)
       ?.then(() => {
-        return true
+        return true;
       })
       .catch((error) => {
-        Alert.alert("SignIn Fail " + error)
-        return false
-      })
-    return result
-  }
+        Alert.alert("SignIn Fail " + error);
+        return false;
+      });
+    return result;
+  };
 
   render() {
-    const { navigation } = this.props
+    const { navigation } = this.props;
     return (
       <>
         <AuthHeader
           title="Sign Up"
           backAction={() => {
-            navigation.goBack()
+            navigation.goBack();
           }}
         />
         <Formik
@@ -130,17 +113,17 @@ class SignUpScreen extends React.Component<Props, State> {
             confirmPassword: "",
           }}
           isInitialValid={false}
-          onSubmit={(values, actions) => {
-            actions.setSubmitting(true)
-            this.onSignUp(values.name, values.email, values.password)
+          onSubmit={async (values, actions) => {
+            actions.setSubmitting(true);
+            await this.onSignUp(values.name, values.email, values.password)
               .then(() => {
-                console.log("onSignUp success")
-                actions.setSubmitting(false)
+                console.log("onSignUp success");
+                actions.setSubmitting(false);
               })
               .catch(() => {
-                console.log("onSignUp fail")
-                actions.setSubmitting(false)
-              })
+                console.log("onSignUp fail");
+                actions.setSubmitting(false);
+              });
           }}
         >
           {({
@@ -172,6 +155,7 @@ class SignUpScreen extends React.Component<Props, State> {
                     returnKeyType="done"
                     returnKeyLabel="done"
                     onSubmitEditing={() => this.emailRef.current?.focus()}
+                    defaultValue="kim"
                   />
                 </View>
 
@@ -180,8 +164,8 @@ class SignUpScreen extends React.Component<Props, State> {
                     ref={this.emailRef}
                     title="Email"
                     icon="mail"
-                    touched={touched.name}
-                    error={errors.name}
+                    touched={touched.email}
+                    error={errors.email}
                     placeholder="Enter your Email"
                     placeholderTextColor={Theme.COLOR.INPUT}
                     onChangeText={handleChange("email")}
@@ -192,6 +176,7 @@ class SignUpScreen extends React.Component<Props, State> {
                     returnKeyType="done"
                     returnKeyLabel="done"
                     onSubmitEditing={() => this.passwordRef.current?.focus()}
+                    defaultValue="abc@naver.com"
                   />
                 </View>
 
@@ -212,9 +197,8 @@ class SignUpScreen extends React.Component<Props, State> {
                     autoCompleteType="password"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={() =>
-                      this.confirmPasswordRef.current?.focus()
-                    }
+                    onSubmitEditing={() => this.confirmPasswordRef.current?.focus()}
+                    defaultValue="11111111"
                   />
                 </View>
 
@@ -236,27 +220,23 @@ class SignUpScreen extends React.Component<Props, State> {
                     returnKeyType="done"
                     returnKeyLabel="done"
                     onSubmitEditing={() => handleSubmit()}
+                    defaultValue="11111111"
                   />
                 </View>
 
                 <TouchableOpacity
-                  style={[
-                    { marginTop: 32 },
-                    isValid ? styles.button : styles.disabledButton,
-                  ]}
+                  style={[{ marginTop: 32 }, isValid ? styles.button : styles.disabledButton]}
                   disabled={isSubmitting || !isValid}
                   onPress={handleSubmit}
                 >
-                  <Text style={{ color: "#ffffff", fontWeight: "400" }}>
-                    Sign Up
-                  </Text>
+                  <Text style={{ color: "#ffffff", fontWeight: "400" }}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
         </Formik>
       </>
-    )
+    );
   }
 }
 
@@ -305,6 +285,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default SignUpScreen
+export default SignUpScreen;

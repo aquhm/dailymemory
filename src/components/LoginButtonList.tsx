@@ -11,7 +11,7 @@ class LoginButtonList extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flext: 1,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     alignContent: "center",    
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     marginVertical: 12
   },
   buttonContainer: {
-    flext: 1,
+    flex: 1,
     marginHorizontal: 20,
     marginBottom: 30,
     alignItems: "center",
