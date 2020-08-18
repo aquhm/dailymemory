@@ -16,6 +16,8 @@ import { AuthStackNavigationProps } from "../../routes/AuthStack";
 
 import LoginTextInput from "../../components/Form/TextInput";
 
+import RootStore from "../../stores/RootStore";
+
 const { width } = Dimensions.get("window");
 
 const SignUpSchema = Yup.object().shape({
@@ -32,6 +34,7 @@ const SignUpSchema = Yup.object().shape({
 
 interface Props {
   navigation: AuthStackNavigationProps<"SignUp">;
+  //authStore?: AuthStore;
 }
 
 type State = {
@@ -54,36 +57,29 @@ class SignUpScreen extends React.Component<Props, State> {
   passwordRef = createRef<typeof LoginTextInput>();
   confirmPasswordRef = createRef<typeof LoginTextInput>();
   emailRef = createRef<typeof LoginTextInput>();
+  _unsubscribe!: firebase.Unsubscribe;
+  //_unsubscribe!: firebase.Unsubscribe;
 
   constructor(props: Props) {
     super(props);
 
     console.log("SignUpScreen");
   }
+  componentWillMount() {
+    this._unsubscribe = Firebase.Instance.setAuthStateChange((user: any): void => {
+      if (user) {
+        this.props.navigation.navigate("MainStack");
+      } else {
+      }
+    });
+  }
 
-  onAuthStateChanged = (user: any) => {
-    console.log("onAuthStateChanged user = " + JSON.stringify(user));
-
-    if (user !== null) {
-      console.log("SignUpScreen create user succeed user = " + JSON.stringify(user));
-
-      Alert.alert("create user success.");
-
-      //const { emailVerified } = user
-
-      //if (emailVerified == false) {
-      //        Alert.alert("Please verify your email.")
-      //      } else {
-      //        Alert.alert("Please verify your email.")
-      //this.props.navigation.navigate("MainStack")
-      //      }
-    } else {
-      Alert.alert("create user fail.");
-    }
-  };
+  componentWillUnmount() {
+    this._unsubscribe();
+  }
 
   onSignUp = async (name: string, email: string, password: string) =>
-    await Firebase.Instance.SighUp(name, email, password, this.onAuthStateChanged);
+    await RootStore.Instance.AuthStore.SignUp(name, email, password);
 
   render() {
     const { navigation } = this.props;

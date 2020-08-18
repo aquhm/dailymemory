@@ -27,8 +27,6 @@ class Firebase {
   }
 
   init = () => {
-    console.log("Firebase app length = ", firebase.apps.length);
-
     try {
       if (firebase.apps.length == 0) {
         this._app = firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -84,29 +82,29 @@ class Firebase {
   };
 
   public setAuthStateChange(callback: any) {
-    return this._auth?.onAuthStateChanged(callback);
+    return this.auth.onAuthStateChanged(callback);
   }
 
-  public SighUp = async (
+  public signUp = async (
     name: string,
     email: string,
     password: string,
-    onAuthStateChange: any,
     rememberSession: boolean = true,
     emailVerification: boolean = false
   ) => {
     try {
-      this.setAuthStateChange(onAuthStateChange);
-
       const userCredential = await this._auth?.createUserWithEmailAndPassword(email, password);
 
       if (userCredential != null) {
-        if (userCredential.user != null)
-          await this.writeUserDate(userCredential.user?.uid, {
+        if (userCredential.user != null) {
+          console.log("signUp writeUserDate serCredential.user.uid = " + userCredential.user.uid);
+          await this.writeUserDate(userCredential.user.uid, {
             name: name,
             email: email,
           });
+        }
 
+        console.log("signUp writeUserDate ");
         if (emailVerification) {
           this.user.sendEmailVerification();
         }
@@ -114,15 +112,18 @@ class Firebase {
         return true;
       }
     } catch (error) {
-      throw new Error(`Function [${this.SighUp.name}] ${error}`);
+      throw new Error(`Function [${this.signUp.name}] ${error}`);
     }
 
     return false;
   };
 
-  public async writeUserDate(userId: string, userData: firebase.firestore.DocumentData) {
+  public async writeUserDate(userId: string, userData: any) {
+    console.log("writeUserDate  this.userCollection = " + this.userCollection);
+
     const userDoc = this.userCollection.doc(userId);
 
+    console.log("writeUserDate userDoc = " + userDoc);
     await userDoc?.set(userData, { merge: true });
   }
 
@@ -137,19 +138,21 @@ class Firebase {
     }
   }
 
-  public Login = async (email: string, password: string, onAuthStateChange: any, rememberSession: boolean = false) => {
+  public login = async (email: string, password: string, rememberSession: boolean = false) => {
     let ret = false;
     try {
+      /*
       const _rememberSession: string = rememberSession
         ? firebase.auth.Auth.Persistence.LOCAL
         : firebase.auth.Auth.Persistence.SESSION;
+        
 
-      this.setAuthStateChange(onAuthStateChange);
       await this._auth?.setPersistence(_rememberSession);
+      */
 
       ret = (await this._auth?.signInWithEmailAndPassword(email, password)) != null;
     } catch (error) {
-      throw new Error(`Function [${this.Login.name}] ${error}`);
+      throw new Error(`Function [${this.login.name}] ${error}`);
     }
 
     return ret;

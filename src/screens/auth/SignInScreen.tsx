@@ -15,6 +15,8 @@ import Theme from "../../constants/Styles";
 
 import LoginTextInput from "../../components/Form/TextInput";
 
+import RootStore from "../../stores/RootStore";
+
 const { width } = Dimensions.get("window");
 
 const SignInSchema = Yup.object().shape({
@@ -25,33 +27,28 @@ const SignInSchema = Yup.object().shape({
 interface Props {
   navigation: AuthStackNavigationProps<"SignIn">;
 }
-
 class SignInScreen extends React.Component<Props> {
   passwordRef = createRef<typeof LoginTextInput>();
-
+  _unsubscribe!: firebase.Unsubscribe;
   constructor(props: Props) {
     super(props);
     console.log("SignInScreen");
   }
-  onAuthStateChanged = (user: any) => {
-    console.log("onAuthStateChanged user = " + JSON.stringify(user));
 
-    if (user !== null) {
-      console.log("SignInScreen create user succeed user = " + JSON.stringify(user));
-
-      const { emailVerified } = user;
-
-      if (emailVerified == false) {
-        Alert.alert("Please verify your email.");
-      } else {
+  componentWillMount() {
+    this._unsubscribe = Firebase.Instance.setAuthStateChange((user: any): void => {
+      if (user) {
         this.props.navigation.navigate("MainStack");
+      } else {
       }
-    } else {
-    }
-  };
+    });
+  }
 
-  onSignIn = async (email: string, password: string) =>
-    await Firebase.Instance.Login(email, password, this.onAuthStateChanged);
+  componentWillUnmount() {
+    this._unsubscribe();
+  }
+
+  onSignIn = async (email: string, password: string) => await RootStore.Instance.AuthStore.Login(email, password);
 
   onSignUp = () => this.props.navigation.navigate("SignUp");
 
@@ -76,6 +73,7 @@ class SignInScreen extends React.Component<Props> {
             actions.setSubmitting(true);
 
             const res = await this.onSignIn(values.email, values.password);
+
             if (res) {
               console.log("onSignIn success");
               actions.setSubmitting(false);
@@ -130,11 +128,10 @@ class SignInScreen extends React.Component<Props> {
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}
                     value={values.password}
-                    autoCapitalize="none"
                     autoCompleteType="password"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={() => handleSubmit()}
+                    onSubmitEditing={handleSubmit}
                   />
                 </View>
                 <TouchableOpacity

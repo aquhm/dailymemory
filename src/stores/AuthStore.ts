@@ -1,91 +1,47 @@
-import { action, observable } from "mobx"
-import { isNull, isString } from "lodash"
-import Firebase from "../Firebase"
-import RootStore from "./RootStore"
+import { action, observable, computed } from "mobx";
+import Firebase from "../Firebase";
+import RootStore from "./RootStore";
 
 class AuthStore {
-  @observable private _user?: firebase.User
-  @observable private _authentivation: boolean = false
+  @observable private _user?: firebase.User;
 
   constructor(private _rootStore: RootStore) {
-    console.log("AuthStore")
-    Firebase.Instance.setAuthStateChange(this.onAuthStateChanged)
-    //Firebase.auth.onAuthStateChanged(this.onAuthStateChanged)
-    //this.observeAuth()
-  }
+    console.log("AuthStore");
 
-  //observeAuth = () => {
-  //  Fire.auth.onAuthStateChanged(this.onAuthStateChanged)
-  //}
-
-  setAuthentivation = (authentivation: boolean) => {
-    console.log("setAuthentivation " + authentivation)
-    this._authentivation = authentivation
-  }
-
-  setUser = (user: firebase.User) => {
-    this._user = user
+    Firebase.Instance.setAuthStateChange(this.onAuthStateChanged);
   }
 
   @action
-  onAuthStateChanged = (user: firebase.User) => {
-    if (!user) {
-      try {
-        console.log("onAuthStateChanged user is null")
-      } catch ({ message }) {
-        alert(message)
-      }
-    } else {
-      console.log("onAuthStateChanged user = " + JSON.stringify(user))
-      this.setUser(user)
-      this.setAuthentivation(true)
+  private SetUser(user: firebase.User) {
+    console.log("AuthStore SetUser " + user);
+    this._user = user;
+  }
+
+  public GetUser(): firebase.User {
+    if (!this._user) {
+      throw new Error(`${AuthStore.name}  user is null`);
     }
+
+    return this._user;
   }
 
-  @action
-  signIn = (email: string, password: string) => {
-    if (this._user) {
-      return Promise.resolve(this._user)
+  private onAuthStateChanged = (user: firebase.User): void => {
+    if (user != null) {
+      this.SetUser(user);
     }
-    const userCredential = Firebase.Instance.Login(email, password)
+  };
 
-    return userCredential
+  @computed
+  get isAuthenticated(): boolean {
+    return this._user !== null ? true : false;
   }
 
-  @action
-  signUp = (email: string, password: string) => {
-    console.log("AuthStore signUp")
+  public Login = async (email: string, password: string) => await Firebase.Instance.login(email, password);
 
-    return Firebase.Instance.auth?.createUserWithEmailAndPassword(
-      email,
-      password
-    )
-  }
+  public SignUp = async (name: string, email: string, password: string) =>
+    await Firebase.Instance.signUp(name, email, password);
 
-  @action
-  signUpWithName = (email: string, password: string, name: string) => {
-    console.log("AuthStore signUpWithName")
-
-    var signup = this.signUp(email, password)?.then(
-      (userCredential: firebase.auth.UserCredential) => {
-        userCredential.user?.updateProfile({
-          displayName: name,
-        })
-      }
-    )
-
-    return signup
-  }
-
-  @action
-  signOut = () => {
-    return Firebase.Instance.auth?.signOut()
-  }
-
-  @action
-  public forgotPassword = (email: string) => {
-    return Firebase.Instance.auth?.sendPasswordResetEmail(email)
-  }
+  public signOut = () => Firebase.Instance.auth.signOut();
 }
 
-export default AuthStore
+export default AuthStore;
