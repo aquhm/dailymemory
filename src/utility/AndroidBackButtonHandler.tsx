@@ -1,5 +1,4 @@
 import { ToastAndroid, Alert, BackHandler, NativeEventSubscription } from "react-native";
-import Firebase from "../Firebase";
 import * as common from "./common";
 import RootStore from "../stores/RootStore";
 
@@ -28,14 +27,12 @@ class AndroidBackButtonHandler {
     common.getFunctionCallerName();
 
     this._backAction = () => {
-      console.log("AndroidBackButtonHandler handleAndroidBackButton _backAction ");
-
       callBack();
       return true;
     };
 
     this._latestBackHandler = BackHandler.addEventListener("hardwareBackPress", this._backAction);
-    console.log("AndroidBackButtonHandler this._latestBackHandler = " + this._latestBackHandler);
+
     return this._latestBackHandler;
   };
 
@@ -54,7 +51,6 @@ class AndroidBackButtonHandler {
 
   exitSecondTimeAlert = () => {
     if (!this._exitApp) {
-      console.log("this.exitApp = " + this._exitApp);
       ToastAndroid.show("한번 더 누르시면 종료됩니다.", ToastAndroid.SHORT);
       this._exitApp = true;
 
@@ -70,9 +66,11 @@ class AndroidBackButtonHandler {
       }
 
       ToastAndroid.show("", 0);
-      Firebase.Instance.signOut();
 
-      BackHandler.exitApp(); // 앱 종료
+      RootStore.Instance.AuthStore.signOut().then(() => {
+        BackHandler.exitApp(); // 앱 종료
+        console.log("AndroidBackButtonHandler signOut success");
+      });
     }
   };
 
@@ -82,8 +80,10 @@ class AndroidBackButtonHandler {
       {
         text: "OK",
         onPress: () => {
-          RootStore.Instance.AuthStore.signOut();
-          BackHandler.exitApp();
+          RootStore.Instance.AuthStore.signOut().then(() => {
+            BackHandler.exitApp(); // 앱 종료
+            console.log("AndroidBackButtonHandler signOut success");
+          });
         },
       },
     ]);
