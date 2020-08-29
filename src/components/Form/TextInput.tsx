@@ -1,40 +1,34 @@
-import React, { forwardRef, RefObject } from "react"
-import { TextInput as RNTextInput, View, Text, StyleSheet } from "react-native"
-import { Feather as Icon } from "@expo/vector-icons"
-import Style from "../../constants/Styles"
-import * as _ from "lodash"
+import React, { forwardRef } from "react";
+import { TextInput, View, Text, StyleSheet } from "react-native";
+import { Feather as Icon } from "@expo/vector-icons";
+import Style from "../../constants/Styles";
+import RoundedIcon from "../RoundedIcon";
+import * as _ from "lodash";
 
-const ICON_SIZE = 18
+const ICON_SIZE = 18;
 
-interface TextInputProps {
-  title: string
-  icon: string
-  touched?: boolean
-  error?: string
-  value?: string
+interface FormTextInputProps {
+  title: string;
+  icon: string;
+  touched?: boolean;
+  error?: string;
+  value?: string;
 }
 
-const TextInput = forwardRef(
-  ({ title, icon, touched, error, value, ...props }: TextInputProps, ref) => {
-    const empty = _.isEmpty(value)
+const FormTextInput = forwardRef(
+  ({ title, icon, touched, error, value, ...props }: FormTextInputProps, ref?: React.Ref<any>) => {
+    const empty = _.isEmpty(value);
 
-    const color: string =
-      !touched || empty
-        ? Style.COLOR.PLACEHOLDER
-        : !error
-        ? Style.COLOR.ACTIVE
-        : Style.COLOR.ERROR
+    const color: string = !touched || empty ? Style.COLOR.PLACEHOLDER : !error ? Style.COLOR.ACTIVE : Style.COLOR.ERROR;
 
     const validCheckIcon = touched && !empty && (
-      <View
-        style={[
-          styles.icon,
-          { backgroundColor: !error ? Style.COLOR.ACTIVE : Style.COLOR.ERROR },
-        ]}
-      >
-        <Icon name={!error ? "check" : "x"} color="white" size={16} />
-      </View>
-    )
+      <RoundedIcon
+        name={!error ? "check" : "x"}
+        size={ICON_SIZE}
+        color="white"
+        backgroundColor={!error ? Style.COLOR.ACTIVE : Style.COLOR.ERROR}
+      />
+    );
     return (
       <View>
         <Text style={styles.inputTitle}>{title}</Text>
@@ -43,7 +37,8 @@ const TextInput = forwardRef(
             <Icon name={icon} {...{ color }} size={16} />
           </View>
           <View style={styles.subInputContainer}>
-            <RNTextInput
+            ``
+            <TextInput
               underlineColorAndroid="transparent"
               placeholderTextColor={Style.COLOR.PLACEHOLDER}
               {...{ ref }}
@@ -53,9 +48,9 @@ const TextInput = forwardRef(
           </View>
         </View>
       </View>
-    )
+    );
   }
-)
+);
 
 const styles = StyleSheet.create({
   inputTitle: {
@@ -88,6 +83,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default TextInput
+export default FormTextInput;
