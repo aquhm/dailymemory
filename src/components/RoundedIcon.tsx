@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 
 import { Feather as Icon } from "@expo/vector-icons";
 
-interface RoundedIconProps {
+export interface RoundedIconProps {
   name: string;
   size: number;
   color: string;
