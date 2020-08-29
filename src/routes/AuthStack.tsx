@@ -1,39 +1,32 @@
-import React from "react"
-import {
-  StackNavigationProp,
-  createStackNavigator,
-} from "@react-navigation/stack"
+import React from "react";
+import { StackNavigationProp, createStackNavigator } from "@react-navigation/stack";
 
-import { CompositeNavigationProp } from "@react-navigation/native"
+import { CompositeNavigationProp } from "@react-navigation/native";
 
-import LoginScreen from "../screens/auth/LoginScreen"
-import SignInScreen from "../screens/auth/SignInScreen"
-import SignUpScreen from "../screens/auth/SignUpScreen"
+import LoginScreen from "../screens/auth/LoginScreen";
+import SignInScreen from "../screens/auth/SignInScreen";
+import SignUpScreen from "../screens/auth/SignUpScreen";
 
-import { RootStackNavigationProps } from "./RootStack"
+import { RootStackNavigationProps } from "./RootStack";
 
 type AuthStackParamList = {
-  default: undefined
-  Login: undefined
-  SignIn: undefined
-  SignUp: undefined
-}
+  default: undefined;
+  Login: undefined;
+  SignIn: undefined;
+  SignUp: undefined;
+};
 
-type NavigationProps<
-  T extends keyof AuthStackParamList = "default"
-> = StackNavigationProp<AuthStackParamList, T>
+type AuthNavigationProps<T extends keyof AuthStackParamList = string> = StackNavigationProp<AuthStackParamList, T>;
 
-type AuthStackNavigationProps<
-  T extends keyof AuthStackParamList = "default"
-> = CompositeNavigationProp<
-  NavigationProps<T>,
+type AuthStackNavigationProps<T extends keyof AuthStackParamList = string> = CompositeNavigationProp<
+  AuthNavigationProps<T>,
   RootStackNavigationProps<"AuthStack">
->
+>;
 
 const AuthStack = () => {
-  console.log("AuthStack")
+  console.log("AuthStack");
 
-  const Stack = createStackNavigator<AuthStackParamList>()
+  const Stack = createStackNavigator<AuthStackParamList>();
 
   return (
     <Stack.Navigator initialRouteName="Login" headerMode="none">
@@ -41,7 +34,7 @@ const AuthStack = () => {
       <Stack.Screen name="SignIn" component={SignInScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
     </Stack.Navigator>
-  )
-}
+  );
+};
 
-export { AuthStack, AuthStackParamList, AuthStackNavigationProps }
+export { AuthStack, AuthStackParamList, AuthStackNavigationProps };

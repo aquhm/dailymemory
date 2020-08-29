@@ -1,23 +1,23 @@
-import React from "react"
-import { View, StyleSheet } from "react-native"
-import { Appbar, Title } from "react-native-paper"
-import PropTypes from "prop-types"
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Appbar, Title } from "react-native-paper";
+import PropTypes from "prop-types";
 
-import Theme from "../constants/Styles"
+import Theme from "../constants/Styles";
 
 function Input(props) {
-  const { title, password } = props
+  const { title, password } = props;
 }
 
 Input.defaultProps = {
   title: null,
   backTarget: null,
-}
+};
 
 Input.propTypes = {
   title: PropTypes.string,
   backTarget: PropTypes.string,
-}
+};
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
   title: {
     color: Theme.COLOR.TITLE,
   },
-})
+});
 
-export default Input
+export default Input;
