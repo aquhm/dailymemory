@@ -1,19 +1,19 @@
-import React from "react"
-import { View, Text, StyleSheet } from "react-native"
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-import { MainStackNavigationProps } from "../../routes/MainStack"
+import { HomeNavigationProps } from "../../routes/HomeNavigator";
 
 interface Props {
-  navigation: MainStackNavigationProps<"Profile">
+  navigation: HomeNavigationProps<"Home", "Profile">;
 }
 
 class ProfileScreen extends React.Component<Props> {
   componentDidMount() {
-    console.log(" componentDidMount ProfileScreen")
+    console.log(" componentDidMount ProfileScreen");
   }
 
   componentWillUnmount() {
-    console.log(" componentWillUnmount ProfileScreen")
+    console.log(" componentWillUnmount ProfileScreen");
   }
 
   render() {
@@ -21,7 +21,7 @@ class ProfileScreen extends React.Component<Props> {
       <View>
         <Text>ProfileScreen</Text>
       </View>
-    )
+    );
   }
 }
 
@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default ProfileScreen
+export default ProfileScreen;

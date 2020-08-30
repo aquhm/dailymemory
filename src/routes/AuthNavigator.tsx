@@ -7,7 +7,7 @@ import LoginScreen from "../screens/auth/LoginScreen";
 import SignInScreen from "../screens/auth/SignInScreen";
 import SignUpScreen from "../screens/auth/SignUpScreen";
 
-import { RootStackNavigationProps } from "./RootStack";
+import { RootStackNavigationProps } from "./AppNavigator";
 
 type AuthStackParamList = {
   default: undefined;
@@ -16,14 +16,14 @@ type AuthStackParamList = {
   SignUp: undefined;
 };
 
-type AuthNavigationProps<T extends keyof AuthStackParamList = string> = StackNavigationProp<AuthStackParamList, T>;
+type AuthNavigationProps<T extends keyof AuthStackParamList = "default"> = StackNavigationProp<AuthStackParamList, T>;
 
-type AuthStackNavigationProps<T extends keyof AuthStackParamList = string> = CompositeNavigationProp<
+type AuthStackNavigationProps<T extends keyof AuthStackParamList = "default"> = CompositeNavigationProp<
   AuthNavigationProps<T>,
   RootStackNavigationProps<"AuthStack">
 >;
 
-const AuthStack = () => {
+const AuthNavigator = () => {
   console.log("AuthStack");
 
   const Stack = createStackNavigator<AuthStackParamList>();
@@ -37,4 +37,4 @@ const AuthStack = () => {
   );
 };
 
-export { AuthStack, AuthStackParamList, AuthStackNavigationProps };
+export { AuthNavigator, AuthStackParamList, AuthStackNavigationProps };

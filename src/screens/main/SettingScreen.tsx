@@ -2,19 +2,19 @@ import React from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { MainHeader } from "../../components/Header";
 
-import { HomeNavigationProps } from "../../routes/HomeNavigator";
+import { HomeNavigationDrawProps } from "../../routes/HomeNavigator";
 
 interface Props {
-  navigation: HomeNavigationProps<"Home", "Diary">;
+  navigation: HomeNavigationDrawProps<"Setting">;
 }
 
-class DiaryScreen extends React.Component<Props> {
+class SettingScreen extends React.Component<Props> {
   componentDidMount() {
-    console.log(" componentDidMount DiaryScreen");
+    console.log(" componentDidMount SettingScreen");
   }
 
   componentWillUnmount() {
-    console.log(" componentWillUnmount DiaryScreen");
+    console.log(" componentWillUnmount SettingScreen");
   }
 
   render() {
@@ -22,9 +22,9 @@ class DiaryScreen extends React.Component<Props> {
 
     return (
       <>
-        <MainHeader title="DiaryScreen" menuAction={() => navigation.goBack()} />
+        <MainHeader title="SettingScreen" menuAction={() => navigation.goBack()} />
         <View style={{ flex: 1, backgroundColor: "#25365d" }}>
-          <Text style={{ fontSize: 30, color: "#fff" }}>DiaryScreen</Text>
+          <Text style={{ fontSize: 30, color: "#fff" }}>SettingScreen</Text>
         </View>
       </>
     );
@@ -39,4 +39,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DiaryScreen;
+export default SettingScreen;

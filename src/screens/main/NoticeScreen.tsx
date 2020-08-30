@@ -1,10 +1,10 @@
 import React from "react"
 import { View, Text, StyleSheet } from "react-native"
 
-import { MainStackNavigationProps } from "../../routes/MainStack"
+import { HomeNavigationProps } from "../../routes/HomeNavigator";
 
 interface Props {
-  navigation: MainStackNavigationProps<"Notice">
+  navigation: HomeNavigationProps<"Home", "Notice">;
 }
 
 class NoticeScreen extends React.Component<Props> {

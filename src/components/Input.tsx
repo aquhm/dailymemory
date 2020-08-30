@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: Theme.COLOR.TITLE,
+    color: Theme.COLOR.TiTLE,
   },
 });
 

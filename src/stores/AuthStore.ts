@@ -26,7 +26,7 @@ class AuthStore {
   }
 
   private onAuthStateChanged = (user: firebase.User): void => {
-    if (user != null) {
+     if (user != null) {
       this.SetUser(user);
     }
   };

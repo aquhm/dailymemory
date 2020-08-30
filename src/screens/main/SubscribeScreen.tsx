@@ -1,19 +1,19 @@
-import React from "react"
-import { View, Text, StyleSheet } from "react-native"
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-import { MainStackNavigationProps } from "../../routes/MainStack"
+import { HomeNavigationProps } from "../../routes/HomeNavigator";
 
 interface Props {
-  navigation: MainStackNavigationProps<"Subscribe">
+  navigation: HomeNavigationProps<"Home", "Subscribe">;
 }
 
 class SubscribeScreen extends React.Component<Props> {
   componentDidMount() {
-    console.log(" componentDidMount SubscribeScreen")
+    console.log(" componentDidMount SubscribeScreen");
   }
 
   componentWillUnmount() {
-    console.log(" componentWillUnmount SubscribeScreen")
+    console.log(" componentWillUnmount SubscribeScreen");
   }
 
   render() {
@@ -21,7 +21,7 @@ class SubscribeScreen extends React.Component<Props> {
       <View>
         <Text>SubscribeScreen</Text>
       </View>
-    )
+    );
   }
 }
 
@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default SubscribeScreen
+export default SubscribeScreen;

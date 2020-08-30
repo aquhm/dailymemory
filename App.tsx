@@ -1,33 +1,34 @@
-import React from "react"
-import { AppState } from "react-native"
-import { AppLoading } from "expo"
-import * as Font from "expo-font"
+import React from "react";
+import { AppState } from "react-native";
+import { AppLoading } from "expo";
+import * as Font from "expo-font";
 //import { configure } from 'mobx'
-import RouteContainer from "./src/routes/RootStack"
-import StoreContainer from "./src/stores"
-import { useRoute } from "@react-navigation/native"
+import RouteContainer from "./src/routes/AppNavigator";
+import StoreContainer from "./src/stores";
+import { useRoute } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 //import { ThemeProvider } from "react-native-elements"
 //import antoutline from '@ant-design/icons-react-native/fonts/antoutline.ttf'
 //import antfill from '@ant-design/icons-react-native/fonts/antfill.ttf'
 
 //configure({ enforceActions: "always" })
 
-import rootStore from "./src/stores/RootStore"
-import { AppearanceProvider } from "react-native-appearance"
-import { Provider as MobxProvider } from "mobx-react"
-import Firebase from "./src/Firebase"
+import rootStore from "./src/stores/RootStore";
+import { AppearanceProvider } from "react-native-appearance";
+import { Provider as MobxProvider } from "mobx-react";
+import Firebase from "./src/Firebase";
 
 interface State {
-  isReady: boolean
+  isReady: boolean;
 }
 
 export default class App extends React.Component<{}, State> {
   state = {
     isReady: true,
-  }
+  };
   constructor(props: {}) {
-    super(props)
-    console.log("App constructor")
+    super(props);
+    console.log("App constructor");
   }
 
   /*Todo 
@@ -41,21 +42,21 @@ export default class App extends React.Component<{}, State> {
 
   handleAppStateChange = (nextAppState: any) => {
     if (nextAppState === "inactive") {
-      Firebase.Instance.signOut()
-      console.log("the app is closed")
+      Firebase.Instance.signOut();
+      console.log("the app is closed");
     }
-  }
+  };
 
   componentDidMount() {
-    console.log("componentDidMount App")
+    console.log("componentDidMount App");
 
-    AppState.addEventListener("change", this.handleAppStateChange)
+    AppState.addEventListener("change", this.handleAppStateChange);
   }
 
   componentWillUnmount() {
-    console.log(" componentWillUnmount App")
+    console.log(" componentWillUnmount App");
 
-    AppState.removeEventListener("change", this.handleAppStateChange)
+    AppState.removeEventListener("change", this.handleAppStateChange);
   }
 
   render() {
@@ -63,7 +64,9 @@ export default class App extends React.Component<{}, State> {
       //<StoreContainer>
       //<ThemeProvider>
       <MobxProvider {...rootStore}>
-        <RouteContainer />
+        <SafeAreaProvider>
+          <RouteContainer />
+        </SafeAreaProvider>
       </MobxProvider>
     ) : (
       //</ThemeProvider>
@@ -73,6 +76,6 @@ export default class App extends React.Component<{}, State> {
         onFinish={() => this.setState({ isReady: true })}
         onError={console.warn}
       />
-    )
+    );
   }
 }

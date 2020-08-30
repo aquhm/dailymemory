@@ -1,9 +1,6 @@
-import React from "react"
+import React from "react";
 
-import {
-  NavigationContainer,
-  CompositeNavigationProp,
-} from "@react-navigation/native"
+import { NavigationContainer, CompositeNavigationProp } from "@react-navigation/native";
 import {
   Image,
   View,
@@ -13,33 +10,33 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
-} from "react-native"
+} from "react-native";
 
-import { AuthStackNavigationProps } from "../../routes/AuthStack"
+import { AuthStackNavigationProps } from "../../routes/AuthNavigator";
 
-import { LinearGradient } from "expo-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient";
 //import { Ionicons } from "@expo/vector-icons"
-import { SocialIcon, Button } from "react-native-elements"
-import Icon from "react-native-vector-icons/MaterialIcons"
+import { SocialIcon, Button } from "react-native-elements";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-import Iamges from "../../constants/Images"
-import Theme from "../../constants/Styles"
+import Iamges from "../../constants/Images";
+import Theme from "../../constants/Styles";
 
 //import LoginButton from "../../components/LoginButton"
 
 interface Props {
-  navigation: AuthStackNavigationProps<"SignUp">
+  navigation: AuthStackNavigationProps<"SignUp">;
 }
-const { height, width } = Dimensions.get("window")
+const { height, width } = Dimensions.get("window");
 
 class LoginScreen extends React.Component<Props> {
   constructor(props: Props) {
-    console.log("LoginScreen")
-    super(props)
+    console.log("LoginScreen");
+    super(props);
   }
 
   render() {
-    const navigate = this.props.navigation.navigate
+    const navigate = this.props.navigation.navigate;
 
     return (
       <View style={styles.container}>
@@ -74,7 +71,7 @@ class LoginScreen extends React.Component<Props> {
                 title="Sign In Google"
                 type="google"
                 onPress={() => {
-                  alert("google")
+                  alert("google");
                 }}
               />
             </View>
@@ -84,7 +81,7 @@ class LoginScreen extends React.Component<Props> {
                 title="Sign In Facebook"
                 type="facebook"
                 onPress={() => {
-                  alert("facebook")
+                  alert("facebook");
                 }}
               />
             </View>
@@ -99,7 +96,7 @@ class LoginScreen extends React.Component<Props> {
           </View>
         </View>
       </View>
-    )
+    );
   }
 }
 
@@ -168,6 +165,6 @@ const styles = StyleSheet.create({
     borderRadius: 40 / 2,
     marginVertical: 10,
   },
-})
+});
 
-export default LoginScreen
+export default LoginScreen;

@@ -12,7 +12,7 @@ import Theme from "../../constants/Styles";
 
 import * as _ from "lodash";
 
-import { AuthStackNavigationProps } from "../../routes/AuthStack";
+import { AuthStackNavigationProps } from "../../routes/AuthNavigator";
 
 import LoginTextInput from "../../components/Form/TextInput";
 
@@ -141,7 +141,10 @@ class SignUpScreen extends React.Component<Props, State> {
                     autoCompleteType="name"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={() => this.emailRef.current?.focus()}
+                    onSubmitEditing={() => {
+                      // @ts-ignore
+                      this.emailRef.current?.focus();
+                    }}
                     defaultValue="kim"
                   />
                 </View>
@@ -162,7 +165,10 @@ class SignUpScreen extends React.Component<Props, State> {
                     autoCompleteType="email"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={() => this.passwordRef.current?.focus()}
+                    onSubmitEditing={() => {
+                      // @ts-ignore
+                      this.passwordRef.current?.focus();
+                    }}
                     defaultValue="abc@naver.com"
                   />
                 </View>
@@ -184,7 +190,10 @@ class SignUpScreen extends React.Component<Props, State> {
                     autoCompleteType="password"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={() => this.confirmPasswordRef.current?.focus()}
+                    onSubmitEditing={() => {
+                      // @ts-ignore
+                      this.confirmPasswordRef.current?.focus();
+                    }}
                     defaultValue="11111111"
                   />
                 </View>
@@ -214,7 +223,7 @@ class SignUpScreen extends React.Component<Props, State> {
                 <TouchableOpacity
                   style={[{ marginTop: 32 }, isValid ? styles.button : styles.disabledButton]}
                   disabled={isSubmitting || !isValid}
-                  onPress={handleSubmit}
+                  onPress={() => handleSubmit()}
                 >
                   <Text style={{ color: "#ffffff", fontWeight: "400" }}>Sign Up</Text>
                 </TouchableOpacity>

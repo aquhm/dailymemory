@@ -1,10 +1,10 @@
 import React, { createRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions, TextInput } from "react-native";
 
 import { Formik } from "formik";
 import * as Yup from "yup";
 
-import { AuthStackNavigationProps } from "../../routes/AuthStack";
+import { AuthStackNavigationProps } from "../../routes/AuthNavigator";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import Firebase from "../../Firebase";
@@ -111,7 +111,10 @@ class SignInScreen extends React.Component<Props> {
                     autoCompleteType="email"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={() => this.passwordRef.current?.focus()}
+                    onSubmitEditing={() => {
+                      // @ts-ignore
+                      this.passwordRef.current?.focus();
+                    }}
                   />
                 </View>
                 <View style={{ marginTop: 16 }}>
@@ -131,12 +134,12 @@ class SignInScreen extends React.Component<Props> {
                     autoCompleteType="password"
                     returnKeyType="done"
                     returnKeyLabel="done"
-                    onSubmitEditing={handleSubmit}
+                    onSubmitEditing={() => handleSubmit()}
                   />
                 </View>
                 <TouchableOpacity
                   style={[{ marginTop: 32 }, isValid ? styles.button : styles.disabledButton]}
-                  onPress={handleSubmit}
+                  onPress={() => handleSubmit()}
                   disabled={isSubmitting || !isValid}
                   //</View>disabled={this.state.disabled}
                 >

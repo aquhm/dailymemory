@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { TextInput, View, Text, StyleSheet } from "react-native";
+import { TextInput, TextInputProps, View, Text, StyleSheet } from "react-native";
 import { Feather as Icon } from "@expo/vector-icons";
 import Style from "../../constants/Styles";
 import RoundedIcon from "../RoundedIcon";
@@ -7,7 +7,7 @@ import * as _ from "lodash";
 
 const ICON_SIZE = 18;
 
-interface FormTextInputProps {
+interface FormTextInputProps extends TextInputProps {
   title: string;
   icon: string;
   touched?: boolean;
@@ -29,6 +29,7 @@ const FormTextInput = forwardRef(
         backgroundColor={!error ? Style.COLOR.ACTIVE : Style.COLOR.ERROR}
       />
     );
+
     return (
       <View>
         <Text style={styles.inputTitle}>{title}</Text>
@@ -37,7 +38,6 @@ const FormTextInput = forwardRef(
             <Icon name={icon} {...{ color }} size={16} />
           </View>
           <View style={styles.subInputContainer}>
-            ``
             <TextInput
               underlineColorAndroid="transparent"
               placeholderTextColor={Style.COLOR.PLACEHOLDER}

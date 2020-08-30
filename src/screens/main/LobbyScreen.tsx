@@ -1,41 +1,50 @@
-import React from "react"
-import { View, Text, StyleSheet, ToastAndroid, BackHandler } from "react-native"
-import { MainHeader } from "../../components/Header"
-import HandleBack from "../../components/HandleBack"
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { DrawerActions } from "@react-navigation/native";
+import { MainHeader } from "../../components/Header";
+import HandleBack from "../../components/HandleBack";
 
-import { MainStackNavigationProps } from "../../routes/MainStack"
+import { HomeNavigationProps } from "../../routes/HomeNavigator";
 
 interface Props {
-  navigation: MainStackNavigationProps<"Lobby">
+  navigation: HomeNavigationProps<"Home", "Lobby">;
 }
 
 class LobbyScreen extends React.Component<Props> {
   constructor(props: Props) {
-    super(props)
+    super(props);
   }
   componentDidMount() {
-    console.log(" componentDidMount LobbyScreen")
+    console.log(" componentDidMount LobbyScreen");
   }
 
   componentWillUnmount() {
-    console.log(" componentWillUnmount LobbyScreen")
+    console.log(" componentWillUnmount LobbyScreen");
   }
 
   render() {
-    const { navigation } = this.props
-
+    const { navigation } = this.props;
+    console.log(`---------------- LobbyScreen navigation = ${JSON.stringify(navigation)} ----------------------`);
     return (
       <>
         <HandleBack />
         <MainHeader
           title="LobbyScreen"
-          menuAction={() => navigation.goBack()}
+          menuAction={() => {
+            console.log("---------------- LobbyScreen  menuAction  navigation ----------------------");
+            console.log(
+              `---------------- LobbyScreen  menuAction  navigation=${JSON.stringify(
+                navigation
+              )} ----------------------`
+            );
+            navigation.dispatch(DrawerActions.openDrawer());
+          }}
         />
         <View style={{ flex: 1, backgroundColor: "#25365d" }}>
           <Text style={{ fontSize: 30, color: "#fff" }}>LobbyScreen</Text>
         </View>
       </>
-    )
+    );
   }
 }
 
@@ -46,6 +55,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
   },
-})
+});
 
-export default LobbyScreen
+export default LobbyScreen;

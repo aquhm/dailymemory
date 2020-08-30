@@ -1,24 +1,24 @@
-import React from "react"
-import { View, StyleSheet } from "react-native"
-import { Appbar, Title } from "react-native-paper"
-import PropTypes from "prop-types"
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Appbar, Title } from "react-native-paper";
+import PropTypes from "prop-types";
 
-import Theme from "../constants/Styles"
+import Theme from "../constants/Styles";
 
 interface AuthHeaderProps {
-  title: string
-  backAction: () => void
-  menuAction?: () => void
+  title: string;
+  backAction: () => void;
+  menuAction?: () => void;
 }
 
 interface MenuHeaderProps {
-  title: string
-  menuAction?: () => void
+  title: string;
+  menuAction?: () => void;
 }
 
 const AuthHeader = (props: AuthHeaderProps) => {
-  console.log("AuthHeader props = " + JSON.stringify(props))
-  const { title, backAction, menuAction } = props
+  console.log("AuthHeader props = " + JSON.stringify(props));
+  const { title, backAction, menuAction } = props;
 
   return (
     <Appbar.Header style={styles.headerContainer}>
@@ -32,12 +32,12 @@ const AuthHeader = (props: AuthHeaderProps) => {
       </View>
       <Appbar.Action icon="menu" onPress={menuAction} />
     </Appbar.Header>
-  )
-}
+  );
+};
 
 const MainHeader = (props: MenuHeaderProps) => {
-  console.log("MainHeader props = " + JSON.stringify(props))
-  const { title, menuAction } = props
+  console.log("MainHeader props = " + JSON.stringify(props));
+  const { title, menuAction } = props;
 
   return (
     <Appbar.Header style={styles.headerContainer}>
@@ -46,30 +46,30 @@ const MainHeader = (props: MenuHeaderProps) => {
         <Title style={styles.title}>{title}</Title>
       </View>
     </Appbar.Header>
-  )
-}
+  );
+};
 
 AuthHeader.defaultProps = {
   title: null,
   backAction: null,
   menuAction: null,
-}
+};
 
 AuthHeader.propTypes = {
   title: PropTypes.string,
   backAction: PropTypes.func,
   menuAction: PropTypes.func,
-}
+};
 
 MainHeader.defaultProps = {
   title: null,
   menuAction: null,
-}
+};
 
 MainHeader.propTypes = {
   title: PropTypes.string,
   menuAction: PropTypes.func,
-}
+};
 
 const styles = StyleSheet.create({
   headerContainer: {
@@ -83,6 +83,6 @@ const styles = StyleSheet.create({
   title: {
     color: Theme.COLOR.HEADER_TITLE,
   },
-})
+});
 
-export { AuthHeader, MainHeader }
+export { AuthHeader, MainHeader };
