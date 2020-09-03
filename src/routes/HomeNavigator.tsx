@@ -12,6 +12,8 @@ import SubscribeScreen from "../screens/main/SubscribeScreen";
 
 import SettingScreen from "../screens/main/SettingScreen";
 
+import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
+
 import { RootStackNavigationProps } from "./AppNavigator";
 
 type HomeNavigatorBottomParamList = {
@@ -70,7 +72,7 @@ const HomeBottomNavigator = () => {
 const HomeNavigator = () => {
   return (
     //<Drawer.Navigator drawerContent={(props) => <HomeDrawer {...props} />}>
-    <Drawer.Navigator>
+    <Drawer.Navigator drawerContent={DrawerContent} drawerStyle={{ width: DRAWER_WIDTH }}>
       <Drawer.Screen name="home" component={HomeBottomNavigator} />
       <Drawer.Screen name="setting" component={SettingScreen} />
     </Drawer.Navigator>

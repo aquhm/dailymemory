@@ -7,14 +7,15 @@
     "web": "expo start --web",
     "eject": "expo eject"
   },
+
   "dependencies": {
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/bottom-tabs": "^5.6.1",
     "@react-navigation/drawer": "^5.8.4",
     "@react-navigation/native": "^5.6.1",
     "@react-navigation/stack": "^5.6.2",
-    "@types/lodash": "^4.14.157",
     "@types/firebase": "^3.2.1",
+    "@types/lodash": "^4.14.157",
     "expo": "~38.0.8",
     "expo-linear-gradient": "~8.2.1",
     "expo-status-bar": "^1.0.2",
@@ -43,6 +44,9 @@
     "@types/react": "~16.9.41",
     "@types/react-native": "0.62.2",
     "@types/yup": "^0.29.4",
+    "@typescript-eslint/parser": "^4.0.1",
+    "eslint-import-resolver-typescript": "^2.3.0",
+    "eslint-plugin-import": "^2.22.0",
     "typescript": "~3.9.5"
   },
   "private": true

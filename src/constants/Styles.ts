@@ -26,4 +26,4 @@ export default {
     BLOCK: "#E7E7E7",
     ICON: "#4A4A4A",
   },
-}
+};

@@ -32,8 +32,6 @@ class Firebase {
         this._app = firebase.initializeApp(ApiKeys.FirebaseConfig);
       }
     } catch (err) {
-      // we skip the "already exists" message which is
-      // not an actual error when we're hot-reloading
       console.error("Firebase initialization error : ", err.stack);
     }
 

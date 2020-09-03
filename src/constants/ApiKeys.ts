@@ -9,4 +9,4 @@ export default {
     appId: "1:50227226891:web:fffa96fb72fb1d82515a0e",
     measurementId: "G-3QE4J2S9E9",
   },
-}
+};
