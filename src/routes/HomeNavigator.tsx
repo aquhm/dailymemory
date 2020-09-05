@@ -1,16 +1,17 @@
 import React from "react";
 import { BottomTabNavigationProp, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DrawerNavigationProp, createDrawerNavigator } from "@react-navigation/drawer";
+import { StackNavigationProp, createStackNavigator } from "@react-navigation/stack";
 
 import { CompositeNavigationProp } from "@react-navigation/native";
 
-import DiaryScreen from "../screens/main/DiaryScreen";
-import LobbyScreen from "../screens/main/LobbyScreen";
-import NoticeScreen from "../screens/main/NoticeScreen";
-import ProfileScreen from "../screens/main/ProfileScreen";
-import SubscribeScreen from "../screens/main/SubscribeScreen";
+import DiaryScreen from "../screens/home/DiaryScreen";
+import LobbyScreen from "../screens/home/LobbyScreen";
+import NoticeScreen from "../screens/home/NoticeScreen";
+import ProfileScreen from "../screens/home/ProfileScreen";
+import SubscribeScreen from "../screens/home/SubscribeScreen";
 
-import SettingScreen from "../screens/main/SettingScreen";
+import SettingScreen from "../screens/home/SettingScreen";
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
 
@@ -30,16 +31,10 @@ type HomeNavigatorBottomProps<T extends keyof HomeNavigatorBottomParamList> = Bo
   T
 >;
 
-/*
-type HomeNavigationProps<T extends keyof HomeNavigatorBottomParamList> = CompositeNavigationProp<
-  HomeNavigatorBottomProps<T>,
-  RootStackNavigationProps<"MainStack">
->;
-*/
-
 type HomeNavigatorDrawerParamList = {
   Home: undefined;
   Setting: undefined;
+  Profile: undefined;
 };
 
 type HomeNavigatorDrawerProps<T extends keyof HomeNavigatorDrawerParamList> = DrawerNavigationProp<
@@ -69,12 +64,31 @@ const HomeBottomNavigator = () => {
   );
 };
 
+const ProfileNavigator = () => {
+  const ProfileStack = createStackNavigator();
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+    </ProfileStack.Navigator>
+  );
+};
+
+const SettingNavigator = () => {
+  const ProfileStack = createStackNavigator();
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+    </ProfileStack.Navigator>
+  );
+};
+
 const HomeNavigator = () => {
   return (
     //<Drawer.Navigator drawerContent={(props) => <HomeDrawer {...props} />}>
-    <Drawer.Navigator drawerContent={DrawerContent} drawerStyle={{ width: DRAWER_WIDTH }}>
-      <Drawer.Screen name="home" component={HomeBottomNavigator} />
-      <Drawer.Screen name="setting" component={SettingScreen} />
+    <Drawer.Navigator drawerContent={(props) => <DrawerContent {...props} />} drawerStyle={{ width: DRAWER_WIDTH }}>
+      <Drawer.Screen name="Home" component={HomeBottomNavigator} />
+      <Drawer.Screen name="Setting" component={SettingScreen} />
+      <Drawer.Screen name="Profile" component={ProfileNavigator} />
     </Drawer.Navigator>
   );
 };

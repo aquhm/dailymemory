@@ -67,7 +67,7 @@ class AndroidBackButtonHandler {
 
       ToastAndroid.show("", 0);
 
-      RootStore.Instance.AuthStore.signOut().then(() => {
+      RootStore.Instance.AuthStore.SignOut().then(() => {
         BackHandler.exitApp(); // 앱 종료
         console.log("AndroidBackButtonHandler signOut success");
       });
@@ -80,7 +80,7 @@ class AndroidBackButtonHandler {
       {
         text: "OK",
         onPress: () => {
-          RootStore.Instance.AuthStore.signOut().then(() => {
+          RootStore.Instance.AuthStore.SignOut().then(() => {
             BackHandler.exitApp(); // 앱 종료
             console.log("AndroidBackButtonHandler signOut success");
           });

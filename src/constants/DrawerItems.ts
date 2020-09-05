@@ -1,16 +1,16 @@
 const items = [
   {
-    icon: "flash",
-    label: "setting",
-    screen: "setting",
+    icon: "home",
+    label: "Home",
+    screen: "Home",
     color: "orange",
   },
 
   {
-    icon: "heart",
-    label: "profile",
-    screen: "profile",
-    color: "blue",
+    icon: "user",
+    label: "Profile",
+    screen: "Profile",
+    color: "orange",
   },
 ];
 

@@ -1,5 +1,5 @@
-import React from "react"
-import { View, Text, StyleSheet } from "react-native"
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 import { HomeNavigationProps } from "../../routes/HomeNavigator";
 
@@ -9,21 +9,21 @@ interface Props {
 
 class NoticeScreen extends React.Component<Props> {
   constructor(props: Props) {
-    super(props)
+    super(props);
     this.props.navigation.addListener("focus", () => {
-      console.log(" focus NoticeScreen")
-    })
+      console.log(" focus NoticeScreen");
+    });
 
     this.props.navigation.addListener("blur", () => {
-      console.log(" blur NoticeScreen")
-    })
+      console.log(" blur NoticeScreen");
+    });
   }
   componentDidMount() {
-    console.log(" componentDidMount NoticeScreen")
+    console.log(" componentDidMount NoticeScreen");
   }
 
   componentWillUnmount() {
-    console.log(" componentWillUnmount NoticeScreen")
+    console.log(" componentWillUnmount NoticeScreen");
   }
 
   render() {
@@ -31,7 +31,7 @@ class NoticeScreen extends React.Component<Props> {
       <View>
         <Text>NoticeScreen</Text>
       </View>
-    )
+    );
   }
 }
 
@@ -41,6 +41,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default NoticeScreen
+export default NoticeScreen;

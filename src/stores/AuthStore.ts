@@ -26,7 +26,7 @@ class AuthStore {
   }
 
   private onAuthStateChanged = (user: firebase.User): void => {
-     if (user != null) {
+    if (user != null) {
       this.SetUser(user);
     }
   };
@@ -41,7 +41,7 @@ class AuthStore {
   public SignUp = async (name: string, email: string, password: string) =>
     await Firebase.Instance.signUp(name, email, password);
 
-  public signOut = () => Firebase.Instance.auth.signOut();
+  public SignOut = async () => await Firebase.Instance.auth.signOut();
 }
 
 export default AuthStore;

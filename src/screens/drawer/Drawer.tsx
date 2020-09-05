@@ -1,18 +1,37 @@
 import React from "react";
 import { Dimensions, View, Text, StyleSheet, ScrollView, ImageBackground, Image } from "react-native";
 
+import {
+  createDrawerNavigator,
+  DrawerNavigationProp,
+  DrawerItem,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerContentComponentProps,
+  DrawerContentOptions,
+} from "@react-navigation/drawer";
+
 import DrawerItems from "../../constants/DrawerItems";
 import { DrawerBg } from "../../constants/Images";
 import ProfileRoundImage from "../../components/ProfileRoundImage";
 
+import { HomeNavigationProps } from "../../routes/HomeNavigator";
+
 import { DrawerEntry } from "./DrawerEntry";
+
+import RootStore from "../../stores/RootStore";
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.8;
 const aspectRatio = 750 / 1125;
 const height = DRAWER_WIDTH * aspectRatio;
 
-const Drawer = () => {
+interface DrawerProps {
+  navigation: DrawerContentComponentProps<DrawerContentOptions>;
+}
+
+const Drawer = ({ ...props }) => {
+  const { navigation } = props;
   return (
     <ScrollView>
       <ImageBackground source={DrawerBg} style={styles.imageBackground}>
@@ -23,8 +42,22 @@ const Drawer = () => {
 
       <View style={styles.container}>
         {DrawerItems.map((item) => (
-          <DrawerEntry key={item.screen} {...item} />
+          <DrawerEntry key={item.screen} {...item} onPress={() => navigation.navigate(item.screen)} />
         ))}
+      </View>
+
+      <View style={{ marginLeft: 36 }}>
+        <DrawerEntry
+          icon="log-out"
+          color="orange"
+          label="Logout"
+          onPress={() =>
+            RootStore.Instance.AuthStore.SignOut().then(() => {
+              console.log("SignOut");
+              navigation.navigate("Login");
+            })
+          }
+        />
       </View>
     </ScrollView>
   );
@@ -34,7 +67,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 24,
-    margin: 36,
+    marginLeft: 36,
   },
   imageBackground: {
     width: undefined,
