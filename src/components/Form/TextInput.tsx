@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import { TextInput, TextInputProps, View, Text, StyleSheet } from "react-native";
 import { Feather as Icon } from "@expo/vector-icons";
 import Style from "../../constants/Styles";
-import RoundedIcon from "../RoundedIcon";
+import { RoundedIcon } from "../RoundedIcon";
 import * as _ from "lodash";
 
 const ICON_SIZE = 18;

@@ -2,7 +2,8 @@ import React from "react";
 import { Dimensions, View, Text, StyleSheet, ScrollView, ImageBackground, Image } from "react-native";
 
 import DrawerItems from "../../constants/DrawerItems";
-import Images from "../../constants/Images";
+import { DrawerBg } from "../../constants/Images";
+import ProfileRoundImage from "../../components/ProfileRoundImage";
 
 import { DrawerEntry } from "./DrawerEntry";
 
@@ -14,8 +15,9 @@ const height = DRAWER_WIDTH * aspectRatio;
 const Drawer = () => {
   return (
     <ScrollView>
-      <ImageBackground source={Images.DrawerBg} style={styles.imageBackground}>
-        <Image source={require("../../../assets/temp_profil_img.jpg")} style={styles.profile} />
+      <ImageBackground source={DrawerBg} style={styles.imageBackground}>
+        {/*<Image source={require("../../../assets/temp_profil_img.jpg")} style={styles.profile} />*/}
+        <ProfileRoundImage size={80} showEditIcon />
         <Text style={styles.name}>Aquhm</Text>
       </ImageBackground>
 

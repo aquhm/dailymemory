@@ -19,7 +19,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { SocialIcon, Button } from "react-native-elements";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-import Iamges from "../../constants/Images";
+import { LoginTitle } from "../../constants/Images";
 import Theme from "../../constants/Styles";
 
 //import LoginButton from "../../components/LoginButton"
@@ -60,7 +60,7 @@ class LoginScreen extends React.Component<Props> {
         </View>
 
         <View style={styles.titleImageContainer}>
-          <Image style={styles.titleImage} source={Iamges.LoginTitle} />
+          <Image style={styles.titleImage} source={LoginTitle} />
         </View>
 
         <View style={styles.footer}>

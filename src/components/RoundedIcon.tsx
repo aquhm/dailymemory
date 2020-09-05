@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
 });
 
 RoundedIcon.defaultProps = {
-  iconSize: 0.7,
+  iconScale: 0.7,
 };
 
 export { RoundedIcon, RoundedIconProps };
