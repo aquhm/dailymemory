@@ -11,6 +11,8 @@ import NoticeScreen from "../screens/home/NoticeScreen";
 import ProfileScreen from "../screens/home/ProfileScreen";
 import SubscribeScreen from "../screens/home/SubscribeScreen";
 
+import ProfileNavigator from "./ProfileNavigator";
+
 import SettingScreen from "../screens/home/SettingScreen";
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
@@ -64,6 +66,7 @@ const HomeBottomNavigator = () => {
   );
 };
 
+/*
 const ProfileNavigator = () => {
   const ProfileStack = createStackNavigator();
   return (
@@ -72,6 +75,7 @@ const ProfileNavigator = () => {
     </ProfileStack.Navigator>
   );
 };
+*/
 
 const SettingNavigator = () => {
   const ProfileStack = createStackNavigator();
