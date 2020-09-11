@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React, { createRef, useRef } from "react";
 import { StatusBar, View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 
 import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
@@ -35,7 +35,7 @@ const menuData: BaseItem[] = [
 ];
 
 class ProfileImageChangeScreen extends React.Component<Props> {
-  bottomPopupRef = createRef();
+  bottomPopupRef = createRef<typeof BottomPopup>();
 
   componentDidMount() {
     console.log("ProfileImageChangeScreen componentDidMount");
@@ -44,15 +44,6 @@ class ProfileImageChangeScreen extends React.Component<Props> {
   componentWillUnmount() {
     console.log("ProfileImageChangeScreen componentWillUnmount");
   }
-
-  onClosePopup = () => {
-    console.log("this.bottomPopupRef.current = " + this.bottomPopupRef.current);
-    this.bottomPopupRef.current?.close();
-  };
-
-  onShowPopup = () => {
-    this.bottomPopupRef.current?.open();
-  };
 
   render() {
     return (
@@ -70,7 +61,15 @@ class ProfileImageChangeScreen extends React.Component<Props> {
           </View>
           <View style={styles.profileArea}>
             <View style={styles.profileImageContainer}>
-              <ProfileRoundImage size={80} editing onPress={() => this.onShowPopup()} />
+              <ProfileRoundImage
+                size={80}
+                editing
+                onPress={() => {
+                  console.log("ProfileImageChangeScreen ProfileRoundImage modal open");
+                  // @ts-ignore
+                  this.bottomPopupRef.current?.open();
+                }}
+              />
               <TextWithIconButton
                 value="김대호"
                 size={12}
@@ -80,7 +79,7 @@ class ProfileImageChangeScreen extends React.Component<Props> {
                 }}
               />
             </View>
-            <BottomPopup ref={(target) => (this.bottomPopupRef = target)} title="이미지 변경" data={menuData} />
+            <BottomPopup ref={this.bottomPopupRef} title="이미지 변경" data={menuData} />
           </View>
         </SafeAreaView>
       </>

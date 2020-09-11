@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import {
   Text,
   Modal,
@@ -46,9 +46,18 @@ const BottomPopup = forwardRef(
     const [active, setActive] = useState<boolean>(true);
     const deviceHeight = Dimensions.get("window").height * 0.25;
 
-    console.log("screen height = " + Dimensions.get("screen").height);
-    console.log("screen window = " + Dimensions.get("window").height);
+    console.log("BottomPopup open active = " + active);
+    const open = () => {
+      console.log("BottomPopup open");
+      setActive(true);
+    };
+    const close = () => {
+      setActive(false);
+    };
 
+    useImperativeHandle(ref, () => {
+      open();
+    });
     const [yPosition] = useState(new Animated.Value(Dimensions.get("screen").height));
 
     const _resetPositionAnim = Animated.timing(yPosition, {
@@ -62,13 +71,6 @@ const BottomPopup = forwardRef(
       duration: 500,
       easing: Easing.linear,
     });
-
-    const open = () => {
-      setActive(true);
-    };
-    const close = () => {
-      setActive(false);
-    };
 
     const renderOutsideTouchable = (onTouch?: () => void) => {
       const view = <View style={{ flex: 1, width: "100%", opacity: 0.0 }} />;
@@ -124,7 +126,7 @@ const BottomPopup = forwardRef(
       };
     };
     return (
-      <Modal {...{ ref }} animationType={"fade"} transparent visible={active} onRequestClose={close}>
+      <Modal animationType={"fade"} transparent visible={active}>
         {renderOutsideTouchable(close)}
         <View style={[styles.container, { maxHeight: deviceHeight }]}>
           <View style={styles.popup}>
