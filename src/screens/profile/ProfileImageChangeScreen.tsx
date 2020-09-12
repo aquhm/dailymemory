@@ -39,6 +39,7 @@ class ProfileImageChangeScreen extends React.Component<Props> {
 
   componentDidMount() {
     console.log("ProfileImageChangeScreen componentDidMount");
+    console.log("ProfileImageChangeScreen bottomPopupRef = " + this.bottomPopupRef);
   }
 
   componentWillUnmount() {
@@ -46,6 +47,8 @@ class ProfileImageChangeScreen extends React.Component<Props> {
   }
 
   render() {
+    console.log("ProfileImageChangeScreen render");
+
     return (
       <>
         <StatusBar barStyle="default" />
@@ -65,7 +68,6 @@ class ProfileImageChangeScreen extends React.Component<Props> {
                 size={80}
                 editing
                 onPress={() => {
-                  console.log("ProfileImageChangeScreen ProfileRoundImage modal open");
                   // @ts-ignore
                   this.bottomPopupRef.current?.open();
                 }}

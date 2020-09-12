@@ -10,7 +10,7 @@ import {
   ListRenderItem,
   ListRenderItemInfo,
 } from "react-native";
-import { RectButton } from "react-native-gesture-handler";
+import { BorderlessButton, RectButton } from "react-native-gesture-handler";
 import { Feather as Icon } from "@expo/vector-icons";
 import Animated, { Easing } from "react-native-reanimated";
 
@@ -46,18 +46,19 @@ const BottomPopup = forwardRef(
     const [active, setActive] = useState<boolean>(true);
     const deviceHeight = Dimensions.get("window").height * 0.25;
 
-    console.log("BottomPopup open active = " + active);
-    const open = () => {
-      console.log("BottomPopup open");
-      setActive(true);
-    };
     const close = () => {
       setActive(false);
     };
 
-    useImperativeHandle(ref, () => {
-      open();
-    });
+    useImperativeHandle(
+      ref,
+      () => ({
+        open() {
+          setActive(true);
+        },
+      }),
+      []
+    );
     const [yPosition] = useState(new Animated.Value(Dimensions.get("screen").height));
 
     const _resetPositionAnim = Animated.timing(yPosition, {
@@ -73,12 +74,17 @@ const BottomPopup = forwardRef(
     });
 
     const renderOutsideTouchable = (onTouch?: () => void) => {
-      const view = <View style={{ flex: 1, width: "100%", opacity: 0.0 }} />;
+      const view = <View style={{ flex: 1, width: "100%", backgroundColor: "black", opacity: 0.0 }} />;
 
       if (!onTouch) return view;
 
       return (
-        <TouchableWithoutFeedback onPress={onTouch} style={{ flex: 1, width: "100%" }}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setActive(false);
+          }}
+          style={{ flex: 1, width: "100%" }}
+        >
           {view}
         </TouchableWithoutFeedback>
       );
@@ -126,7 +132,7 @@ const BottomPopup = forwardRef(
       };
     };
     return (
-      <Modal animationType={"fade"} transparent visible={active}>
+      <Modal animationType={"fade"} transparent visible={active} onRequestClose={close}>
         {renderOutsideTouchable(close)}
         <View style={[styles.container, { maxHeight: deviceHeight }]}>
           <View style={styles.popup}>
