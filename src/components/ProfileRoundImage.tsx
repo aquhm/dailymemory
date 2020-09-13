@@ -4,18 +4,20 @@ import { Feather as Icon } from "@expo/vector-icons";
 import { BorderlessButton } from "react-native-gesture-handler";
 import { DefaultProfileImage } from "../constants/Images";
 
+import * as _ from "lodash";
+
 import BadgeIcon, { DirectionType } from "../components/BadgeIcon";
 
 interface ProfileRoundImageProps {
+  imageUri?: string;
   size: number;
   showEditIcon?: boolean;
   editing?: boolean;
   onPress?: () => void;
 }
 
-const ProfileRoundImage = ({ size, showEditIcon, editing, onPress }: ProfileRoundImageProps) => {
+const ProfileRoundImage = ({ imageUri, size, showEditIcon, editing, onPress }: ProfileRoundImageProps) => {
   const editIcon = showEditIcon ? <BadgeIcon size={20} name="settings" /> : null;
-
   const overlayIconSize = size * 0.4;
   const editingOverlay = editing ? (
     <View style={[styles.editingOverlay, { height: size, width: size, borderRadius: size / 2 }]}>
@@ -25,7 +27,10 @@ const ProfileRoundImage = ({ size, showEditIcon, editing, onPress }: ProfileRoun
 
   return (
     <BorderlessButton style={{ height: size, width: size, borderRadius: size / 2 }} {...{ onPress }}>
-      <Image source={DefaultProfileImage} style={{ height: size, width: size, borderRadius: size / 2 }} />
+      <Image
+        source={_.isEmpty(imageUri) == false ? { uri: imageUri } : DefaultProfileImage}
+        style={{ height: size, width: size, borderRadius: size / 2 }}
+      />
       {editIcon}
       {editingOverlay}
     </BorderlessButton>
@@ -33,6 +38,7 @@ const ProfileRoundImage = ({ size, showEditIcon, editing, onPress }: ProfileRoun
 };
 
 ProfileRoundImage.defaultProps = {
+  imageUri: "",
   name: "",
   editing: false,
   onPress: undefined,

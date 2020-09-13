@@ -5,10 +5,12 @@ import { StackNavigationProp, createStackNavigator } from "@react-navigation/sta
 
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import ProfileImageChangeScreen from "../screens/profile/ProfileImageChangeScreen";
+import PhotoPickerScreen from "../screens/profile/PhotoPickerScreen";
 
 export type ProfileStackParamList = {
   Profile: undefined;
   ProfileImageChange: undefined;
+  PhotoPicker: undefined;
 };
 
 export type ProfileStackNavigationProps<T extends keyof ProfileStackParamList> = StackNavigationProp<
@@ -23,6 +25,7 @@ const ProfileNavigator = () => {
     <Stack.Navigator initialRouteName="Profile" headerMode="none">
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="ProfileImageChange" component={ProfileImageChangeScreen} />
+      <Stack.Screen name="PhotoPicker" component={PhotoPickerScreen} />
     </Stack.Navigator>
   );
 };

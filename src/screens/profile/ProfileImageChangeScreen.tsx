@@ -1,5 +1,5 @@
-import React, { createRef, useRef } from "react";
-import { StatusBar, View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import React, { createRef } from "react";
+import { StatusBar, View, StyleSheet, Platform, SafeAreaView } from "react-native";
 
 import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
 
@@ -10,44 +10,95 @@ import TextWithIconButton from "../../components/TextWithIconButton";
 import BottomPopup, { BaseItem } from "../../components/BottomPopup";
 import { RectButton } from "react-native-gesture-handler";
 
+import * as ImagePicker from "expo-image-picker";
+import Constants from "expo-constants";
+import * as Permissions from "expo-permissions";
+
 interface Props {
   navigation: ProfileStackNavigationProps<"ProfileImageChange">;
+}
+
+interface State {
+  imageUri?: string;
 }
 
 const menuData: BaseItem[] = [
   {
     id: 1,
     title: "사진 촬영",
-    onPress: () => {},
   },
 
   {
     id: 2,
     title: "사진 보관함에서 선택",
-    onPress: () => {},
   },
 
   {
     id: 3,
     title: "기본 이미지로 변경",
-    onPress: () => {},
   },
 ];
 
-class ProfileImageChangeScreen extends React.Component<Props> {
+class ProfileImageChangeScreen extends React.Component<Props, State> {
+  state: State = {
+    imageUri: undefined,
+  };
+
   bottomPopupRef = createRef<typeof BottomPopup>();
 
   componentDidMount() {
     console.log("ProfileImageChangeScreen componentDidMount");
-    console.log("ProfileImageChangeScreen bottomPopupRef = " + this.bottomPopupRef);
+
+    this.initialize();
   }
 
+  initialize = () => {
+    menuData[1].onPress = () => {
+      // @ts-ignore
+      this.bottomPopupRef.current?.close();
+      this.changeProfileImageAsync();
+    };
+  };
+
+  changeProfileImageAsync = async () => {
+    await this.getPermissionAsync();
+    await this.pickImageAsync();
+  };
+
+  getPermissionAsync = async () => {
+    if (Platform.OS !== "web") {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status !== "granted") {
+        alert("Sorry, we need camera roll permissions to make this work!");
+      }
+    }
+  };
+
+  pickImageAsync = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        console.log("------------------------------- ProfileImageChangeScreen pickImageAsync " + result.uri);
+        this.setState({ imageUri: result.uri });
+      }
+
+      console.log(result);
+    } catch (E) {
+      console.log(E);
+    }
+  };
+
   componentWillUnmount() {
-    console.log("ProfileImageChangeScreen componentWillUnmount");
+    console.log("------------------------------- ProfileImageChangeScreen componentWillUnmount");
   }
 
   render() {
-    console.log("ProfileImageChangeScreen render");
+    //console.log("ProfileImageChangeScreen console imageUri = " + this.state.imageUri);
 
     return (
       <>
@@ -65,6 +116,7 @@ class ProfileImageChangeScreen extends React.Component<Props> {
           <View style={styles.profileArea}>
             <View style={styles.profileImageContainer}>
               <ProfileRoundImage
+                imageUri={this.state.imageUri}
                 size={80}
                 editing
                 onPress={() => {

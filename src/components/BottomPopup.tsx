@@ -33,11 +33,11 @@ interface BottomPopupProps<T> {
 
 const renderItem = (listRenderItemInfo: ListRenderItemInfo<BaseIconItem>) => {
   return (
-    <RectButton onPress={listRenderItemInfo.item.onPress}>
+    <TouchableWithoutFeedback onPress={listRenderItemInfo.item.onPress}>
       <View style={{ justifyContent: "center", alignItems: "center", width: "100%", height: 50, padding: 5 }}>
         <Text>{listRenderItemInfo.item.title}</Text>
       </View>
-    </RectButton>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -55,6 +55,9 @@ const BottomPopup = forwardRef(
       () => ({
         open() {
           setActive(true);
+        },
+        close() {
+          setActive(false);
         },
       }),
       []
@@ -175,7 +178,6 @@ const styles = StyleSheet.create({
 BottomPopup.defaultProps = {
   title: "",
   onTouchOutside: true,
-  //renderItem: (): React.ReactElement => <View />,
 };
 
 export default BottomPopup;
