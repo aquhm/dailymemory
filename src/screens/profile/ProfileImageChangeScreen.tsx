@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { StatusBar, View, StyleSheet, Platform, SafeAreaView } from "react-native";
+import { StatusBar, View, StyleSheet, Platform, SafeAreaView, Alert } from "react-native";
 
 import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
 
@@ -11,8 +11,13 @@ import BottomPopup, { BaseItem } from "../../components/BottomPopup";
 import { RectButton } from "react-native-gesture-handler";
 
 import * as ImagePicker from "expo-image-picker";
-import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
+import * as _ from "lodash";
+
+import Header from "../../components/common/Header";
+import Firebase from "../../Firebase";
+import * as firebase from "firebase";
+import RootStore from "../../stores/RootStore";
 
 interface Props {
   navigation: ProfileStackNavigationProps<"ProfileImageChange">;
@@ -53,6 +58,12 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
   }
 
   initialize = () => {
+    menuData[0].onPress = () => {
+      // @ts-ignore
+      this.bottomPopupRef.current?.close();
+      this.changeProfileImageByCameraAsync();
+    };
+
     menuData[1].onPress = () => {
       // @ts-ignore
       this.bottomPopupRef.current?.close();
@@ -65,11 +76,21 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
     await this.pickImageAsync();
   };
 
+  changeProfileImageByCameraAsync = async () => {
+    await this.getPermissionAsync();
+    await this.cameraImageAsync();
+  };
+
   getPermissionAsync = async () => {
     if (Platform.OS !== "web") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
+      } else {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        if (status !== "granted") {
+          alert("Sorry, we need camera permissions to make this work!");
+        }
       }
     }
   };
@@ -78,12 +99,11 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
+        //allowsEditing: true,
+        aspect: [9, 16],
         quality: 1,
       });
       if (!result.cancelled) {
-        console.log("------------------------------- ProfileImageChangeScreen pickImageAsync " + result.uri);
         this.setState({ imageUri: result.uri });
       }
 
@@ -93,26 +113,64 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
     }
   };
 
-  componentWillUnmount() {
-    console.log("------------------------------- ProfileImageChangeScreen componentWillUnmount");
-  }
+  cameraImageAsync = async () => {
+    try {
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [9, 16],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        this.setState({ imageUri: result.uri });
+      }
+
+      console.log(result);
+    } catch (E) {
+      console.log(E);
+    }
+  };
+
+  uploadImage = async () => {
+    if (this.state.imageUri != null && _.isEmpty(this.state.imageUri) == false) {
+      console.log("uploadImage this.state.imageUri = " + this.state.imageUri);
+      return RootStore.Instance.AuthStore.UploadImage1(this.state.imageUri);
+    }
+  };
+
+  header = () => {
+    return (
+      <Header
+        title="수정"
+        color="black"
+        left={{
+          icon: "arrow-left",
+          onPress: () => {
+            this.props.navigation.goBack();
+          },
+          visible: true,
+        }}
+        right={{
+          label: "저장하기",
+          onPress: () => {
+            this.uploadImage().then(() => {
+              Alert.alert("Success");
+            });
+          },
+          visible: _.isEmpty(this.state.imageUri) == false,
+        }}
+      />
+    );
+  };
+
+  componentWillUnmount() {}
 
   render() {
-    //console.log("ProfileImageChangeScreen console imageUri = " + this.state.imageUri);
-
     return (
       <>
         <StatusBar barStyle="default" />
         <SafeAreaView style={{ flex: 1 }}>
-          <View style={styles.head}>
-            <RectButton
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}
-            >
-              <Icon name="arrow-left" size={24} style={{ margin: 10 }} />
-            </RectButton>
-          </View>
+          {this.header()}
           <View style={styles.profileArea}>
             <View style={styles.profileImageContainer}>
               <ProfileRoundImage

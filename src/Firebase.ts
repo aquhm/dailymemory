@@ -2,6 +2,8 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 import "firebase/firestore";
+import "firebase/storage";
+import { v4 as uuid } from "uuid";
 
 import ApiKeys from "./constants/ApiKeys";
 
@@ -11,6 +13,7 @@ class Firebase {
   private _app?: firebase.app.App;
   private _auth?: firebase.auth.Auth;
   private _db?: firebase.firestore.Firestore;
+  private _storage?: firebase.storage.Storage;
   static _firebase?: Firebase;
 
   static get Instance() {
@@ -37,14 +40,23 @@ class Firebase {
 
     this._auth = firebase.auth();
     this._db = firebase.firestore();
+    this._storage = firebase.storage();
     //this._googleProvider = new firebase.auth.GoogleAuthProvider()
     //this._facebookProvider = new firebase.auth.FacebookAuthProvider()
 
     console.log("Firebase Initialized");
   };
 
+  get storage() {
+    if (!this._storage) {
+      throw new Error("storage is null");
+    }
+
+    return <firebase.storage.Storage>this._storage;
+  }
+
   get db() {
-    if (!this.db) {
+    if (!this._db) {
       throw new Error("db is null");
     }
 
@@ -79,6 +91,60 @@ class Firebase {
     }
   };
 
+  public uploadImage = async (userId: string, imageUri: string, uploadCompleted?: () => void) => {
+    try {
+      const fileExtension = imageUri.split(".").pop();
+      console.log("Ext : " + fileExtension);
+
+      const fileName = `${uuid()}.${fileExtension}`;
+
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      let downloadUri: string = "";
+
+      var ref = this.storage.ref().child(`images/profile/${fileName}`);
+
+      ref.put(blob).on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        (snapshot) => {
+          console.log("snapshot: " + snapshot.state);
+          console.log("progress: " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+
+          if (snapshot.state == firebase.storage.TaskState.SUCCESS) {
+            console.log("upload Success");
+          }
+        },
+        (error) => {
+          console.log("upload error: " + error.message);
+        },
+        () => {
+          ref.getDownloadURL().then((url) => {
+            console.log("File available at : " + url);
+
+            downloadUri = url;
+            uploadCompleted && uploadCompleted();
+          });
+        }
+      );
+
+      return Promise.resolve(downloadUri);
+    } catch (error) {
+      throw new Error(`Function [${this.uploadImage.name}] ${error}`);
+    }
+  };
+
+  public downloadImage = async (userId: string) => {
+    try {
+      console.error("Firebase downloadImage Images/" + userId);
+
+      let imageRef = this.storage.ref("Images/" + userId);
+
+      return imageRef.getDownloadURL();
+    } catch (error) {
+      throw new Error(`Function [${this.downloadImage.name}] ${error}`);
+    }
+  };
+
   public setAuthStateChange(callback: any) {
     return this.auth.onAuthStateChanged(callback);
   }
@@ -95,14 +161,11 @@ class Firebase {
 
       if (userCredential != null) {
         if (userCredential.user != null) {
-          console.log("signUp writeUserDate serCredential.user.uid = " + userCredential.user.uid);
-          await this.writeUserDate(userCredential.user.uid, {
+          await this.writeUserData(userCredential.user.uid, {
             name: name,
             email: email,
           });
         }
-
-        console.log("signUp writeUserDate ");
         if (emailVerification) {
           this.user.sendEmailVerification();
         }
@@ -116,12 +179,9 @@ class Firebase {
     return false;
   };
 
-  public async writeUserDate(userId: string, userData: any) {
-    console.log("writeUserDate  this.userCollection = " + this.userCollection);
-
+  public async writeUserData(userId: string, userData: any) {
     const userDoc = this.userCollection.doc(userId);
 
-    console.log("writeUserDate userDoc = " + userDoc);
     await userDoc?.set(userData, { merge: true });
   }
 
@@ -181,21 +241,6 @@ class Firebase {
       throw new Error(error);
     }
   };
-
-  /*
-  on = callback =>
-    this.ref
-      .limitToLast(20)
-      .on("child_added", snapshot => callback(this.parse(snapshot)))
-
-  parse = snapshot => {}
-
-  off() {
-    this.ref.off()
-  }
-  */
 }
-
-//let _firebase = new Firebase()
 
 export default Firebase;

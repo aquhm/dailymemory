@@ -9,6 +9,8 @@ import ProfileRoundImage from "../../components/ProfileRoundImage";
 import TextWithIconButton from "../../components/TextWithIconButton";
 import { RectButton } from "react-native-gesture-handler";
 
+import Header from "../../components/common/Header";
+
 interface Props {
   navigation: ProfileStackNavigationProps<"Profile">;
 }
@@ -22,31 +24,28 @@ class ProfileScreen extends React.Component<Props> {
     console.log("ProfileScreen componentWillUnmount");
   }
 
+  header = () => {
+    return (
+      <Header
+        title="내 정보"
+        color="black"
+        left={{
+          icon: "arrow-left",
+          onPress: () => {
+            this.props.navigation.goBack();
+          },
+          visible: true,
+        }}
+      />
+    );
+  };
+
   render() {
     return (
       <>
         <StatusBar barStyle="default" />
         <SafeAreaView style={{ flex: 1 }}>
-          <View style={styles.head}>
-            <RectButton
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}
-            >
-              <Icon name="arrow-left" size={24} style={{ margin: 10 }} />
-            </RectButton>
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-              }}
-            >
-              {"내 정보"}
-            </Text>
-            <RectButton onPress={() => {}}>
-              <Text style={styles.title}>{"수정하기"}</Text>
-            </RectButton>
-          </View>
+          {this.header()}
           <ScrollView>
             <View style={styles.profileArea}>
               <View style={styles.profileImageContainer}>

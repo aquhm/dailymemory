@@ -35,7 +35,9 @@ class SignInScreen extends React.Component<Props> {
     console.log("SignInScreen");
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    console.log("onSignIn componentDidMount");
+
     this._unsubscribe = Firebase.Instance.setAuthStateChange((user: any): void => {
       if (user) {
         this.props.navigation.navigate("MainStack");
@@ -65,7 +67,7 @@ class SignInScreen extends React.Component<Props> {
         <Formik
           validationSchema={SignInSchema}
           initialValues={{ email: "", password: "" }}
-          isInitialValid={false}
+          validateOnMount={false}
           onSubmit={async (
             values: { email: string; password: string },
             actions: { setSubmitting: (arg0: boolean) => void }
