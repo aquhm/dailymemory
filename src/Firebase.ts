@@ -91,18 +91,19 @@ class Firebase {
     }
   };
 
-  public uploadImage = async (userId: string, imageUri: string, uploadCompleted?: () => void) => {
+  public uploadImage = async (imageUri: string, uploadCompleted?: () => void) => {
     try {
-      const fileExtension = imageUri.split(".").pop();
+      console.log("uploadImageuploadImageuploadImageuploadImageuploadImage: " + imageUri);
+
+      const a = ".";
+      const fileExtension = imageUri.split(a).pop();
       console.log("Ext : " + fileExtension);
 
       const fileName = `${uuid()}.${fileExtension}`;
+      var ref = this.storage.ref().child(`images/profile/${fileName}`);
 
       const response = await fetch(imageUri);
       const blob = await response.blob();
-      let downloadUri: string = "";
-
-      var ref = this.storage.ref().child(`images/profile/${fileName}`);
 
       ref.put(blob).on(
         firebase.storage.TaskEvent.STATE_CHANGED,
@@ -121,13 +122,12 @@ class Firebase {
           ref.getDownloadURL().then((url) => {
             console.log("File available at : " + url);
 
-            downloadUri = url;
             uploadCompleted && uploadCompleted();
           });
         }
       );
 
-      return Promise.resolve(downloadUri);
+      //return Promise.resolve(downloadUri);
     } catch (error) {
       throw new Error(`Function [${this.uploadImage.name}] ${error}`);
     }
@@ -183,6 +183,12 @@ class Firebase {
     const userDoc = this.userCollection.doc(userId);
 
     await userDoc?.set(userData, { merge: true });
+  }
+
+  public async updateUserData(userId: string, userData: any, onComplete?: (a: Error | null) => any) {
+    const userDoc = this.userCollection.doc(userId);
+
+    await userDoc?.update(userData);
   }
 
   public async getUserData(userId: string) {

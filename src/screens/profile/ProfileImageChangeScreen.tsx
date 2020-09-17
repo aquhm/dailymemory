@@ -131,10 +131,11 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
     }
   };
 
-  uploadImage = async () => {
+  uploadImage = () => {
     if (this.state.imageUri != null && _.isEmpty(this.state.imageUri) == false) {
-      console.log("uploadImage this.state.imageUri = " + this.state.imageUri);
-      return RootStore.Instance.AuthStore.UploadImage1(this.state.imageUri);
+      RootStore.Instance.AuthStore.UploadImage(this.state.imageUri, () => {
+        Alert.alert("Success");
+      });
     }
   };
 
@@ -153,9 +154,7 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
         right={{
           label: "저장하기",
           onPress: () => {
-            this.uploadImage().then(() => {
-              Alert.alert("Success");
-            });
+            this.uploadImage();
           },
           visible: _.isEmpty(this.state.imageUri) == false,
         }}

@@ -17,6 +17,7 @@ import rootStore from "./src/stores/RootStore";
 import { AppearanceProvider } from "react-native-appearance";
 import { Provider as MobxProvider } from "mobx-react";
 import Firebase from "./src/Firebase";
+import RootStore from "./src/stores/RootStore";
 
 interface State {
   isReady: boolean;
@@ -29,6 +30,8 @@ export default class App extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
     console.log("App constructor");
+
+    RootStore.Instance.Initialize();
   }
 
   /*Todo 

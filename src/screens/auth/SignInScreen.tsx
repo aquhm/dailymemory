@@ -38,16 +38,21 @@ class SignInScreen extends React.Component<Props> {
   componentDidMount() {
     console.log("onSignIn componentDidMount");
 
+    if (RootStore.Instance.AuthStore.isLogin) {
+      this.props.navigation.navigate("MainStack");
+    }
+    /*
     this._unsubscribe = Firebase.Instance.setAuthStateChange((user: any): void => {
       if (user) {
         this.props.navigation.navigate("MainStack");
       } else {
       }
     });
+    */
   }
 
   componentWillUnmount() {
-    this._unsubscribe();
+    //this._unsubscribe();
   }
 
   onSignIn = async (email: string, password: string) => await RootStore.Instance.AuthStore.Login(email, password);

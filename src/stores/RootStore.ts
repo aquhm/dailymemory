@@ -22,6 +22,10 @@ class RootStore {
   public get AuthStore() {
     return this._authStore;
   }
+
+  public Initialize = () => {
+    this._authStore.Initialize();
+  };
 }
 
 export default RootStore;
