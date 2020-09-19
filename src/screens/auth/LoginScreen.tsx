@@ -21,11 +21,12 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 import { LoginTitle } from "../../constants/Images";
 import Theme from "../../constants/Styles";
+import RootStore from "../../stores/RootStore";
 
 //import LoginButton from "../../components/LoginButton"
 
 interface Props {
-  navigation: AuthStackNavigationProps<"SignUp">;
+  navigation: AuthStackNavigationProps<"Login">;
 }
 const { height, width } = Dimensions.get("window");
 
@@ -33,6 +34,14 @@ class LoginScreen extends React.Component<Props> {
   constructor(props: Props) {
     console.log("LoginScreen");
     super(props);
+  }
+
+  componentWillMount() {
+    console.log("Login componentDidMount");
+
+    if (RootStore.Instance.AuthStore.isLogin) {
+      this.props.navigation.navigate("MainStack");
+    }
   }
 
   render() {

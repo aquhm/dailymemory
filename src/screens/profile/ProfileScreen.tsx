@@ -11,6 +11,8 @@ import { RectButton } from "react-native-gesture-handler";
 
 import Header from "../../components/common/Header";
 
+import RootStore from "../../stores/RootStore";
+
 interface Props {
   navigation: ProfileStackNavigationProps<"Profile">;
 }
@@ -41,6 +43,8 @@ class ProfileScreen extends React.Component<Props> {
   };
 
   render() {
+    const { profile_uri } = RootStore.Instance.AuthStore.user;
+
     return (
       <>
         <StatusBar barStyle="default" />
@@ -50,6 +54,7 @@ class ProfileScreen extends React.Component<Props> {
             <View style={styles.profileArea}>
               <View style={styles.profileImageContainer}>
                 <ProfileRoundImage
+                  imageUri={profile_uri ?? ""}
                   size={80}
                   showEditIcon
                   onPress={() => {

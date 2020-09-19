@@ -15,8 +15,7 @@ import * as Permissions from "expo-permissions";
 import * as _ from "lodash";
 
 import Header from "../../components/common/Header";
-import Firebase from "../../Firebase";
-import * as firebase from "firebase";
+
 import RootStore from "../../stores/RootStore";
 
 interface Props {
@@ -46,15 +45,18 @@ const menuData: BaseItem[] = [
 
 class ProfileImageChangeScreen extends React.Component<Props, State> {
   state: State = {
-    imageUri: undefined,
+    imageUri: RootStore.Instance.AuthStore.user.profile_uri ?? "",
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.initialize();
+  }
 
   bottomPopupRef = createRef<typeof BottomPopup>();
 
   componentDidMount() {
     console.log("ProfileImageChangeScreen componentDidMount");
-
-    this.initialize();
   }
 
   initialize = () => {
