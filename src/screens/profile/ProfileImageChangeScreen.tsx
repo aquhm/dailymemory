@@ -5,6 +5,8 @@ import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
 
 import { Feather as Icon } from "@expo/vector-icons";
 
+import { observer, inject } from "mobx-react";
+
 import ProfileRoundImage from "../../components/ProfileRoundImage";
 import TextWithIconButton from "../../components/TextWithIconButton";
 import BottomPopup, { BaseItem } from "../../components/BottomPopup";
@@ -17,9 +19,11 @@ import * as _ from "lodash";
 import Header from "../../components/common/Header";
 
 import RootStore from "../../stores/RootStore";
+import AuthStore from "../../stores/AuthStore";
 
 interface Props {
   navigation: ProfileStackNavigationProps<"ProfileImageChange">;
+  authStore: AuthStore;
 }
 
 interface State {
@@ -43,9 +47,11 @@ const menuData: BaseItem[] = [
   },
 ];
 
+@inject("authStore")
+@observer
 class ProfileImageChangeScreen extends React.Component<Props, State> {
   state: State = {
-    imageUri: RootStore.Instance.AuthStore.user.profile_uri ?? "",
+    imageUri: RootStore.Instance.AuthStore.profileImageUri ?? "",
   };
 
   constructor(props: Props) {
@@ -137,6 +143,7 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
     if (this.state.imageUri != null && _.isEmpty(this.state.imageUri) == false) {
       RootStore.Instance.AuthStore.UploadImage(this.state.imageUri, () => {
         Alert.alert("Success");
+        this.props.navigation.goBack();
       });
     }
   };
@@ -163,8 +170,6 @@ class ProfileImageChangeScreen extends React.Component<Props, State> {
       />
     );
   };
-
-  componentWillUnmount() {}
 
   render() {
     return (

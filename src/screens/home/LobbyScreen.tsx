@@ -24,19 +24,12 @@ class LobbyScreen extends React.Component<Props> {
 
   render() {
     const { navigation } = this.props;
-    console.log(`---------------- LobbyScreen navigation = ${JSON.stringify(navigation)} ----------------------`);
     return (
       <>
         <HandleBack />
         <MainHeader
           title="LobbyScreen"
           menuAction={() => {
-            console.log("---------------- LobbyScreen  menuAction  navigation ----------------------");
-            console.log(
-              `---------------- LobbyScreen  menuAction  navigation=${JSON.stringify(
-                navigation
-              )} ----------------------`
-            );
             navigation.dispatch(DrawerActions.openDrawer());
           }}
         />

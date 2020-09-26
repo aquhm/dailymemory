@@ -2,7 +2,7 @@ import AuthStore from "./AuthStore";
 
 class RootStore {
   static _rootStore?: RootStore;
-  private readonly _authStore: AuthStore;
+  public _authStore: AuthStore;
 
   static get Instance() {
     if (!this._rootStore) {

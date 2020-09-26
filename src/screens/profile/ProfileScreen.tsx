@@ -5,6 +5,8 @@ import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
 
 import { Feather as Icon } from "@expo/vector-icons";
 
+import { observer, inject, MobXProviderContext, useObserver, useLocalStore } from "mobx-react";
+import { DefaultProfileImage } from "../../constants/Images";
 import ProfileRoundImage from "../../components/ProfileRoundImage";
 import TextWithIconButton from "../../components/TextWithIconButton";
 import { RectButton } from "react-native-gesture-handler";
@@ -12,11 +14,15 @@ import { RectButton } from "react-native-gesture-handler";
 import Header from "../../components/common/Header";
 
 import RootStore from "../../stores/RootStore";
+import AuthStore from "../../stores/AuthStore";
 
 interface Props {
   navigation: ProfileStackNavigationProps<"Profile">;
+  authStore: AuthStore;
 }
 
+@inject("authStore")
+@observer
 class ProfileScreen extends React.Component<Props> {
   componentDidMount() {
     console.log("ProfileScreen componentDidMount");
@@ -43,7 +49,7 @@ class ProfileScreen extends React.Component<Props> {
   };
 
   render() {
-    const { profile_uri } = RootStore.Instance.AuthStore.user;
+    const { authStore } = this.props;
 
     return (
       <>
@@ -54,7 +60,8 @@ class ProfileScreen extends React.Component<Props> {
             <View style={styles.profileArea}>
               <View style={styles.profileImageContainer}>
                 <ProfileRoundImage
-                  imageUri={profile_uri ?? ""}
+                  imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage}
+                  //imageUri={DefaultProfileImage}
                   size={80}
                   showEditIcon
                   onPress={() => {

@@ -65,7 +65,7 @@ class SignUpScreen extends React.Component<Props, State> {
 
     console.log("SignUpScreen");
   }
-  componentWillMount() {
+  componentDidMount() {
     this._unsubscribe = Firebase.Instance.setAuthStateChange((user: any): void => {
       if (user) {
         this.props.navigation.navigate("MainStack");

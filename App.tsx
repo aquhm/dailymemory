@@ -18,6 +18,7 @@ import { AppearanceProvider } from "react-native-appearance";
 import { Provider as MobxProvider } from "mobx-react";
 import Firebase from "./src/Firebase";
 import RootStore from "./src/stores/RootStore";
+import AuthStore from "./src/stores/RootStore";
 
 interface State {
   isReady: boolean;
@@ -66,7 +67,8 @@ export default class App extends React.Component<{}, State> {
     return this.state.isReady ? (
       //<StoreContainer>
       //<ThemeProvider>
-      <MobxProvider {...rootStore}>
+      //<MobxProvider {...RootStore.Instance}>
+      <MobxProvider rootStore={RootStore.Instance} authStore={RootStore.Instance.AuthStore}>
         <SafeAreaProvider>
           <RouteContainer />
         </SafeAreaProvider>

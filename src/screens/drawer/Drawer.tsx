@@ -1,25 +1,24 @@
 import React from "react";
 import { Dimensions, View, Text, StyleSheet, ScrollView, ImageBackground, Image } from "react-native";
 
-import {
-  createDrawerNavigator,
-  DrawerNavigationProp,
-  DrawerItem,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerContentComponentProps,
-  DrawerContentOptions,
-} from "@react-navigation/drawer";
+import { DrawerContentComponentProps, DrawerContentOptions } from "@react-navigation/drawer";
 
 import DrawerItems from "../../constants/DrawerItems";
 import { DrawerBg } from "../../constants/Images";
 import ProfileRoundImage from "../../components/ProfileRoundImage";
+import { DefaultProfileImage } from "../../constants/Images";
 
 import { HomeNavigationProps } from "../../routes/HomeNavigator";
 
 import { DrawerEntry } from "./DrawerEntry";
 
+import { observer, inject, MobXProviderContext, useObserver, useLocalStore } from "mobx-react";
+import { observable } from "mobx";
+
 import RootStore from "../../stores/RootStore";
+import AuthStore from "../../stores/AuthStore";
+import { useStores, useGlobalStore } from "../../stores/useStores";
+import { stringify } from "uuid";
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.8;
@@ -31,12 +30,21 @@ interface DrawerProps {
 }
 
 const Drawer = ({ ...props }) => {
+  const useUserData = () => {
+    const { rootStore } = useStores();
+
+    return useObserver(() => ({
+      imageProfileUri: rootStore.AuthStore.profileImageUri,
+    }));
+  };
+
   const { navigation } = props;
+  const { imageProfileUri } = useUserData();
+
   return (
     <ScrollView>
       <ImageBackground source={DrawerBg} style={styles.imageBackground}>
-        {/*<Image source={require("../../../assets/temp_profil_img.jpg")} style={styles.profile} />*/}
-        <ProfileRoundImage size={80} showEditIcon />
+        <ProfileRoundImage imageUri={imageProfileUri ?? DefaultProfileImage} size={80} showEditIcon />
         <Text style={styles.name}>Aquhm</Text>
       </ImageBackground>
 

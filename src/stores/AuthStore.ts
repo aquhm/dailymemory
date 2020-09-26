@@ -1,4 +1,5 @@
 import { action, observable, computed } from "mobx";
+
 import Firebase from "../Firebase";
 import * as firebase from "firebase/app";
 import "firebase/auth";
@@ -24,6 +25,7 @@ class AuthStore {
   constructor(private _rootStore: RootStore) {
     console.log("AuthStore");
 
+    this._profileImageUri = "";
     Firebase.Instance.setAuthStateChange(this.onAuthStateChanged);
   }
 
@@ -65,7 +67,8 @@ class AuthStore {
     this._user = user;
   };
 
-  private get profileImageUri(): string | undefined {
+  public get profileImageUri(): string | undefined {
+    console.log(" --------------------- profileImageUri call");
     return this._profileImageUri;
   }
 
