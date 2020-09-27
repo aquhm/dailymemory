@@ -157,6 +157,7 @@ class SignUpScreen extends React.Component<Props, State> {
                     touched={touched.email}
                     error={errors.email}
                     placeholder="Enter your Email"
+                    keyboardType="email-address"
                     placeholderTextColor={Theme.COLOR.INPUT}
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}

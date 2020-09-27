@@ -36,7 +36,7 @@ class LoginScreen extends React.Component<Props> {
     super(props);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     console.log("Login componentDidMount");
 
     if (RootStore.Instance.AuthStore.isLogin) {

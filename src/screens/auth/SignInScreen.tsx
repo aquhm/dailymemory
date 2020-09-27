@@ -101,6 +101,7 @@ class SignInScreen extends React.Component<Props> {
                     error={errors.email}
                     placeholder="Enter your Email"
                     placeholderTextColor={Theme.COLOR.INPUT}
+                    keyboardType="email-address"
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     value={values.email}

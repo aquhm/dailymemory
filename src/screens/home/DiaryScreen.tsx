@@ -1,14 +1,21 @@
-import React from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import { MainHeader } from "../../components/Header";
+import React, { createRef } from "react";
+import { View, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions } from "react-native";
 
 import { HomeNavigationProps } from "../../routes/HomeNavigator";
+import Header from "../../components/common/Header";
+import LineTextInput from "../../components/Form/LineTextInput";
+
+const { width, height } = Dimensions.get("window");
+const editHeight = height * 0.3;
+const editWidth = width * 0.8;
 
 interface Props {
   navigation: HomeNavigationProps<"Home", "Diary">;
 }
 
 class DiaryScreen extends React.Component<Props> {
+  lienTextRef = createRef<typeof LineTextInput>();
+
   componentDidMount() {
     console.log(" componentDidMount DiaryScreen");
   }
@@ -17,15 +24,57 @@ class DiaryScreen extends React.Component<Props> {
     console.log(" componentWillUnmount DiaryScreen");
   }
 
+  header = () => {
+    return (
+      <Header
+        title="일기"
+        color="black"
+        left={{
+          icon: "arrow-left",
+          onPress: () => {
+            this.props.navigation.goBack();
+          },
+          visible: true,
+        }}
+        right={{
+          icon: "check",
+          onPress: () => {},
+          visible: true,
+        }}
+      />
+    );
+  };
+
   render() {
-    const navigation = this.props.navigation;
+    console.log(`DiaryScreen render() editHeight = ${editHeight}`);
 
     return (
       <>
-        <MainHeader title="DiaryScreen" menuAction={() => navigation.goBack()} />
-        <View style={{ flex: 1, backgroundColor: "#25365d" }}>
-          <Text style={{ fontSize: 30, color: "#fff" }}>DiaryScreen</Text>
-        </View>
+        <StatusBar barStyle="default" />
+        <SafeAreaView style={{ flex: 1 }}>
+          {this.header()}
+          <View style={styles.container}>
+            <View style={styles.textEditcontainer}>
+              <View style={{ flex: 1 }}>
+                <LineTextInput
+                  ref={this.lienTextRef}
+                  lineWidth={editWidth}
+                  line={3}
+                  lineLeading={24}
+                  size={14}
+                  lineColor="black"
+                  placeholder="일상을 남겨주세요."
+                />
+                <View style={{ flex: 1, flexDirection: "row-reverse", marginTop: 30, justifyContent: "space-between" }}>
+                  <View>
+                    <Text>2020년 9월 27일</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+            <View style={styles.imageEditcontainer}></View>
+          </View>
+        </SafeAreaView>
       </>
     );
   }
@@ -33,6 +82,18 @@ class DiaryScreen extends React.Component<Props> {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+
+  textEditcontainer: {
+    flex: 1,
+    justifyContent: "flex-start",
+  },
+
+  imageEditcontainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
