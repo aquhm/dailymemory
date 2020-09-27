@@ -23,14 +23,17 @@ const LineTextInput = forwardRef(
   ) => {
     const [messageText, setMessageText] = useState<string>("");
 
-    const textLine = () => (
-      <View style={{ height: lineLeading, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: lineColor }} />
+    const textLine = (key: number) => (
+      <View
+        key={key}
+        style={{ height: lineLeading, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: lineColor }}
+      />
     );
 
     const LineBg = () => (
       <View style={{ ...StyleSheet.absoluteFillObject, opacity: lineOpacity, marginTop: 20 }}>
         {[...Array(line)].map((n, index) => {
-          return textLine();
+          return textLine(index);
         })}
       </View>
     );
