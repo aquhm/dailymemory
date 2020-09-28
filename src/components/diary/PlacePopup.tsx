@@ -56,7 +56,6 @@ const PlacePopup = forwardRef(
 
       return (
         <TouchableWithoutFeedback
-          style={{ flex: 1, width: "100%" }}
           onPress={() => {
             setActive(false);
           }}
@@ -147,7 +146,6 @@ const PlacePopup = forwardRef(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    zIndex: 2,
     justifyContent: "center",
     alignItems: "center",
   },
