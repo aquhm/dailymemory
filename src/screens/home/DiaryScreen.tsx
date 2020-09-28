@@ -6,10 +6,12 @@ import Header from "../../components/common/Header";
 import LineTextInput from "../../components/Form/LineTextInput";
 
 import DateTimePicker from "react-native-modal-datetime-picker";
+import PlacePopup from "../../components/diary/PlacePopup";
 
 import { RectButton } from "react-native-gesture-handler";
 import "moment/locale/ko";
 import moment from "moment";
+import * as _ from "lodash";
 
 const { width, height } = Dimensions.get("window");
 const editHeight = height * 0.3;
@@ -22,16 +24,20 @@ interface Props {
 interface State {
   isDateTimePickerVisible: boolean;
   dateTime: string;
+  place?: string;
 }
 
 class DiaryScreen extends React.Component<Props, State> {
   lienTextRef = createRef<typeof LineTextInput>();
+  placePopupRef = createRef<typeof PlacePopup>();
+  placeTextRef = createRef<typeof Text>();
 
   constructor(props: Props) {
     super(props);
     this.state = {
       isDateTimePickerVisible: false,
       dateTime: moment().format("LL"),
+      place: undefined,
     };
 
     moment.locale("ko");
@@ -58,6 +64,10 @@ class DiaryScreen extends React.Component<Props, State> {
     this.setState({ dateTime: moment(date).format("LL") });
 
     this.hideDateTimePicker();
+  };
+
+  handlePlace = (pickedPlace: string) => {
+    _.isEmpty(pickedPlace) === false && this.setState({ place: pickedPlace });
   };
 
   header = () => {
@@ -102,14 +112,24 @@ class DiaryScreen extends React.Component<Props, State> {
                   placeholder="일상을 남겨주세요."
                 />
                 <View style={{ flex: 1, flexDirection: "row-reverse", marginTop: 30, justifyContent: "space-between" }}>
-                  <RectButton
-                    onPress={() => {
-                      console.log("DiaryScreen DiaryScreen DiaryScreen  RectButton");
-                      this.showDateTimePicker();
-                    }}
-                  >
-                    <Text>{this.state.dateTime}</Text>
-                  </RectButton>
+                  <View style={{ flex: 1, flexDirection: "row" }}>
+                    <RectButton
+                      onPress={() => {
+                        this.showDateTimePicker();
+                      }}
+                    >
+                      <Text>{this.state.dateTime}</Text>
+                    </RectButton>
+                    <Text>/</Text>
+                    <RectButton
+                      onPress={() => {
+                        // @ts-ignore
+                        this.placePopupRef.current?.open();
+                      }}
+                    >
+                      <Text style={{ opacity: this.state.place ? 1.0 : 0.5 }}>{this.state.place || "장소에서"}</Text>
+                    </RectButton>
+                  </View>
                 </View>
               </View>
             </View>
@@ -119,6 +139,15 @@ class DiaryScreen extends React.Component<Props, State> {
             isVisible={this.state.isDateTimePickerVisible}
             onConfirm={this.handleDatePicked}
             onCancel={this.hideDateTimePicker}
+          />
+          <PlacePopup
+            ref={this.placePopupRef}
+            title="장소"
+            ok={this.handlePlace}
+            cancel={() => {
+              // @ts-ignore
+              this.placePopupRef.current?.close();
+            }}
           />
         </SafeAreaView>
       </>
