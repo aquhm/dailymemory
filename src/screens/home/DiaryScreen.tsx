@@ -1,7 +1,8 @@
 import React, { createRef } from "react";
 import { View, Image, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions } from "react-native";
 
-import { HomeNavigationProps } from "../../routes/HomeNavigator";
+import { HomeNavigationProps, DiaryNavigatorStackProps } from "../../routes/HomeNavigator";
+import { DiaryStackNavigationProps } from "../../routes/DiaryNavigator";
 import Header from "../../components/common/Header";
 import LineTextInput from "../../components/Form/LineTextInput";
 
@@ -33,8 +34,14 @@ const menuData: BaseItem[] = [
   },
 ];
 
+/*
 interface Props {
   navigation: HomeNavigationProps<"Home", "Diary">;
+}
+*/
+
+interface Props {
+  navigation: DiaryNavigatorStackProps<"Diary">;
 }
 
 interface State {
@@ -155,6 +162,7 @@ class DiaryScreen extends React.Component<Props, State> {
             <Text>{this.state.dateTime}</Text>
           </RectButton>
           <Text>/</Text>
+
           <RectButton
             onPress={() => {
               // @ts-ignore
@@ -162,6 +170,13 @@ class DiaryScreen extends React.Component<Props, State> {
             }}
           >
             <Text style={{ opacity: this.state.place ? 1.0 : 0.5 }}>{this.state.place || "장소에서"}</Text>
+          </RectButton>
+          <RectButton
+            onPress={() => {
+              this.props.navigation.navigate("Map");
+            }}
+          >
+            <Icon name="map-pin" size={24} />
           </RectButton>
         </View>
       </View>

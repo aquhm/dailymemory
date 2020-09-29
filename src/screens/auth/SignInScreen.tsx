@@ -74,6 +74,7 @@ class SignInScreen extends React.Component<Props> {
             if (res) {
               console.log("onSignIn success");
               actions.setSubmitting(false);
+              this.props.navigation.navigate("MainStack");
             } else {
               console.log("onSignIn fail");
               actions.setSubmitting(false);

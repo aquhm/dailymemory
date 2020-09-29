@@ -12,6 +12,7 @@ import ProfileScreen from "../screens/home/ProfileScreen";
 import SubscribeScreen from "../screens/home/SubscribeScreen";
 
 import ProfileNavigator from "./ProfileNavigator";
+import DiaryNavigator from "./DiaryNavigator";
 
 import SettingScreen from "../screens/home/SettingScreen";
 
@@ -44,10 +45,25 @@ type HomeNavigatorDrawerProps<T extends keyof HomeNavigatorDrawerParamList> = Dr
   T
 >;
 
+type DiaryNavigatorStackParamList = {
+  Diary: undefined;
+  Map: undefined;
+};
+
+type DiaryNavigatorStackProps<T extends keyof DiaryNavigatorStackParamList> = StackNavigationProp<
+  DiaryNavigatorStackParamList,
+  T
+>;
+
 type HomeNavigationProps<
   T1 extends keyof HomeNavigatorDrawerParamList,
   T2 extends keyof HomeNavigatorBottomParamList
 > = CompositeNavigationProp<HomeNavigatorDrawerProps<T1>, HomeNavigatorBottomProps<T2>>;
+
+type DiaryNavigationProps<
+  T1 extends keyof DiaryNavigatorStackParamList,
+  T2 extends keyof HomeNavigatorBottomParamList
+> = CompositeNavigationProp<DiaryNavigatorStackProps<T1>, HomeNavigatorBottomProps<T2>>;
 
 type HomeNavigationDrawProps<T extends keyof HomeNavigatorDrawerParamList> = HomeNavigatorDrawerProps<T>;
 
@@ -58,7 +74,7 @@ const HomeBottomNavigator = () => {
   return (
     <BottomTab.Navigator initialRouteName="Lobby">
       <BottomTab.Screen name="Lobby" component={LobbyScreen} />
-      <BottomTab.Screen name="Diary" component={DiaryScreen} />
+      <BottomTab.Screen name="Diary" component={DiaryNavigator} />
       <BottomTab.Screen name="Subscribe" component={SubscribeScreen} />
       <BottomTab.Screen name="Notice" component={NoticeScreen} />
       <BottomTab.Screen name="Profile" component={ProfileScreen} />
@@ -97,4 +113,4 @@ const HomeNavigator = () => {
   );
 };
 
-export { HomeNavigator, HomeNavigationProps, HomeNavigationDrawProps };
+export { HomeNavigator, HomeNavigationProps, HomeNavigationDrawProps, DiaryNavigatorStackProps };
