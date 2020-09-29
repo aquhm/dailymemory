@@ -7,7 +7,7 @@ import * as Permissions from "expo-permissions";
 import RoundedIconButton from "../../components/RoundedIconButton";
 
 interface State {
-  mapRegion: Region;
+  mapRegion?: Region;
   location?: Location.LocationData | undefined;
   geocode?: Location.Address[];
   hasLocationPermissions: boolean;
@@ -23,15 +23,18 @@ interface Props {
 export default class MapScreen extends React.Component<Props, State> {
   state: State = {
     location: undefined,
-    mapRegion: {
-      latitude: 0,
-      longitude: 0,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    },
     geocode: undefined,
     hasLocationPermissions: false,
   };
+  myLatitude: number;
+  myLongitude: number;
+
+  constructor(props: Props) {
+    super(props);
+    console.log("MapScreen");
+    this.myLatitude = 0;
+    this.myLongitude = 0;
+  }
 
   componentDidMount() {
     this.getLocationAsync();
@@ -60,6 +63,10 @@ export default class MapScreen extends React.Component<Props, State> {
       console.log("getLocationAsync latitude = " + location.coords.latitude);
       console.log("getLocationAsync longitude = " + location.coords.longitude);
       // Center the map on the location we just fetched.
+
+      this.myLatitude = location.coords.latitude;
+      this.myLongitude = location.coords.longitude;
+
       this.setState({
         location: location,
         mapRegion: {
@@ -80,10 +87,9 @@ export default class MapScreen extends React.Component<Props, State> {
     this.setState({ geocode: _geocode });
   };
 
-  render() {
-    const { latitude, longitude } = this.props;
+  renderMap = () => {
     return (
-      <View style={styles.container}>
+      this.state.mapRegion && (
         <MapView
           style={styles.mapStyle}
           region={this.state.mapRegion}
@@ -93,8 +99,21 @@ export default class MapScreen extends React.Component<Props, State> {
           mapType="standard"
           loadingEnabled
         >
-          {/*<Marker coordinate={{ latitude: latitude, longitude: longitude }} title={this.props.palceTitle} draggable />*/}
+          {
+            <Marker
+              coordinate={{ latitude: this.myLatitude, longitude: this.myLongitude }}
+              title={this.props.palceTitle || ""}
+              draggable
+            />
+          }
         </MapView>
+      )
+    );
+  };
+
+  renderOverlayButtons = () => {
+    return (
+      <>
         <View
           style={{
             flexDirection: "row-reverse",
@@ -114,6 +133,47 @@ export default class MapScreen extends React.Component<Props, State> {
             }}
           />
         </View>
+        <View
+          style={{
+            flexDirection: "column-reverse",
+            ...StyleSheet.absoluteFillObject,
+            bottom: 10,
+            right: 10,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row-reverse",
+            }}
+          >
+            <RoundedIconButton
+              name="map-pin"
+              size={32}
+              iconScale={0.5}
+              backgroundColor={"white"}
+              color="black"
+              onPress={() => {
+                this.setState({
+                  mapRegion: {
+                    latitude: this.myLatitude,
+                    longitude: this.myLongitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                  },
+                });
+              }}
+            />
+          </View>
+        </View>
+      </>
+    );
+  };
+
+  render() {
+    return (
+      <View style={styles.container}>
+        {this.renderMap()}
+        {this.renderOverlayButtons()}
       </View>
     );
   }
