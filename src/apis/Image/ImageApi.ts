@@ -1,6 +1,11 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
+import Firebase from "../../Firebase";
+import * as firebase from "firebase/app";
+
 import { Platform } from "react-native";
+import { StorageImagePathType } from "../../constants/StoragePath";
+import { v4 as uuid } from "uuid";
 
 class ImageApi {
   private constructor() {}
@@ -61,6 +66,49 @@ class ImageApi {
 
     return result;
   };
+
+  public static async uploadImageAsync(
+    targetPath: StorageImagePathType,
+    imageUri: string,
+    uploadCompleted?: () => void
+  ) {
+    try {
+      const a = ".";
+      const fileExtension = imageUri.split(a).pop();
+      console.log("Ext : " + fileExtension);
+
+      const fileName = `${uuid()}.${fileExtension}`;
+      var ref = Firebase.Instance.storage.ref().child(`${targetPath}/${fileName}`);
+
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      ref.put(blob).on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        (snapshot) => {
+          console.log("snapshot: " + snapshot.state);
+          console.log("progress: " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+
+          if (snapshot.state == firebase.storage.TaskState.SUCCESS) {
+            console.log("upload Success");
+          }
+        },
+        (error) => {
+          console.log("upload error: " + error.message);
+        },
+        () => {
+          ref.getDownloadURL().then((url) => {
+            //this.setProfileImage(url);
+
+            uploadCompleted && uploadCompleted();
+          });
+        }
+      );
+    } catch (error) {
+      throw new Error(`Function [${this.uploadImageAsync.name}] ${error}`);
+    }
+  }
 }
 
+export { StorageImagePathType };
 export default ImageApi;

@@ -68,7 +68,11 @@ export default class App extends React.Component<{}, State> {
       //<StoreContainer>
       //<ThemeProvider>
       //<MobxProvider {...RootStore.Instance}>
-      <MobxProvider rootStore={RootStore.Instance} authStore={RootStore.Instance.AuthStore}>
+      <MobxProvider
+        rootStore={RootStore.Instance}
+        authStore={RootStore.Instance.AuthStore}
+        diaryStore={RootStore.Instance.DiaryStore}
+      >
         <SafeAreaProvider>
           <RouteContainer />
         </SafeAreaProvider>

@@ -8,13 +8,15 @@ import { CompositeNavigationProp } from "@react-navigation/native";
 import DiaryScreen from "../screens/home/DiaryScreen";
 import LobbyScreen from "../screens/home/LobbyScreen";
 import NoticeScreen from "../screens/home/NoticeScreen";
-import ProfileScreen from "../screens/home/ProfileScreen";
 import SubscribeScreen from "../screens/home/SubscribeScreen";
 
 import ProfileNavigator from "./ProfileNavigator";
 import DiaryNavigator from "./DiaryNavigator";
+import UserInformationNavigator from "./UserInformationNavigator";
 
 import SettingScreen from "../screens/home/SettingScreen";
+
+import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons";
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
 
@@ -25,8 +27,7 @@ type HomeNavigatorBottomParamList = {
   Diary: undefined;
   Subscribe: undefined;
   Notice: undefined;
-  Profile: undefined;
-  Default: undefined;
+  UserInformation: undefined;
 };
 
 type HomeNavigatorBottomProps<T extends keyof HomeNavigatorBottomParamList> = BottomTabNavigationProp<
@@ -73,32 +74,51 @@ const BottomTab = createBottomTabNavigator<HomeNavigatorBottomParamList>();
 const HomeBottomNavigator = () => {
   return (
     <BottomTab.Navigator initialRouteName="Lobby">
-      <BottomTab.Screen name="Lobby" component={LobbyScreen} />
-      <BottomTab.Screen name="Diary" component={DiaryNavigator} />
-      <BottomTab.Screen name="Subscribe" component={SubscribeScreen} />
-      <BottomTab.Screen name="Notice" component={NoticeScreen} />
-      <BottomTab.Screen name="Profile" component={ProfileScreen} />
+      <BottomTab.Screen
+        name="Lobby"
+        component={LobbyScreen}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home" color={color} size={size} />,
+        }}
+      />
+      <BottomTab.Screen
+        name="Diary"
+        component={DiaryNavigator}
+        options={{
+          tabBarLabel: "Diary",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="book-open-variant" color={color} size={size} />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="Subscribe"
+        component={SubscribeScreen}
+        options={{
+          tabBarLabel: "Subscribe",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bookmark-multiple" color={color} size={size} />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="Notice"
+        component={NoticeScreen}
+        options={{
+          tabBarLabel: "Notice",
+          tabBarIcon: ({ color, size }) => <Entypo name="sound" color={color} size={size} />,
+        }}
+      />
+      <BottomTab.Screen
+        name="UserInformation"
+        component={UserInformationNavigator}
+        options={{
+          tabBarLabel: "Me",
+          tabBarIcon: ({ color, size }) => <FontAwesome name="user" color={color} size={size} />,
+        }}
+      />
     </BottomTab.Navigator>
-  );
-};
-
-/*
-const ProfileNavigator = () => {
-  const ProfileStack = createStackNavigator();
-  return (
-    <ProfileStack.Navigator>
-      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
-    </ProfileStack.Navigator>
-  );
-};
-*/
-
-const SettingNavigator = () => {
-  const ProfileStack = createStackNavigator();
-  return (
-    <ProfileStack.Navigator>
-      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
-    </ProfileStack.Navigator>
   );
 };
 
@@ -113,4 +133,4 @@ const HomeNavigator = () => {
   );
 };
 
-export { HomeNavigator, HomeNavigationProps, HomeNavigationDrawProps, DiaryNavigatorStackProps };
+export { HomeNavigator, HomeBottomNavigator, HomeNavigationProps, HomeNavigationDrawProps, DiaryNavigatorStackProps };

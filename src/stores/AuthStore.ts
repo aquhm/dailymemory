@@ -12,18 +12,22 @@ import { v4 as uuid } from "uuid";
 export interface User {
   name: string;
   email: string;
-  profile_uri: string | null;
+  profile_uri: string | undefined;
 }
 
 class AuthStore {
   private readonly _profileImageStoragePath: string = "images/profile";
 
+  private _rootStore: RootStore;
+
   @observable private _firebaseUser?: firebase.User;
   @observable private _profileImageUri?: string;
   @observable private _user?: User;
 
-  constructor(private _rootStore: RootStore) {
+  constructor(private rootStore: RootStore) {
     console.log("AuthStore");
+
+    this._rootStore = rootStore;
 
     this._profileImageUri = "";
     Firebase.Instance.setAuthStateChange(this.onAuthStateChanged);
@@ -58,7 +62,7 @@ class AuthStore {
   }
 
   @action
-  private setProfileImage = (profileImage: string): void => {
+  private setProfileImage = (profileImage: string | undefined): void => {
     this._profileImageUri = profileImage;
   };
 
@@ -76,8 +80,9 @@ class AuthStore {
     if (user != null) {
       console.log("AuthStore onAuthStateChanged login");
       this.setFirebaseUser(user);
-
       this.getUserAsync();
+
+      this._rootStore.DiaryStore.registerQueryListner();
     } else {
       console.log("AuthStore onAuthStateChanged logout");
       this.setFirebaseUser(undefined);
@@ -143,6 +148,7 @@ class AuthStore {
         console.log(`No such user uid = ${this.firebaseUser.uid}`);
       } else {
         this.setUser(userCol.data() as User);
+        this.setProfileImage(this._user?.profile_uri);
       }
     } catch (error) {
       console.error("Error getting document", error);

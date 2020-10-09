@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RoundedIconButton from "../RoundedIconButton";
 
 export interface HeaderProps {
-  left: {
+  left?: {
     icon?: string;
     label?: string;
     onPress: () => void;
@@ -27,7 +27,7 @@ const Header = ({ left, right, title, color }: HeaderProps) => {
   const insets = useSafeAreaInsets();
 
   const renderLeftItem = () => {
-    if (left == null || left.visible == false) return;
+    if (left == null || left.visible == false) return <View />;
 
     if (left.icon != null) {
       return (
@@ -51,8 +51,6 @@ const Header = ({ left, right, title, color }: HeaderProps) => {
 
   const renderRightItem = () => {
     if (right == null || right.visible == false) return;
-
-    console.log("HeaderHeaderHeaderHeaderHeaderHeader right.visible = " + right.visible);
 
     if (right.icon != null) {
       return (

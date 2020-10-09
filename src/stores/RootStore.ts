@@ -1,8 +1,10 @@
 import AuthStore from "./AuthStore";
+import DiaryStore from "./DiaryStore";
 
 class RootStore {
   static _rootStore?: RootStore;
   public _authStore: AuthStore;
+  public _diaryStore: DiaryStore;
 
   static get Instance() {
     if (!this._rootStore) {
@@ -15,6 +17,7 @@ class RootStore {
 
   private constructor() {
     this._authStore = new AuthStore(this);
+    this._diaryStore = new DiaryStore(this);
 
     console.log("Initialize RootStore");
   }
@@ -23,8 +26,13 @@ class RootStore {
     return this._authStore;
   }
 
+  public get DiaryStore() {
+    return this._diaryStore;
+  }
+
   public Initialize = () => {
     this._authStore.Initialize();
+    this._diaryStore.Initialize();
   };
 }
 

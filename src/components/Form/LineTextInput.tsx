@@ -21,8 +21,6 @@ const LineTextInput = forwardRef(
     { line, lineColor, lineWidth, lineOpacity, lineLeading, size, touched, error, value, ...props }: LineTextInputProps,
     ref?: React.Ref<any>
   ) => {
-    const [messageText, setMessageText] = useState<string>("");
-
     const textLine = (key: number) => (
       <View
         key={key}
@@ -52,9 +50,7 @@ const LineTextInput = forwardRef(
             placeholderTextColor={Style.COLOR.PLACEHOLDER}
             multiline
             numberOfLines={3}
-            onChangeText={(editedText) => setMessageText(editedText)}
             textAlignVertical="top"
-            value={messageText}
             {...{ ref }}
             {...props}
           />

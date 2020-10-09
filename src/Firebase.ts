@@ -3,9 +3,14 @@ import "firebase/auth";
 import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
+
+import { WhereFilterOp, DocumentChangeType } from "@firebase/firestore-types";
+
 import { v4 as uuid } from "uuid";
 
 import ApiKeys from "./constants/ApiKeys";
+
+export type CollectionType = "users" | "diaries";
 
 class Firebase {
   //private firebase.auth.AuthProvider _googleProvider;
@@ -81,6 +86,16 @@ class Firebase {
 
   get userCollection() {
     return this.db.collection("users");
+  }
+
+  private getCollection(
+    collection: CollectionType
+  ): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
+    return this.db.collection(collection);
+  }
+
+  get diaryCollection() {
+    return this.db.collection("diaries");
   }
 
   public signInAnonymously = async () => {
@@ -183,6 +198,47 @@ class Firebase {
     const userDoc = this.userCollection.doc(userId);
 
     await userDoc?.set(userData, { merge: true });
+  }
+
+  public async writeData<T extends CollectionType>(collection: T, userData: any) {
+    const col = this.getCollection(collection);
+    const docRef = col.doc();
+
+    await docRef?.set(userData, { merge: true });
+  }
+
+  public async writeDataByDocumentId<T extends CollectionType>(documentId: string, collection: T, userData: any) {
+    const col = this.getCollection(collection);
+    const docRef = col.doc(documentId);
+    await docRef?.set(userData, { merge: true });
+  }
+
+  public async getDataWithFilterAsync<T extends CollectionType>(
+    collection: T,
+    field: string,
+    operator: WhereFilterOp,
+    value: any
+  ) {
+    const col = this.getCollection(collection);
+    const query = col.where(field, operator, value);
+
+    return query.get();
+  }
+
+  public async getDatasWithFilterAsync<T extends CollectionType>(
+    collection: T,
+    field: string,
+    operator: WhereFilterOp,
+    value: any
+  ) {
+    const query = this.createQuary(collection, field, operator, value);
+    return query.get();
+  }
+
+  public createQuary<T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) {
+    const col = this.getCollection(collection);
+    const query = col.where(field, operator, value);
+    return query;
   }
 
   public async updateUserData(userId: string, userData: any, onComplete?: (a: Error | null) => any) {
