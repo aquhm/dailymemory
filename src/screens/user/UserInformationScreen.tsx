@@ -19,7 +19,6 @@ import { UserInformationStackNavigationProps } from "../../routes/UserInformatio
 import { observer, inject } from "mobx-react";
 import { DefaultProfileImage } from "../../constants/Images";
 import ProfileRoundImage from "../../components/ProfileRoundImage";
-import TextWithIconButton from "../../components/TextWithIconButton";
 import { RectButton, TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import Header from "../../components/common/Header";
@@ -27,7 +26,7 @@ import Header from "../../components/common/Header";
 import RootStore from "../../stores/RootStore";
 import AuthStore from "../../stores/AuthStore";
 import DiaryStore, { Diary } from "../../stores/DiaryStore";
-import { string } from "yup";
+
 import * as _ from "lodash";
 
 const { width, height } = Dimensions.get("window");
@@ -73,14 +72,12 @@ class UserInformationScreen extends React.Component<Props, State> {
   }
 
   updateDiaryList = async () => {
-    await RootStore.Instance.DiaryStore.getDiaryAsync();
-
-    this.setState({ data: [defaultData, ...RootStore.Instance.DiaryStore.values] });
+    await RootStore.Instance.DiaryStore.getListAsync();
   };
 
   componentDidMount() {
     console.log("UserInformationScreen componentDidMount");
-    this.updateDiaryList();
+    //this.updateDiaryList();
   }
 
   componentWillUnmount() {
@@ -91,7 +88,6 @@ class UserInformationScreen extends React.Component<Props, State> {
     return (
       <TouchableWithoutFeedback
         onPress={() => {
-          console.log("UserInformationScreen this.props = " + this.props);
           this.props.navigation.navigate("DiaryCreate");
         }}
       >
@@ -208,6 +204,7 @@ class UserInformationScreen extends React.Component<Props, State> {
   };
 
   render() {
+    const dataSource = [defaultData, ...this.props.diaryStore.values.slice()];
     return (
       <>
         <StatusBar barStyle="default" />
@@ -219,9 +216,9 @@ class UserInformationScreen extends React.Component<Props, State> {
           <ScrollView style={{ flex: 1 }}>
             <FlatList
               showsVerticalScrollIndicator={false}
-              data={this.state.data}
+              data={dataSource}
               renderItem={this.renderItem}
-              extraData={this.state.data}
+              extraData={dataSource}
               keyExtractor={(item, index) => item.toString()}
               ItemSeparatorComponent={this.renderSetperator}
               contentContainerStyle={{ paddingBottom: 40 }}

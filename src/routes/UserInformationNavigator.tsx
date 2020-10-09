@@ -6,11 +6,13 @@ import { StackNavigationProp, createStackNavigator } from "@react-navigation/sta
 import UserInformationScreen from "../screens/user/UserInformationScreen";
 import MapScreen from "../screens/map/MapScreen";
 import DiaryCreateScreen from "../screens/diary/DiaryCreateScreen";
+import DiaryScreen from "../screens/home/DiaryScreen";
 
 export type UserInformationStackParamList = {
   UserInformation: undefined;
   Setting: undefined;
   DiaryCreate: undefined;
+  Diary: undefined;
 };
 
 export type UserInformationStackNavigationProps<T extends keyof UserInformationStackParamList> = StackNavigationProp<
@@ -26,6 +28,7 @@ const UserInformationNavigator = () => {
       <Stack.Screen name="UserInformation" component={UserInformationScreen} />
       <Stack.Screen name="Setting" component={MapScreen} />
       <Stack.Screen name="DiaryCreate" component={DiaryCreateScreen} />
+      <Stack.Screen name="Diary" component={DiaryScreen} />
     </Stack.Navigator>
   );
 };

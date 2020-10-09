@@ -48,10 +48,12 @@ class DiaryStore {
           if (change.type === "modified") {
             console.log(`${DiaryStore.name} Modified !! `);
 
-            this.updateDiary(change.doc.id, change.doc.data() as Diary);
+            this.update(change.doc.id, change.doc.data() as Diary);
           }
           if (change.type === "removed") {
             console.log(`${DiaryStore.name} Remove Data: `, change.doc.data());
+
+            this.remove(change.doc.id, change.doc.data() as Diary);
           }
         });
       });
@@ -59,14 +61,14 @@ class DiaryStore {
   };
 
   @action
-  private updateDiary(documentId: string, updatedDiary: Diary): boolean {
+  private update(documentId: string, updatedRecord: Diary): boolean {
     const index = this._diaries.findIndex((t) => {
       return t.documentId === documentId;
     });
 
     if (index != -1) {
-      updatedDiary.documentId = documentId;
-      this._diaries.splice(index, 1, updatedDiary);
+      updatedRecord.documentId = documentId;
+      this._diaries.splice(index, 1, updatedRecord);
 
       return true;
     } else {
@@ -74,7 +76,7 @@ class DiaryStore {
     }
   }
 
-  public getDiaryAsync = async () => {
+  public getListAsync = async () => {
     const snapshot = await Firebase.Instance.getDatasWithFilterAsync(
       "diaries",
       "userId",
@@ -84,7 +86,7 @@ class DiaryStore {
 
     if (snapshot.empty == false) {
       snapshot.forEach((doc) => {
-        if (this.updateDiary(doc.id, doc.data() as Diary) == false) {
+        if (this.update(doc.id, doc.data() as Diary) == false) {
           this.add(doc.id, doc.data() as Diary);
         }
       });
@@ -92,20 +94,22 @@ class DiaryStore {
   };
 
   @action
-  private add = (documentId: string, diary: Diary): void => {
+  private add = (documentId: string, newRecord: Diary): void => {
     if (documentId) {
-      diary.documentId = documentId;
-      this._diaries.push(diary);
+      newRecord.documentId = documentId;
+      this._diaries.push(newRecord);
     } else {
       console.log("add : !! error" + documentId);
     }
   };
 
   @action
-  private remove = (diary: Diary): void => {
-    const index = this._diaries.indexOf(diary, 0);
+  private remove = (documentId: string, diary: Diary): void => {
+    const index = this._diaries.findIndex((t) => {
+      return t.documentId === documentId;
+    });
 
-    if (index > -1) {
+    if (index != -1) {
       this._diaries.splice(index, 1);
     }
   };

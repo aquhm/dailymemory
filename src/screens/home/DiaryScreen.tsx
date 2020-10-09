@@ -34,12 +34,6 @@ const menuData: BaseItem[] = [
   },
 ];
 
-/*
-interface Props {
-  navigation: HomeNavigationProps<"Home", "Diary">;
-}
-*/
-
 interface Props {
   navigation: DiaryNavigatorStackProps<"Diary">;
 }

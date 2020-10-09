@@ -7,7 +7,8 @@ import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
 import RootStore from "./RootStore";
-import { v4 as uuid } from "uuid";
+
+import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
 
 export interface User {
   name: string;
@@ -16,8 +17,6 @@ export interface User {
 }
 
 class AuthStore {
-  private readonly _profileImageStoragePath: string = "images/profile";
-
   private _rootStore: RootStore;
 
   @observable private _firebaseUser?: firebase.User;
@@ -72,7 +71,6 @@ class AuthStore {
   };
 
   public get profileImageUri(): string | undefined {
-    console.log(" --------------------- profileImageUri call");
     return this._profileImageUri;
   }
 
@@ -101,44 +99,6 @@ class AuthStore {
 
   public SignOut = async () => await Firebase.Instance.auth.signOut();
 
-  private uploadProfileImageAsync = async (imageUri: string, uploadCompleted?: () => void) => {
-    try {
-      const a = ".";
-      const fileExtension = imageUri.split(a).pop();
-      console.log("Ext : " + fileExtension);
-
-      const fileName = `${uuid()}.${fileExtension}`;
-      var ref = Firebase.Instance.storage.ref().child(`${this._profileImageStoragePath}/${fileName}`);
-
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-
-      ref.put(blob).on(
-        firebase.storage.TaskEvent.STATE_CHANGED,
-        (snapshot) => {
-          console.log("snapshot: " + snapshot.state);
-          console.log("progress: " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-
-          if (snapshot.state == firebase.storage.TaskState.SUCCESS) {
-            console.log("upload Success");
-          }
-        },
-        (error) => {
-          console.log("upload error: " + error.message);
-        },
-        () => {
-          ref.getDownloadURL().then((url) => {
-            this.setProfileImage(url);
-
-            uploadCompleted && uploadCompleted();
-          });
-        }
-      );
-    } catch (error) {
-      throw new Error(`Function [${this.uploadProfileImageAsync.name}] ${error}`);
-    }
-  };
-
   private getUserAsync = async () => {
     try {
       const userDoc = Firebase.Instance.userCollection.doc(this.firebaseUser.uid);
@@ -165,7 +125,10 @@ class AuthStore {
   };
 
   private *uploadImageTask(uri: string, uploadCompleted?: () => void) {
-    yield this.uploadProfileImageAsync(uri, uploadCompleted);
+    if (uri != null) {
+      yield ImageApi.uploadImageAsync(StorageImagePathType.UserProfile, uri, uploadCompleted);
+    }
+
     yield Firebase.Instance.updateUserData(this.firebaseUser.uid, { profile_uri: this.profileImageUri });
   }
 }
