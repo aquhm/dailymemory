@@ -4,13 +4,28 @@ import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
 
-import { WhereFilterOp, DocumentChangeType } from "@firebase/firestore-types";
-
-import { v4 as uuid } from "uuid";
+import { WhereFilterOp, OrderByDirection } from "@firebase/firestore-types";
 
 import ApiKeys from "./constants/ApiKeys";
 
-export type CollectionType = "users" | "diaries";
+export type CollectionType = "users" | "diaries" | "diary_records";
+
+export interface Where {
+  field: string;
+  operator: WhereFilterOp;
+  value: any;
+}
+
+export interface OrderBy {
+  field: string;
+  direction?: OrderByDirection;
+}
+
+export interface QueryOption {
+  wheres: Array<Where>;
+  orderBy?: OrderBy;
+  limit?: number;
+}
 
 class Firebase {
   //private firebase.auth.AuthProvider _googleProvider;
@@ -97,66 +112,15 @@ class Firebase {
   get diaryCollection() {
     return this.db.collection("diaries");
   }
+  get diaryRecordCollection() {
+    return this.db.collection("diary_records");
+  }
 
   public signInAnonymously = async () => {
     try {
       await this.auth.signInAnonymously();
     } catch (error) {
       throw new Error(`Function [${this.signInAnonymously.name}] ${error}`);
-    }
-  };
-
-  public uploadImage = async (imageUri: string, uploadCompleted?: () => void) => {
-    try {
-      console.log("uploadImageuploadImageuploadImageuploadImageuploadImage: " + imageUri);
-
-      const a = ".";
-      const fileExtension = imageUri.split(a).pop();
-      console.log("Ext : " + fileExtension);
-
-      const fileName = `${uuid()}.${fileExtension}`;
-      var ref = this.storage.ref().child(`images/profile/${fileName}`);
-
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-
-      ref.put(blob).on(
-        firebase.storage.TaskEvent.STATE_CHANGED,
-        (snapshot) => {
-          console.log("snapshot: " + snapshot.state);
-          console.log("progress: " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-
-          if (snapshot.state == firebase.storage.TaskState.SUCCESS) {
-            console.log("upload Success");
-          }
-        },
-        (error) => {
-          console.log("upload error: " + error.message);
-        },
-        () => {
-          ref.getDownloadURL().then((url) => {
-            console.log("File available at : " + url);
-
-            uploadCompleted && uploadCompleted();
-          });
-        }
-      );
-
-      //return Promise.resolve(downloadUri);
-    } catch (error) {
-      throw new Error(`Function [${this.uploadImage.name}] ${error}`);
-    }
-  };
-
-  public downloadImage = async (userId: string) => {
-    try {
-      console.error("Firebase downloadImage Images/" + userId);
-
-      let imageRef = this.storage.ref("Images/" + userId);
-
-      return imageRef.getDownloadURL();
-    } catch (error) {
-      throw new Error(`Function [${this.downloadImage.name}] ${error}`);
     }
   };
 
@@ -207,6 +171,13 @@ class Firebase {
     await docRef?.set(userData, { merge: true });
   }
 
+  public async removeData<T extends CollectionType>(collection: T, documentId: string) {
+    const col = this.getCollection(collection);
+    const docRef = col.doc(documentId);
+
+    return await docRef.delete();
+  }
+
   public async writeDataByDocumentId<T extends CollectionType>(documentId: string, collection: T, userData: any) {
     const col = this.getCollection(collection);
     const docRef = col.doc(documentId);
@@ -225,17 +196,64 @@ class Firebase {
     return query.get();
   }
 
+  public async getDataWithMultiFilterAsync<T extends CollectionType>(collection: T, option: QueryOption) {
+    let col = this.getCollection(collection);
+
+    let query;
+    if (option.wheres.length > 0) {
+      for (let w of option.wheres) {
+        query = col.where(w.field, w.operator, w.value);
+      }
+    }
+
+    if (option.orderBy) {
+      query?.orderBy(option.orderBy.field, option.orderBy.direction);
+    }
+
+    if (option.limit) {
+      query?.limit(option.limit);
+    }
+
+    return query?.get();
+  }
+
+  public createQueryWithOption<T extends CollectionType>(collection: T, option: QueryOption) {
+    let col = this.getCollection(collection);
+
+    let query;
+    if (option.wheres.length > 0) {
+      for (let w of option.wheres) {
+        query = col.where(w.field, w.operator, w.value);
+      }
+    }
+
+    if (option.orderBy) {
+      query?.orderBy(option.orderBy.field, option.orderBy.direction);
+    }
+
+    if (option.limit) {
+      query?.limit(option.limit);
+    }
+
+    return query;
+  }
+
+  public async getDatasWithFilterAsync1<T extends CollectionType>(collection: T, option: QueryOption) {
+    const query = this.createQueryWithOption(collection, option);
+    return await query?.get();
+  }
+
   public async getDatasWithFilterAsync<T extends CollectionType>(
     collection: T,
     field: string,
     operator: WhereFilterOp,
     value: any
   ) {
-    const query = this.createQuary(collection, field, operator, value);
-    return query.get();
+    const query = this.createQuery(collection, field, operator, value);
+    return await query.get();
   }
 
-  public createQuary<T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) {
+  public createQuery<T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) {
     const col = this.getCollection(collection);
     const query = col.where(field, operator, value);
     return query;
@@ -278,16 +296,8 @@ class Firebase {
     return ret;
   };
 
-  /*
-  signInWithGoogle = () => this._auth?.signInWithPopup(this._googleProvider)
-
-  signInWithFacebook = () => this._auth?.signInWithPopup(this._facebookProvider)
-
-  signInWithTwitter = () => this._auth?.signInWithPopup(this._twitterProvider)
-
-  signInWithGithub = () => this._auth?.signInWithPopup(this._githubProvider)
-*/
   public signOut = () => this.auth.signOut();
+
   public sendEmailVerification = () => {
     try {
       this.user.sendEmailVerification();
@@ -303,6 +313,16 @@ class Firebase {
       throw new Error(error);
     }
   };
+
+  /*
+  signInWithGoogle = () => this._auth?.signInWithPopup(this._googleProvider)
+
+  signInWithFacebook = () => this._auth?.signInWithPopup(this._facebookProvider)
+
+  signInWithTwitter = () => this._auth?.signInWithPopup(this._twitterProvider)
+
+  signInWithGithub = () => this._auth?.signInWithPopup(this._githubProvider)
+*/
 }
 
 export default Firebase;
