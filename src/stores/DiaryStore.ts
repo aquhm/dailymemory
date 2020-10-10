@@ -22,12 +22,14 @@ export interface Diary {
 
 class DiaryStore {
   private _rootStore: RootStore;
+  private _latestUploadImageUri: string;
 
   @observable private _diaries: Array<Diary> = [];
 
   constructor(private rootStore: RootStore) {
     console.log(DiaryStore.name);
 
+    this._latestUploadImageUri = "";
     this._rootStore = rootStore;
   }
 
@@ -35,7 +37,7 @@ class DiaryStore {
 
   public registerQueryListner = () => {
     if (Firebase.Instance.user.uid != null) {
-      const query = Firebase.Instance.createQuary("diaries", "userId", "==", Firebase.Instance.user.uid);
+      const query = Firebase.Instance.createQuery("diaries", "userId", "==", Firebase.Instance.user.uid);
 
       query.onSnapshot((querySnapshot) => {
         querySnapshot.docChanges().forEach((change) => {
@@ -132,7 +134,8 @@ class DiaryStore {
   }
 
   public Add = (title: string, uri?: string, uploadCompleted?: () => void) => {
-    const task = this.addTask(title, uri, () => {
+    const task = this.addTask(title, uri, (downloadUrl: string) => {
+      this._latestUploadImageUri = downloadUrl;
       task.next();
       uploadCompleted && uploadCompleted();
     });
@@ -145,14 +148,14 @@ class DiaryStore {
   2. Db Insert
   3. Document get
   */
-  private *addTask(title: string, uri?: string, uploadCompleted?: () => void) {
+  private *addTask(title: string, uri?: string, uploadCompleted?: (downloadUrl: string) => void) {
     if (uri != null) {
       yield ImageApi.uploadImageAsync(StorageImagePathType.DiaryCover, uri, uploadCompleted);
     }
 
     yield Firebase.Instance.writeData("diaries", {
       title: title,
-      coverImageUri: uri,
+      coverImageUri: this._latestUploadImageUri,
       userId: Firebase.Instance.user.uid,
     });
   }

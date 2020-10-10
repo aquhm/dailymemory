@@ -70,6 +70,47 @@ class ImageApi {
   public static async uploadImageAsync(
     targetPath: StorageImagePathType,
     imageUri: string,
+    uploadCompleted?: (downloadUrl: string) => void
+  ) {
+    try {
+      const a = ".";
+      const fileExtension = imageUri.split(a).pop();
+      console.log("Ext : " + fileExtension);
+
+      const fileName = `${uuid()}.${fileExtension}`;
+      var ref = Firebase.Instance.storage.ref().child(`${targetPath}/${fileName}`);
+
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      ref.put(blob).on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        (snapshot) => {
+          console.log("snapshot: " + snapshot.state);
+          console.log("progress: " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+
+          if (snapshot.state == firebase.storage.TaskState.SUCCESS) {
+            console.log("upload Success");
+          }
+        },
+        (error) => {
+          console.log("upload error: " + error.message);
+        },
+        () => {
+          ref.getDownloadURL().then((url) => {
+            //this.setProfileImage(url);
+
+            uploadCompleted && uploadCompleted(url);
+          });
+        }
+      );
+    } catch (error) {
+      throw new Error(`Function [${this.uploadImageAsync.name}] ${error}`);
+    }
+  }
+  public static async removeImageAsync(
+    targetPath: StorageImagePathType,
+    imageUri: string,
     uploadCompleted?: () => void
   ) {
     try {

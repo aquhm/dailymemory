@@ -116,7 +116,11 @@ class AuthStore {
   };
 
   public UploadImage = (uri: string, uploadCompleted?: () => void) => {
-    const task = this.uploadImageTask(uri, () => {
+    const task = this.uploadImageTask(uri, (downloadUrl: string) => {
+      if (this._user) {
+        this._user.profile_uri = downloadUrl;
+      }
+
       task.next();
       uploadCompleted && uploadCompleted();
     });
@@ -124,12 +128,12 @@ class AuthStore {
     task.next();
   };
 
-  private *uploadImageTask(uri: string, uploadCompleted?: () => void) {
+  private *uploadImageTask(uri: string, uploadCompleted?: (downloadUrl: string) => void) {
     if (uri != null) {
       yield ImageApi.uploadImageAsync(StorageImagePathType.UserProfile, uri, uploadCompleted);
     }
 
-    yield Firebase.Instance.updateUserData(this.firebaseUser.uid, { profile_uri: this.profileImageUri });
+    yield Firebase.Instance.updateUserData(this.firebaseUser.uid, { profile_uri: this._user?.profile_uri });
   }
 }
 
