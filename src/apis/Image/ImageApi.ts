@@ -67,18 +67,20 @@ class ImageApi {
     return result;
   };
 
+  public static makeStorageFilePath(targetPath: string, imageUri: string) {
+    const a = ".";
+    const fileExtension = imageUri.split(a).pop();
+    const fileName = `${uuid()}.${fileExtension}`;
+    return `${targetPath}/${fileName}`;
+  }
+
   public static async uploadImageAsync(
-    targetPath: StorageImagePathType,
+    targetStoragePath: string,
     imageUri: string,
     uploadCompleted?: (downloadUrl: string) => void
   ) {
     try {
-      const a = ".";
-      const fileExtension = imageUri.split(a).pop();
-      console.log("Ext : " + fileExtension);
-
-      const fileName = `${uuid()}.${fileExtension}`;
-      var ref = Firebase.Instance.storage.ref().child(`${targetPath}/${fileName}`);
+      var ref = Firebase.Instance.storage.ref().child(targetStoragePath);
 
       const response = await fetch(imageUri);
       const blob = await response.blob();
@@ -108,45 +110,25 @@ class ImageApi {
       throw new Error(`Function [${this.uploadImageAsync.name}] ${error}`);
     }
   }
+
   public static async removeImageAsync(
     targetPath: StorageImagePathType,
     imageUri: string,
-    uploadCompleted?: () => void
+    removeCompleted?: () => void
   ) {
     try {
-      const a = ".";
-      const fileExtension = imageUri.split(a).pop();
-      console.log("Ext : " + fileExtension);
+      var ref = Firebase.Instance.storage.ref().child(imageUri);
 
-      const fileName = `${uuid()}.${fileExtension}`;
-      var ref = Firebase.Instance.storage.ref().child(`${targetPath}/${fileName}`);
-
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-
-      ref.put(blob).on(
-        firebase.storage.TaskEvent.STATE_CHANGED,
-        (snapshot) => {
-          console.log("snapshot: " + snapshot.state);
-          console.log("progress: " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-
-          if (snapshot.state == firebase.storage.TaskState.SUCCESS) {
-            console.log("upload Success");
-          }
-        },
-        (error) => {
-          console.log("upload error: " + error.message);
-        },
-        () => {
-          ref.getDownloadURL().then((url) => {
-            //this.setProfileImage(url);
-
-            uploadCompleted && uploadCompleted();
-          });
-        }
-      );
-    } catch (error) {
-      throw new Error(`Function [${this.uploadImageAsync.name}] ${error}`);
+      ref
+        .delete()
+        .then(() => {
+          removeCompleted && removeCompleted();
+        })
+        .catch((error) => {
+          throw new Error(`Function [${this.removeImageAsync.name}] ${error}`);
+        });
+    } catch (E) {
+      console.log(E);
     }
   }
 }

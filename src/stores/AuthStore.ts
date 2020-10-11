@@ -1,6 +1,6 @@
 import { action, observable, computed } from "mobx";
 
-import Firebase from "../Firebase";
+import Firebase, { QueryOption, CollectionType } from "../Firebase";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
@@ -17,18 +17,20 @@ export interface User {
 }
 
 class AuthStore {
+  private _collectionType: CollectionType;
   private _rootStore: RootStore;
 
   @observable private _firebaseUser?: firebase.User;
   @observable private _profileImageUri?: string;
   @observable private _user?: User;
 
-  constructor(private rootStore: RootStore) {
+  constructor(rootStore: RootStore, collectionType: CollectionType) {
     console.log("AuthStore");
 
+    this._collectionType = collectionType;
     this._rootStore = rootStore;
-
     this._profileImageUri = "";
+
     Firebase.Instance.setAuthStateChange(this.onAuthStateChanged);
   }
 
@@ -80,7 +82,7 @@ class AuthStore {
       this.setFirebaseUser(user);
       this.getUserAsync();
 
-      this._rootStore.DiaryStore.registerQueryListner();
+      this._rootStore.DiaryStore.getListAsync();
     } else {
       console.log("AuthStore onAuthStateChanged logout");
       this.setFirebaseUser(undefined);

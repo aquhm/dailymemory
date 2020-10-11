@@ -1,6 +1,7 @@
 import { action, observable, computed } from "mobx";
 
-import Firebase from "../Firebase";
+import * as firebase from "firebase/app";
+import Firebase, { QueryOption, CollectionType } from "../Firebase";
 0;
 import "firebase/auth";
 import "firebase/database";
@@ -16,49 +17,55 @@ export interface Diary {
   documentId: string;
   title: string;
   coverImageUri?: string | undefined;
+  coverImagePath?: string | undefined;
   userId: string | undefined;
   contentCount: Number;
+  createdTime: firebase.firestore.FieldValue;
 }
 
 class DiaryStore {
+  private _collectionType: CollectionType;
   private _rootStore: RootStore;
   private _latestUploadImageUri: string;
 
   @observable private _diaries: Array<Diary> = [];
 
-  constructor(private rootStore: RootStore) {
+  constructor(private rootStore: RootStore, private collectionType: CollectionType) {
     console.log(DiaryStore.name);
 
+    this._collectionType = collectionType;
     this._latestUploadImageUri = "";
     this._rootStore = rootStore;
   }
 
   public Initialize = () => {};
 
-  public registerQueryListner = () => {
+  public setListner = (queryOption: QueryOption) => {
     if (Firebase.Instance.user.uid != null) {
-      const query = Firebase.Instance.createQuery("diaries", "userId", "==", Firebase.Instance.user.uid);
+      const query = Firebase.Instance.createQueryWithOption(this._collectionType, queryOption);
 
-      query.onSnapshot((querySnapshot) => {
-        querySnapshot.docChanges().forEach((change) => {
-          if (change.type === "added") {
-            console.log(`${DiaryStore.name} diary added !!`);
-            //if (this.findByDocumentId(change.doc.id) == null) {
-            //  this.add(change.doc.data() as Diary);
-            //}
-          }
-          if (change.type === "modified") {
-            console.log(`${DiaryStore.name} Modified !! `);
+      if (query) {
+        query.onSnapshot((querySnapshot) => {
+          querySnapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+              console.log(`${DiaryStore.name} diary added !!`);
+              //if (this.findByDocumentId(change.doc.id) == null) {
+              //  this.add(change.doc.data() as Diary);
+              //}
+            }
+            if (change.type === "modified") {
+              console.log(`${DiaryStore.name} Modified !! `);
 
-            this.update(change.doc.id, change.doc.data() as Diary);
-          }
-          if (change.type === "removed") {
-            console.log(`${DiaryStore.name} Remove Data: `, change.doc.data());
+              this.update(change.doc.id, change.doc.data() as Diary);
+            }
+            if (change.type === "removed") {
+              console.log(`${DiaryStore.name} Remove Data: `, change.doc.data());
 
-            this.remove(change.doc.id, change.doc.data() as Diary);
-          }
+              this.remove(change.doc.id, change.doc.data() as Diary);
+            }
+          });
         });
-      });
+      }
     }
   };
 
@@ -79,14 +86,15 @@ class DiaryStore {
   }
 
   public getListAsync = async () => {
-    const snapshot = await Firebase.Instance.getDatasWithFilterAsync(
-      "diaries",
-      "userId",
-      "==",
-      Firebase.Instance.user.uid
-    );
+    let queryOption: QueryOption = {
+      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.user.uid }],
+    };
 
-    if (snapshot.empty == false) {
+    this.setListner(queryOption);
+
+    const snapshot = await Firebase.Instance.getDatasWithFilterAsync1(this._collectionType, queryOption);
+
+    if (snapshot && snapshot.empty == false) {
       snapshot.forEach((doc) => {
         if (this.update(doc.id, doc.data() as Diary) == false) {
           this.add(doc.id, doc.data() as Diary);
@@ -149,14 +157,19 @@ class DiaryStore {
   3. Document get
   */
   private *addTask(title: string, uri?: string, uploadCompleted?: (downloadUrl: string) => void) {
+    let filePath: string = "";
     if (uri != null) {
-      yield ImageApi.uploadImageAsync(StorageImagePathType.DiaryCover, uri, uploadCompleted);
+      filePath = ImageApi.makeStorageFilePath(StorageImagePathType.DiaryCover, uri);
+      yield ImageApi.uploadImageAsync(filePath, uri, uploadCompleted);
     }
 
     yield Firebase.Instance.writeData("diaries", {
       title: title,
       coverImageUri: this._latestUploadImageUri,
+      coverImagePath: filePath,
       userId: Firebase.Instance.user.uid,
+      createdTime: firebase.firestore.FieldValue.serverTimestamp(),
+      contentCount: 0,
     });
   }
 }

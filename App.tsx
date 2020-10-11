@@ -72,6 +72,7 @@ export default class App extends React.Component<{}, State> {
         rootStore={RootStore.Instance}
         authStore={RootStore.Instance.AuthStore}
         diaryStore={RootStore.Instance.DiaryStore}
+        diaryRecordStore={RootStore.Instance.DiaryRecordStore}
       >
         <SafeAreaProvider>
           <RouteContainer />
