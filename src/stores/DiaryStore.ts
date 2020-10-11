@@ -11,8 +11,6 @@ import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
 import * as _ from "lodash";
 
-import { v4 as uuid } from "uuid";
-
 export interface Diary {
   documentId: string;
   title: string;
@@ -20,11 +18,12 @@ export interface Diary {
   coverImagePath?: string | undefined;
   userId: string | undefined;
   contentCount: Number;
-  createdTime: firebase.firestore.FieldValue;
+  createdTime?: firebase.firestore.FieldValue;
 }
 
 class DiaryStore {
   private _collectionType: CollectionType;
+  private _currentDiaryId?: string;
   private _rootStore: RootStore;
   private _latestUploadImageUri: string;
 
@@ -102,6 +101,18 @@ class DiaryStore {
       });
     }
   };
+
+  public get currentDiaryId(): string | undefined {
+    if (this._currentDiaryId == null) {
+      if (this.values.length == 1) this._currentDiaryId = this.values[0].documentId;
+    }
+
+    return this._currentDiaryId;
+  }
+
+  public set currentDiaryId(id: string | undefined) {
+    this._currentDiaryId = id;
+  }
 
   @action
   private add = (documentId: string, newRecord: Diary): void => {

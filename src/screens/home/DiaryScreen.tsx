@@ -1,8 +1,7 @@
 import React, { createRef } from "react";
-import { View, Image, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions } from "react-native";
+import { View, Image, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions, Alert } from "react-native";
 
-import { HomeNavigationProps, DiaryNavigatorStackProps } from "../../routes/HomeNavigator";
-import { DiaryStackNavigationProps } from "../../routes/DiaryNavigator";
+import { DiaryNavigatorStackProps } from "../../routes/HomeNavigator";
 import Header from "../../components/common/Header";
 import LineTextInput from "../../components/Form/LineTextInput";
 
@@ -17,6 +16,9 @@ import ImageApi from "../../apis/Image/ImageApi";
 import "moment/locale/ko";
 import moment from "moment";
 import * as _ from "lodash";
+
+import RootStore from "../../stores/RootStore";
+import DiaryStore from "../../stores/DiaryStore";
 
 const { width, height } = Dimensions.get("window");
 const editHeight = height * 0.3;
@@ -43,6 +45,7 @@ interface State {
   dateTime: string;
   place?: string;
   imageUri?: string;
+  contents: string;
 }
 
 class DiaryScreen extends React.Component<Props, State> {
@@ -57,6 +60,7 @@ class DiaryScreen extends React.Component<Props, State> {
       isDateTimePickerVisible: false,
       dateTime: moment().format("LL"),
       place: undefined,
+      contents: "",
     };
 
     this.initialize();
@@ -119,7 +123,18 @@ class DiaryScreen extends React.Component<Props, State> {
     _.isEmpty(pickedPlace) === false && this.setState({ place: pickedPlace });
   };
 
-  sendDiary = async () => {};
+  sendCreateDiary = async () => {
+    RootStore.Instance.DiaryRecordStore.Add(
+      this.state.contents,
+      this.state.imageUri,
+      this.state.place,
+      this.state.dateTime,
+      () => {
+        Alert.alert("Success");
+        //this.props.navigation.goBack();
+      }
+    );
+  };
 
   header = () => {
     return (
@@ -136,7 +151,7 @@ class DiaryScreen extends React.Component<Props, State> {
         right={{
           icon: "check",
           onPress: () => {
-            this.sendDiary();
+            this.sendCreateDiary();
           },
           visible: true,
         }}
@@ -228,6 +243,8 @@ class DiaryScreen extends React.Component<Props, State> {
                 size={14}
                 lineColor="black"
                 placeholder="일상을 남겨주세요."
+                onChangeText={(text) => this.setState({ contents: text })}
+                value={this.state.contents}
               />
               {this.renderDate()}
             </View>

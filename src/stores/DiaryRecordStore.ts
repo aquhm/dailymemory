@@ -193,7 +193,7 @@ class DiaryRecordStore {
       imageUri: this._latestUploadImageUri,
       imagePath: filePath,
       userId: Firebase.Instance.user.uid,
-      diaryId: this._currentDiaryId,
+      diaryId: this.rootStore.DiaryStore.currentDiaryId,
       place: place,
       memoryTime: memoryTime,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
