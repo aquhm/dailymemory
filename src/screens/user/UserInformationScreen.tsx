@@ -14,7 +14,10 @@ import {
 import { FlatList } from "react-native-gesture-handler";
 import { FontAwesome as Icon } from "@expo/vector-icons";
 
-import { UserInformationStackNavigationProps } from "../../routes/UserInformationNavigator";
+import {
+  UserInformationStackNavigationProps,
+  UserInformationStackRouteProps,
+} from "../../routes/UserInformationNavigator";
 
 import { observer, inject } from "mobx-react";
 import { DefaultProfileImage } from "../../constants/Images";
@@ -43,6 +46,7 @@ const defaultData: Diary = {
 
 interface Props {
   navigation: UserInformationStackNavigationProps<"UserInformation">;
+  route: UserInformationStackRouteProps<"UserInformation">;
   authStore: AuthStore;
   diaryStore: DiaryStore;
 }
@@ -111,7 +115,11 @@ class UserInformationScreen extends React.Component<Props, State> {
 
   renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
     return (
-      <TouchableWithoutFeedback onPress={() => {}}>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          this.props.navigation.navigate("DiaryView", { diaryId: listRenderItemInfo.item.documentId });
+        }}
+      >
         <View
           style={{
             justifyContent: "flex-start",
