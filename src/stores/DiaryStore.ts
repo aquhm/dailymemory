@@ -135,11 +135,11 @@ class DiaryStore {
     }
   };
 
-  private findByUserId = (userId: string): Diary | undefined => {
+  public findByUserId = (userId: string): Diary | undefined => {
     return this._diaries.find((element) => element.userId == userId);
   };
 
-  private findByDocumentId = (documentId: string): Diary | undefined => {
+  public findByDocumentId = (documentId: string): Diary | undefined => {
     return this._diaries.find((element) => element.documentId == documentId);
   };
 

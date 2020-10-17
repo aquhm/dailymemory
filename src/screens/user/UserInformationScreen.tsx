@@ -117,7 +117,7 @@ class UserInformationScreen extends React.Component<Props, State> {
     return (
       <TouchableWithoutFeedback
         onPress={() => {
-          this.props.navigation.navigate("DiaryView", { diaryId: listRenderItemInfo.item.documentId });
+          this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
         }}
       >
         <View

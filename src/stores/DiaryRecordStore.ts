@@ -94,10 +94,7 @@ class DiaryRecordStore {
     }
   }
   public getDiaryList(diaryId: string) {
-    this.clear(diaryId);
-
     this._currentDiaryId = diaryId;
-
     let queryOption: QueryOption = {
       wheres: [
         { field: "userId", operator: "==", value: Firebase.Instance.user.uid },
@@ -113,6 +110,8 @@ class DiaryRecordStore {
     const snapshot = await Firebase.Instance.getDataWithMultiFilterAsync(this._collectionType, queryOption);
     if (snapshot != null) {
       if (snapshot.empty == false) {
+        this.clear(diaryId);
+
         snapshot.forEach((doc) => {
           if (this.update(doc.id, doc.data() as DiaryRecord) == false) {
             this.add(doc.id, doc.data() as DiaryRecord);
