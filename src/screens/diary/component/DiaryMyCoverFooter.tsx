@@ -3,17 +3,10 @@ import { View, Text } from "react-native";
 import { Diary } from "../../../stores/DiaryStore";
 import IconButton from "../../../components/IconButton";
 
-export interface DiaryMyCoverFooterProps {
-  height?: number;
-  diary?: Diary;
-  color?: string;
-  backgroundBarColor?: string;
-  open?: boolean;
-  onPrevPress: () => void;
-  right?: {
-    buttons: any[]; // Array<typeof IconButton>;
-  };
-}
+import DiaryViewFooter from "../interface/DiaryViewFooter";
+
+export interface DiaryMyCoverFooterProps extends DiaryViewFooter {}
+
 const DiaryMyCoverFooter = ({
   open,
   height,

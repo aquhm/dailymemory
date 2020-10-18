@@ -7,18 +7,19 @@ interface TextWithIconButtonProps {
   value: string;
   name: string;
   size?: number;
+  textColor?: string;
   color?: string;
   right?: boolean;
   onPress?: () => void;
 }
 
-const TextWithIconButton = ({ value, size, name, color, right, onPress }: TextWithIconButtonProps) => {
+const TextWithIconButton = ({ value, size, name, textColor, color, right, onPress }: TextWithIconButtonProps) => {
   const content = right ? (
-    <Text style={styles.text}>
+    <Text style={[styles.text, { color: textColor }]}>
       <Text>{value}</Text> <Icon {...{ name, color, size }} />
     </Text>
   ) : (
-    <Text style={styles.text}>
+    <Text style={[styles.text, { color: textColor }]}>
       <Icon {...{ name, color, size }} /> <Text>{value}</Text>
     </Text>
   );
@@ -44,7 +45,8 @@ const styles = StyleSheet.create({
 
 TextWithIconButton.defaultProps = {
   size: 12,
-  color: "#000",
+  textColor: "black",
+  color: "#black",
   right: true,
 };
 
