@@ -26,9 +26,8 @@ import { RectButton, TouchableWithoutFeedback } from "react-native-gesture-handl
 
 import Header from "../../components/common/Header";
 
-import RootStore from "../../stores/RootStore";
-import AuthStore from "../../stores/AuthStore";
-import DiaryStore, { Diary } from "../../stores/DiaryStore";
+import { RootStore, DiaryStore, AuthStore } from "../../stores";
+import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
 
@@ -36,7 +35,7 @@ const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
 const diaryEntryHeight = height * 0.25;
 
-const defaultData: Diary = {
+const defaultData: DiaryRecord = {
   userId: "",
   documentId: "",
   title: "새 일기책 만들기",
@@ -52,7 +51,7 @@ interface Props {
 }
 
 interface State {
-  data: Diary[];
+  data: DiaryRecord[];
 }
 
 @inject("authStore")
@@ -81,14 +80,13 @@ class UserInformationScreen extends React.Component<Props, State> {
 
   componentDidMount() {
     console.log("UserInformationScreen componentDidMount");
-    //this.updateDiaryList();
   }
 
   componentWillUnmount() {
     console.log("UserInformationScreen componentWillUnmount");
   }
 
-  renderCreateButton = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
+  renderCreateButton = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -113,7 +111,7 @@ class UserInformationScreen extends React.Component<Props, State> {
     );
   };
 
-  renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
+  renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -150,7 +148,7 @@ class UserInformationScreen extends React.Component<Props, State> {
     );
   };
 
-  renderItem = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
+  renderItem = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
     if (_.isEmpty(listRenderItemInfo.item.userId)) {
       return this.renderCreateButton(listRenderItemInfo);
     } else {
@@ -227,7 +225,7 @@ class UserInformationScreen extends React.Component<Props, State> {
               data={dataSource}
               renderItem={this.renderItem}
               extraData={dataSource}
-              keyExtractor={(item, index) => item.toString()}
+              keyExtractor={(item, _) => item.toString()}
               ItemSeparatorComponent={this.renderSetperator}
               contentContainerStyle={{ paddingBottom: 40 }}
               numColumns={3}

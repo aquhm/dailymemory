@@ -1,8 +1,8 @@
-import { Diary } from "../../../stores/DiaryStore";
+import { DiaryRecord } from "../../../shared/records";
 
 export default interface DiaryViewFooter {
   height?: number;
-  diary?: Diary;
+  diary?: DiaryRecord;
   color?: string;
   backgroundBarColor?: string;
   open?: boolean;

@@ -4,8 +4,8 @@ import IconButton from "../../../components/IconButton";
 import ProfileRoundImage from "../../../components/ProfileRoundImage";
 import { DefaultProfileImage } from "../../../constants/Images";
 import { UserInformationStackNavigationProps } from "../../../routes/UserInformationNavigator";
-import { Diary } from "../../../stores/DiaryStore";
-import RootStore from "../../../stores/RootStore";
+import { DiaryRecord } from "../../../shared/records";
+import { RootStore } from "../../../stores";
 import UiHelper from "../../../utility/UiHelper";
 
 import DiaryMyCoverFooter from "./DiaryMyCoverFooter";
@@ -15,7 +15,7 @@ const { width, height } = Dimensions.get("window");
 const imageHeight = height * 0.6;
 
 interface DiaryMyCoverPageProps {
-  diary: Diary;
+  diary: DiaryRecord;
   navigation: UserInformationStackNavigationProps<"DiaryView">;
 }
 

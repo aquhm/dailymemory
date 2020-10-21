@@ -1,13 +1,12 @@
 import AuthStore from "./AuthStore";
 import DiaryStore from "./DiaryStore";
-import DiaryRecordStore from "./DiaryRecordStore";
-import { CollectionType } from "../Firebase";
+import DiaryPageStore from "./DiaryPageStore";
 
 class RootStore {
   static _rootStore?: RootStore;
   public _authStore: AuthStore;
   public _diaryStore: DiaryStore;
-  public _diaryRecordStore: DiaryRecordStore;
+  public _diaryPageRecords: DiaryPageStore;
 
   static get Instance() {
     if (!this._rootStore) {
@@ -21,7 +20,7 @@ class RootStore {
   private constructor() {
     this._authStore = new AuthStore(this, "users");
     this._diaryStore = new DiaryStore(this, "diaries");
-    this._diaryRecordStore = new DiaryRecordStore(this, "diary_records");
+    this._diaryPageRecords = new DiaryPageStore(this, "diary_records");
 
     console.log("Initialize RootStore");
   }
@@ -34,14 +33,14 @@ class RootStore {
     return this._diaryStore;
   }
 
-  public get DiaryRecordStore() {
-    return this._diaryRecordStore;
+  public get DiaryPageStore() {
+    return this._diaryPageRecords;
   }
 
   public Initialize = () => {
     this._authStore.Initialize();
     this._diaryStore.Initialize();
-    this._diaryRecordStore.Initialize();
+    this._diaryPageRecords.Initialize();
   };
 }
 

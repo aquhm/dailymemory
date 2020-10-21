@@ -1,20 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar } from "react-native";
+import { View, StyleSheet, ScrollView, SafeAreaView, StatusBar } from "react-native";
 
 import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
 
-import { Feather as Icon } from "@expo/vector-icons";
-
-import { observer, inject, MobXProviderContext, useObserver, useLocalStore } from "mobx-react";
+import { observer, inject } from "mobx-react";
 import { DefaultProfileImage } from "../../constants/Images";
 import ProfileRoundImage from "../../components/ProfileRoundImage";
 import TextWithIconButton from "../../components/TextWithIconButton";
-import { RectButton } from "react-native-gesture-handler";
 
 import Header from "../../components/common/Header";
 
-import RootStore from "../../stores/RootStore";
-import AuthStore from "../../stores/AuthStore";
+import { RootStore, AuthStore } from "../../stores";
 
 interface Props {
   navigation: ProfileStackNavigationProps<"Profile">;
@@ -49,8 +45,6 @@ class ProfileScreen extends React.Component<Props> {
   };
 
   render() {
-    const { authStore } = this.props;
-
     return (
       <>
         <StatusBar barStyle="default" />

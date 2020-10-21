@@ -20,8 +20,6 @@ import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons"
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
 
-import { RootStackNavigationProps } from "./AppNavigator";
-
 type HomeNavigatorBottomParamList = {
   Lobby: undefined;
   Diary: undefined;

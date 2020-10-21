@@ -8,17 +8,11 @@ import { DrawerBg } from "../../constants/Images";
 import ProfileRoundImage from "../../components/ProfileRoundImage";
 import { DefaultProfileImage } from "../../constants/Images";
 
-import { HomeNavigationProps } from "../../routes/HomeNavigator";
-
 import { DrawerEntry } from "./DrawerEntry";
 
-import { observer, inject, MobXProviderContext, useObserver, useLocalStore } from "mobx-react";
-import { observable } from "mobx";
+import { useObserver } from "mobx-react";
 
-import RootStore from "../../stores/RootStore";
-import AuthStore from "../../stores/AuthStore";
-import { useStores, useGlobalStore } from "../../stores/useStores";
-import { stringify } from "uuid";
+import { RootStore, useStores } from "../../stores";
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.8;

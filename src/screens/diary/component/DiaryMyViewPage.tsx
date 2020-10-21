@@ -4,7 +4,7 @@ import IconButton from "../../../components/IconButton";
 import TextWithIconButton from "../../../components/TextWithIconButton";
 import { UserInformationStackNavigationProps } from "../../../routes/UserInformationNavigator";
 
-import { DiaryRecord } from "../../../stores/DiaryRecordStore";
+import { DiaryPageRecord } from "../../../shared/records";
 import UiHelper from "../../../utility/UiHelper";
 import DiaryMyViewFooter from "./DiaryMyViewFooter";
 
@@ -13,20 +13,20 @@ const { width, height } = Dimensions.get("window");
 const imageHeight = height * 0.6;
 
 interface DiaryMyViewPageProps {
-  diaryRecord: DiaryRecord;
+  diaryPageRecord: DiaryPageRecord;
   navigation: UserInformationStackNavigationProps<"DiaryView">;
   onPress: () => void;
 }
 
-const DiaryMyViewPage = ({ diaryRecord, navigation, onPress }: DiaryMyViewPageProps) => {
-  if (diaryRecord != null) {
+const DiaryMyViewPage = ({ diaryPageRecord, navigation, onPress }: DiaryMyViewPageProps) => {
+  if (diaryPageRecord != null) {
     return (
       <View style={styles.container}>
-        <View key={diaryRecord.documentId} style={styles.picture}>
-          <Image source={{ uri: diaryRecord.imageUri }} style={styles.image} />
+        <View key={diaryPageRecord.documentId} style={styles.picture}>
+          <Image source={{ uri: diaryPageRecord.imageUri }} style={styles.image} />
         </View>
-        <Text style={{ margin: 10, maxHeight: 100 }}>{diaryRecord.contents}</Text>
-        <Text style={{ margin: 10, textAlign: "right" }}>{diaryRecord.memoryTime}</Text>
+        <Text style={{ margin: 10, maxHeight: 100 }}>{diaryPageRecord.contents}</Text>
+        <Text style={{ margin: 10, textAlign: "right" }}>{diaryPageRecord.memoryTime}</Text>
         <DiaryMyViewFooter
           onPrevPress={onPress}
           left={{

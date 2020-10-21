@@ -2,24 +2,12 @@ import { action, observable, computed } from "mobx";
 
 import * as firebase from "firebase/app";
 import Firebase, { QueryOption, CollectionType } from "../Firebase";
-0;
-import "firebase/auth";
-import "firebase/database";
-import "firebase/firestore";
-import "firebase/storage";
+
 import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
 import * as _ from "lodash";
 
-export interface Diary {
-  documentId: string;
-  title: string;
-  coverImageUri?: string | undefined;
-  coverImagePath?: string | undefined;
-  userId: string | undefined;
-  contentCount: Number;
-  createdTime?: firebase.firestore.FieldValue;
-}
+import { DiaryRecord } from "../shared/records";
 
 class DiaryStore {
   private _collectionType: CollectionType;
@@ -27,7 +15,7 @@ class DiaryStore {
   private _rootStore: RootStore;
   private _latestUploadImageUri: string;
 
-  @observable private _diaries: Array<Diary> = [];
+  @observable private _diaryRecords: Array<DiaryRecord> = [];
 
   constructor(private rootStore: RootStore, private collectionType: CollectionType) {
     console.log(DiaryStore.name);
@@ -48,19 +36,16 @@ class DiaryStore {
           querySnapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
               console.log(`${DiaryStore.name} diary added !!`);
-              //if (this.findByDocumentId(change.doc.id) == null) {
-              //  this.add(change.doc.data() as Diary);
-              //}
             }
             if (change.type === "modified") {
               console.log(`${DiaryStore.name} Modified !! `);
 
-              this.update(change.doc.id, change.doc.data() as Diary);
+              this.update(change.doc.id, change.doc.data() as DiaryRecord);
             }
             if (change.type === "removed") {
               console.log(`${DiaryStore.name} Remove Data: `, change.doc.data());
 
-              this.remove(change.doc.id, change.doc.data() as Diary);
+              this.remove(change.doc.id, change.doc.data() as DiaryRecord);
             }
           });
         });
@@ -69,14 +54,14 @@ class DiaryStore {
   };
 
   @action
-  private update(documentId: string, updatedRecord: Diary): boolean {
-    const index = this._diaries.findIndex((t) => {
+  private update(documentId: string, updatedRecord: DiaryRecord): boolean {
+    const index = this._diaryRecords.findIndex((t) => {
       return t.documentId === documentId;
     });
 
     if (index != -1) {
       updatedRecord.documentId = documentId;
-      this._diaries.splice(index, 1, updatedRecord);
+      this._diaryRecords.splice(index, 1, updatedRecord);
 
       return true;
     } else {
@@ -95,8 +80,8 @@ class DiaryStore {
 
     if (snapshot && snapshot.empty == false) {
       snapshot.forEach((doc) => {
-        if (this.update(doc.id, doc.data() as Diary) == false) {
-          this.add(doc.id, doc.data() as Diary);
+        if (this.update(doc.id, doc.data() as DiaryRecord) == false) {
+          this.add(doc.id, doc.data() as DiaryRecord);
         }
       });
     }
@@ -115,41 +100,41 @@ class DiaryStore {
   }
 
   @action
-  private add = (documentId: string, newRecord: Diary): void => {
+  private add = (documentId: string, newRecord: DiaryRecord): void => {
     if (documentId) {
       newRecord.documentId = documentId;
-      this._diaries.push(newRecord);
+      this._diaryRecords.push(newRecord);
     } else {
       console.log("add : !! error" + documentId);
     }
   };
 
   @action
-  private remove = (documentId: string, diary: Diary): void => {
-    const index = this._diaries.findIndex((t) => {
+  private remove = (documentId: string, diary: DiaryRecord): void => {
+    const index = this._diaryRecords.findIndex((t) => {
       return t.documentId === documentId;
     });
 
     if (index != -1) {
-      this._diaries.splice(index, 1);
+      this._diaryRecords.splice(index, 1);
     }
   };
 
-  public findByUserId = (userId: string): Diary | undefined => {
-    return this._diaries.find((element) => element.userId == userId);
+  public findByUserId = (userId: string): DiaryRecord | undefined => {
+    return this._diaryRecords.find((element) => element.userId == userId);
   };
 
-  public findByDocumentId = (documentId: string): Diary | undefined => {
-    return this._diaries.find((element) => element.documentId == documentId);
+  public findByDocumentId = (documentId: string): DiaryRecord | undefined => {
+    return this._diaryRecords.find((element) => element.documentId == documentId);
   };
 
-  public get values(): Array<Diary> {
-    return this._diaries;
+  public get values(): Array<DiaryRecord> {
+    return this._diaryRecords;
   }
 
   @computed
   get count(): number {
-    return this._diaries.length;
+    return this._diaryRecords.length;
   }
 
   public Add = (title: string, uri?: string, uploadCompleted?: () => void) => {

@@ -21,7 +21,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 import { LoginTitle } from "../../constants/Images";
 import Theme from "../../constants/Styles";
-import RootStore from "../../stores/RootStore";
+import { RootStore } from "../../stores";
 
 //import LoginButton from "../../components/LoginButton"
 

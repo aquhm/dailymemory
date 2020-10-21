@@ -16,8 +16,7 @@ import { RectButton } from "react-native-gesture-handler";
 import ImageApi from "../../apis/Image/ImageApi";
 import * as _ from "lodash";
 
-import RootStore from "../../stores/RootStore";
-import DiaryStore from "../../stores/DiaryStore";
+import { RootStore } from "../../stores";
 
 const { width, height } = Dimensions.get("window");
 const editHeight = height * 0.3;

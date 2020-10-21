@@ -15,7 +15,7 @@ import Theme from "../../constants/Styles";
 
 import LoginTextInput from "../../components/Form/TextInput";
 
-import RootStore from "../../stores/RootStore";
+import { RootStore } from "../../stores";
 
 const { width } = Dimensions.get("window");
 

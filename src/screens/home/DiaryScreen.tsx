@@ -13,12 +13,13 @@ import { Feather as Icon } from "@expo/vector-icons";
 
 import { RectButton } from "react-native-gesture-handler";
 import ImageApi from "../../apis/Image/ImageApi";
-import "moment/locale/ko";
+
 import moment from "moment";
+import "moment/locale/ko";
+
 import * as _ from "lodash";
 
-import RootStore from "../../stores/RootStore";
-import DiaryStore from "../../stores/DiaryStore";
+import { RootStore } from "../../stores";
 
 const { width, height } = Dimensions.get("window");
 const editHeight = height * 0.3;
@@ -124,7 +125,7 @@ class DiaryScreen extends React.Component<Props, State> {
   };
 
   sendCreateDiary = async () => {
-    RootStore.Instance.DiaryRecordStore.Add(
+    RootStore.Instance.DiaryPageStore.Add(
       this.state.contents,
       this.state.imageUri,
       this.state.place,

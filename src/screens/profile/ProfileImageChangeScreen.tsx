@@ -3,14 +3,11 @@ import { StatusBar, View, StyleSheet, Platform, SafeAreaView, Alert } from "reac
 
 import { ProfileStackNavigationProps } from "../../routes/ProfileNavigator";
 
-import { Feather as Icon } from "@expo/vector-icons";
-
 import { observer, inject } from "mobx-react";
 
 import ProfileRoundImage from "../../components/ProfileRoundImage";
 import TextWithIconButton from "../../components/TextWithIconButton";
 import BottomPopup, { BaseItem } from "../../components/BottomPopup";
-import { RectButton } from "react-native-gesture-handler";
 
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
@@ -18,8 +15,7 @@ import * as _ from "lodash";
 
 import Header from "../../components/common/Header";
 
-import RootStore from "../../stores/RootStore";
-import AuthStore from "../../stores/AuthStore";
+import { RootStore, AuthStore } from "../../stores";
 
 interface Props {
   navigation: ProfileStackNavigationProps<"ProfileImageChange">;

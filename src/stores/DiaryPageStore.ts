@@ -3,38 +3,32 @@ import { action, observable, computed } from "mobx";
 import Firebase, { QueryOption, CollectionType } from "../Firebase";
 import * as firebase from "firebase/app";
 
-import "firebase/auth";
-import "firebase/database";
-import "firebase/firestore";
-import "firebase/storage";
 import RootStore from "./RootStore";
-import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
+import ImageApi, { StorageImagePathType } from "../apis/Image/ImageApi";
 import * as _ from "lodash";
+import { DiaryPageRecord } from "../shared/records";
 
-export interface DiaryRecord {
-  documentId: string;
-  diaryId: string;
-  userId: string;
-  imageUri?: string | undefined;
-  memoryTime: string | undefined;
-  place: string | undefined;
-  contents: string;
-}
-
-class DiaryRecordStore {
+class DiaryPageStore {
   private _currentDiaryId?: string;
   private _rootStore: RootStore;
   private _collectionType: CollectionType;
   private _latestUploadImageUri: string;
 
-  @observable private _diaryRecords: Array<DiaryRecord> = [];
+  @observable private _diaryPageRecords: Array<DiaryPageRecord> = [];
 
   constructor(private rootStore: RootStore, private collectionType: CollectionType) {
-    console.log(DiaryRecordStore.name);
-
     this._rootStore = rootStore;
     this._collectionType = collectionType;
     this._latestUploadImageUri = "";
+  }
+
+  public get values(): Array<DiaryPageRecord> {
+    return this._diaryPageRecords;
+  }
+
+  @computed
+  public get count(): number {
+    return this._diaryPageRecords.length;
   }
 
   public Initialize = () => {};
@@ -47,20 +41,20 @@ class DiaryRecordStore {
         query.onSnapshot((querySnapshot) => {
           querySnapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
-              console.log(`${DiaryRecordStore.name} diary added !!`);
+              console.log(`${DiaryPageStore.name} diary added !!`);
               //if (this.findByDocumentId(change.doc.id) == null) {
               //  this.add(change.doc.data() as Diary);
               //}
             }
             if (change.type === "modified") {
-              console.log(`${DiaryRecordStore.name} Modified !! `);
+              console.log(`${DiaryPageStore.name} Modified !! `);
 
-              this.update(change.doc.id, change.doc.data() as DiaryRecord);
+              this.update(change.doc.id, change.doc.data() as DiaryPageRecord);
             }
             if (change.type === "removed") {
-              console.log(`${DiaryRecordStore.name} Remove Data: `, change.doc.data());
+              console.log(`${DiaryPageStore.name} Remove Data: `, change.doc.data());
 
-              this.remove(change.doc.id, change.doc.data() as DiaryRecord);
+              this.remove(change.doc.id, change.doc.data() as DiaryPageRecord);
             }
           });
         });
@@ -72,15 +66,14 @@ class DiaryRecordStore {
     }
   };
 
-  @action
-  private update(documentId: string, updatedRecord: DiaryRecord): boolean {
-    const index = this._diaryRecords.findIndex((t) => {
+  private update(documentId: string, updatedRecord: DiaryPageRecord): boolean {
+    const index = this._diaryPageRecords.findIndex((t) => {
       return t.documentId === documentId;
     });
 
     if (index != -1) {
       updatedRecord.documentId = documentId;
-      this._diaryRecords.splice(index, 1, updatedRecord);
+      this._diaryPageRecords.splice(index, 1, updatedRecord);
 
       return true;
     } else {
@@ -90,9 +83,11 @@ class DiaryRecordStore {
 
   private clear(diaryId: string) {
     if (this._currentDiaryId !== diaryId) {
-      this._diaryRecords.slice(0, this._diaryRecords.length);
+      this._diaryPageRecords.slice(0, this._diaryPageRecords.length);
     }
   }
+
+  @action
   public getDiaryList(diaryId: string) {
     this._currentDiaryId = diaryId;
     let queryOption: QueryOption = {
@@ -106,58 +101,52 @@ class DiaryRecordStore {
     this.getListAsync(diaryId, queryOption);
   }
 
-  public getListAsync = async (diaryId: string, queryOption: QueryOption) => {
+  private getListAsync = async (diaryId: string, queryOption: QueryOption) => {
     const snapshot = await Firebase.Instance.getDataWithMultiFilterAsync(this._collectionType, queryOption);
     if (snapshot != null) {
       if (snapshot.empty == false) {
         this.clear(diaryId);
 
-        snapshot.forEach((doc) => {
-          if (this.update(doc.id, doc.data() as DiaryRecord) == false) {
-            this.add(doc.id, doc.data() as DiaryRecord);
-          }
-        });
+        snapshot.forEach((doc) => this.upsert(doc));
       }
     }
   };
 
-  @action
-  private add = (documentId: string, newRecord: DiaryRecord): void => {
+  private upsert = (documentSnapshop: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>) => {
+    const diaryRecord = documentSnapshop.data() as DiaryPageRecord;
+
+    if (this.update(documentSnapshop.id, diaryRecord) == false) {
+      this.add(documentSnapshop.id, diaryRecord);
+    }
+  };
+
+  private add = (documentId: string, newRecord: DiaryPageRecord): void => {
     if (documentId) {
       newRecord.documentId = documentId;
-      this._diaryRecords.push(newRecord);
+      this._diaryPageRecords.push(newRecord);
     } else {
       console.log("add : !! error" + documentId);
     }
   };
 
   @action
-  private remove = (documentId: string, diary: DiaryRecord): void => {
-    const index = this._diaryRecords.findIndex((t) => {
+  private remove = (documentId: string, diary: DiaryPageRecord): void => {
+    const index = this._diaryPageRecords.findIndex((t) => {
       return t.documentId === documentId;
     });
 
     if (index != -1) {
-      this._diaryRecords.splice(index, 1);
+      this._diaryPageRecords.splice(index, 1);
     }
   };
 
-  private findByUserId = (userId: string): DiaryRecord | undefined => {
-    return this._diaryRecords.find((element) => element.userId == userId);
+  private findByUserId = (userId: string): DiaryPageRecord | undefined => {
+    return this._diaryPageRecords.find((element) => element.userId == userId);
   };
 
-  private findByDocumentId = (documentId: string): DiaryRecord | undefined => {
-    return this._diaryRecords.find((element) => element.documentId == documentId);
+  private findByDocumentId = (documentId: string): DiaryPageRecord | undefined => {
+    return this._diaryPageRecords.find((element) => element.documentId == documentId);
   };
-
-  public get values(): Array<DiaryRecord> {
-    return this._diaryRecords;
-  }
-
-  @computed
-  get count(): number {
-    return this._diaryRecords.length;
-  }
 
   public Add = (contents: string, uri?: string, place?: string, memoryTime?: string, uploadCompleted?: () => void) => {
     const task = this.addTask(contents, uri, place, memoryTime, (downdloadUrl: string) => {
@@ -208,4 +197,4 @@ class DiaryRecordStore {
   private *removeTask(documentId: string) {}
 }
 
-export default DiaryRecordStore;
+export default DiaryPageStore;

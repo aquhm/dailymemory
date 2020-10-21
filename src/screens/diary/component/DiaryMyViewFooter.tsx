@@ -1,6 +1,5 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Diary } from "../../../stores/DiaryStore";
 import IconButton from "../../../components/IconButton";
 import DiaryViewFooter from "../interface/DiaryViewFooter";
 

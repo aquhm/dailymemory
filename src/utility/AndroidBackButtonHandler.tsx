@@ -1,6 +1,6 @@
 import { ToastAndroid, Alert, BackHandler, NativeEventSubscription } from "react-native";
 import * as common from "./common";
-import RootStore from "../stores/RootStore";
+import { RootStore } from "../stores";
 
 class AndroidBackButtonHandler {
   static _instance?: AndroidBackButtonHandler;

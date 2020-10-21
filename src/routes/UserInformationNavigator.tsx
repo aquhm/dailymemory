@@ -8,7 +8,7 @@ import MapScreen from "../screens/map/MapScreen";
 import DiaryCreateScreen from "../screens/diary/DiaryCreateScreen";
 import DiaryViewScreen from "../screens/diary/DiaryViewScreen";
 import DiaryScreen from "../screens/home/DiaryScreen";
-import { Diary } from "../stores/DiaryStore";
+import { DiaryRecord } from "../shared/records";
 
 export type UserInformationStackParamList = {
   UserInformation: undefined;
@@ -16,7 +16,7 @@ export type UserInformationStackParamList = {
   DiaryCreate: undefined;
   Diary: undefined;
   DiaryView: {
-    diary: Diary;
+    diary: DiaryRecord;
   };
 };
 
