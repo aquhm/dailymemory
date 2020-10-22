@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import { AuthStackNavigationProps } from "../../routes/AuthNavigator";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import Firebase from "../../Firebase";
+import Firebase from "../../utility/Firebase";
 import * as _ from "lodash";
 
 import { AuthHeader } from "../../components/Header";

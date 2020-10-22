@@ -6,7 +6,7 @@ import "firebase/storage";
 
 import { WhereFilterOp, OrderByDirection } from "@firebase/firestore-types";
 
-import ApiKeys from "./constants/ApiKeys";
+import ApiKeys from "../constants/ApiKeys";
 
 export type CollectionType = "users" | "diaries" | "diary_records";
 

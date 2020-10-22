@@ -1,6 +1,6 @@
 import { action, observable, computed } from "mobx";
 
-import Firebase, { QueryOption, CollectionType } from "../Firebase";
+import Firebase, { QueryOption, CollectionType } from "../utility/Firebase";
 import * as firebase from "firebase/app";
 
 import RootStore from "./RootStore";

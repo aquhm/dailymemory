@@ -6,7 +6,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { Formik } from "formik";
 import * as Yup from "yup";
 
-import Firebase from "../../Firebase";
+import Firebase from "../../utility/Firebase";
 import { AuthHeader } from "../../components/Header";
 import Theme from "../../constants/Styles";
 

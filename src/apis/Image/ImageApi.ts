@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
-import Firebase from "../../Firebase";
+import Firebase from "../../utility/Firebase";
 import * as firebase from "firebase/app";
 
 import { Platform } from "react-native";

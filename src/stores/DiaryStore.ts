@@ -1,7 +1,7 @@
 import { action, observable, computed } from "mobx";
 
 import * as firebase from "firebase/app";
-import Firebase, { QueryOption, CollectionType } from "../Firebase";
+import Firebase, { QueryOption, CollectionType } from "../utility/Firebase";
 
 import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
