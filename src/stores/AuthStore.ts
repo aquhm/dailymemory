@@ -36,12 +36,6 @@ class AuthStore {
 
   public Initialize = () => {};
 
-  @action
-  private setFirebaseUser(user?: firebase.User) {
-    console.log("AuthStore setFirebaseUser " + user);
-    this._firebaseUser = user;
-  }
-
   public get user(): User {
     if (!this._user) {
       throw new Error(`${AuthStore.name}  _user is null`);
@@ -62,6 +56,15 @@ class AuthStore {
     return this._firebaseUser != null;
   }
 
+  public get profileImageUri(): string | undefined {
+    return this._profileImageUri;
+  }
+
+  @action
+  private setFirebaseUser(user?: firebase.User) {
+    this._firebaseUser = user;
+  }
+
   @action
   private setProfileImage = (profileImage: string | undefined): void => {
     this._profileImageUri = profileImage;
@@ -71,10 +74,6 @@ class AuthStore {
   private setUser = (user: User): void => {
     this._user = user;
   };
-
-  public get profileImageUri(): string | undefined {
-    return this._profileImageUri;
-  }
 
   private onAuthStateChanged = (user: firebase.User): void => {
     if (user != null) {
@@ -91,13 +90,13 @@ class AuthStore {
 
   @computed
   get isAuthenticated(): boolean {
-    return this._firebaseUser !== null ? true : false;
+    return this._firebaseUser !== null;
   }
 
-  public Login = async (email: string, password: string) => await Firebase.Instance.login(email, password);
+  public Login = async (email: string, password: string) => await Firebase.Instance.loginAsync(email, password);
 
   public SignUp = async (name: string, email: string, password: string) =>
-    await Firebase.Instance.signUp(name, email, password);
+    await Firebase.Instance.signUpAsync(name, email, password);
 
   public SignOut = async () => await Firebase.Instance.auth.signOut();
 
@@ -135,7 +134,9 @@ class AuthStore {
       yield ImageApi.uploadImageAsync(StorageImagePathType.UserProfile, uri, uploadCompleted);
     }
 
-    yield Firebase.Instance.updateUserData(this.firebaseUser.uid, { profile_uri: this._user?.profile_uri });
+    yield Firebase.Instance.updateDataByDocumentIdAsync("users", this.firebaseUser.uid, {
+      profile_uri: this._user?.profile_uri,
+    });
   }
 }
 

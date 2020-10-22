@@ -103,12 +103,6 @@ class Firebase {
     return this.db.collection("users");
   }
 
-  private getCollection(
-    collection: CollectionType
-  ): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
-    return this.db.collection(collection);
-  }
-
   get diaryCollection() {
     return this.db.collection("diaries");
   }
@@ -116,11 +110,17 @@ class Firebase {
     return this.db.collection("diary_records");
   }
 
-  public signInAnonymously = async () => {
+  private getCollection<T extends CollectionType>(
+    collection: T
+  ): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
+    return this.db.collection(collection);
+  }
+
+  public signInAnonymouslyAsync = async () => {
     try {
       await this.auth.signInAnonymously();
     } catch (error) {
-      throw new Error(`Function [${this.signInAnonymously.name}] ${error}`);
+      throw new Error(`Function [${this.signInAnonymouslyAsync.name}] ${error}`);
     }
   };
 
@@ -128,7 +128,7 @@ class Firebase {
     return this.auth.onAuthStateChanged(callback);
   }
 
-  public signUp = async (
+  public signUpAsync = async (
     name: string,
     email: string,
     password: string,
@@ -136,67 +136,66 @@ class Firebase {
     emailVerification: boolean = false
   ) => {
     try {
-      const userCredential = await this._auth?.createUserWithEmailAndPassword(email, password);
+      const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
 
       if (userCredential != null) {
         if (userCredential.user != null) {
-          await this.writeUserData(userCredential.user.uid, {
+          await this.writeDataByDocumentIdAsync("users", userCredential.user.uid, {
             name: name,
             email: email,
           });
-        }
-        if (emailVerification) {
-          this.user.sendEmailVerification();
-        }
 
-        return true;
+          if (emailVerification) {
+            this.user.sendEmailVerification();
+          }
+
+          return true;
+        } else {
+        }
+      } else {
       }
     } catch (error) {
-      throw new Error(`Function [${this.signUp.name}] ${error}`);
+      throw new Error(`Function [${this.signUpAsync.name}] ${error}`);
     }
 
     return false;
   };
 
-  public async writeUserData(userId: string, userData: any) {
-    const userDoc = this.userCollection.doc(userId);
-
-    await userDoc?.set(userData, { merge: true });
-  }
-
-  public async writeData<T extends CollectionType>(collection: T, userData: any) {
+  public writeDataAsync = async <T extends CollectionType>(collection: T, data: any) => {
     const col = this.getCollection(collection);
     const docRef = col.doc();
 
-    await docRef?.set(userData, { merge: true });
-  }
+    await docRef?.set(data, { merge: true });
+  };
 
-  public async removeData<T extends CollectionType>(collection: T, documentId: string) {
-    const col = this.getCollection(collection);
-    const docRef = col.doc(documentId);
-
+  public removeDataAsync = async <T extends CollectionType>(collection: T, documentId: string) => {
+    const docRef = this.getDocument(collection, documentId);
     return await docRef.delete();
-  }
+  };
 
-  public async writeDataByDocumentId<T extends CollectionType>(documentId: string, collection: T, userData: any) {
+  public writeDataByDocumentIdAsync = async <T extends CollectionType>(
+    collection: T,
+    documentId: string,
+    data: any
+  ) => {
     const col = this.getCollection(collection);
     const docRef = col.doc(documentId);
-    await docRef?.set(userData, { merge: true });
-  }
+    await docRef?.set(data, { merge: true });
+  };
 
-  public async getDataWithFilterAsync<T extends CollectionType>(
+  public getDataWithFilterAsync = async <T extends CollectionType>(
     collection: T,
     field: string,
     operator: WhereFilterOp,
     value: any
-  ) {
+  ) => {
     const col = this.getCollection(collection);
     const query = col.where(field, operator, value);
 
     return query.get();
-  }
+  };
 
-  public async getDataWithMultiFilterAsync<T extends CollectionType>(collection: T, option: QueryOption) {
+  public getDataWithMultiFilterAsync = async <T extends CollectionType>(collection: T, option: QueryOption) => {
     let col = this.getCollection(collection);
 
     let query;
@@ -215,9 +214,9 @@ class Firebase {
     }
 
     return query?.get();
-  }
+  };
 
-  public createQueryWithOption<T extends CollectionType>(collection: T, option: QueryOption) {
+  public createQueryWithOption = <T extends CollectionType>(collection: T, option: QueryOption) => {
     let col = this.getCollection(collection);
 
     let query;
@@ -236,61 +235,67 @@ class Firebase {
     }
 
     return query;
-  }
+  };
 
-  public async getDatasWithFilterAsync1<T extends CollectionType>(collection: T, option: QueryOption) {
+  public getDatasWithFilterAsync1 = async <T extends CollectionType>(collection: T, option: QueryOption) => {
     const query = this.createQueryWithOption(collection, option);
     return await query?.get();
-  }
+  };
 
-  public async getDatasWithFilterAsync<T extends CollectionType>(
+  public getDatasWithFilterAsync = async <T extends CollectionType>(
     collection: T,
     field: string,
     operator: WhereFilterOp,
     value: any
-  ) {
+  ) => {
     const query = this.createQuery(collection, field, operator, value);
     return await query.get();
-  }
+  };
 
-  public createQuery<T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) {
+  public createQuery = <T extends CollectionType>(
+    collection: T,
+    field: string,
+    operator: WhereFilterOp,
+    value: any
+  ) => {
     const col = this.getCollection(collection);
     const query = col.where(field, operator, value);
     return query;
-  }
+  };
 
-  public async updateUserData(userId: string, userData: any, onComplete?: (a: Error | null) => any) {
-    const userDoc = this.userCollection.doc(userId);
+  public updateDataByDocumentIdAsync = async <T extends CollectionType>(
+    collection: T,
+    documentId: string,
+    data: any,
+    onComplete?: (a: Error | null) => any
+  ) => {
+    const docRef = this.getDocument(collection, documentId);
 
-    await userDoc?.update(userData);
-  }
+    await docRef?.update(data);
+  };
 
-  public async getUserData(userId: string) {
+  private getDocument = <T extends CollectionType>(collection: T, documentId: string) => {
+    const col = this.getCollection(collection);
+    const docRef = col.doc(documentId);
+
+    return docRef;
+  };
+
+  public getDataAsync = async <T extends CollectionType>(collection: T, documentId: string) => {
     try {
-      const user = await this.userCollection.doc(userId).get();
-      if (user.exists) {
-        return user.data();
-      }
+      const docRef = this.getDocument(collection, documentId);
+      return docRef?.get();
     } catch (error) {
-      throw new Error(`Function [${this.getUserData.name}] ${error}`);
+      throw new Error(`Function [${this.getDataAsync.name}] ${error}`);
     }
-  }
+  };
 
-  public login = async (email: string, password: string, rememberSession: boolean = false) => {
+  public loginAsync = async (email: string, password: string, rememberSession: boolean = false) => {
     let ret = false;
     try {
-      /*
-      const _rememberSession: string = rememberSession
-        ? firebase.auth.Auth.Persistence.LOCAL
-        : firebase.auth.Auth.Persistence.SESSION;
-        
-
-      await this._auth?.setPersistence(_rememberSession);
-      */
-
-      ret = (await this._auth?.signInWithEmailAndPassword(email, password)) != null;
+      ret = (await this.auth?.signInWithEmailAndPassword(email, password)) != null;
     } catch (error) {
-      throw new Error(`Function [${this.login.name}] ${error}`);
+      throw new Error(`Function [${this.loginAsync.name}] ${error}`);
     }
 
     return ret;

@@ -159,7 +159,7 @@ class DiaryStore {
       yield ImageApi.uploadImageAsync(filePath, uri, uploadCompleted);
     }
 
-    yield Firebase.Instance.writeData("diaries", {
+    yield Firebase.Instance.writeDataAsync("diaries", {
       title: title,
       coverImageUri: this._latestUploadImageUri,
       coverImagePath: filePath,

@@ -176,7 +176,7 @@ class DiaryPageStore {
       yield ImageApi.uploadImageAsync(filePath, uri, uploadCompleted);
     }
 
-    yield Firebase.Instance.writeData(this._collectionType, {
+    yield Firebase.Instance.writeDataAsync(this._collectionType, {
       contents: contents,
       imageUri: this._latestUploadImageUri,
       imagePath: filePath,
@@ -190,7 +190,7 @@ class DiaryPageStore {
 
   public Remove = (documentId: string) => {
     if (this.findByDocumentId(documentId) != null) {
-      Firebase.Instance.removeData(this._collectionType, documentId);
+      Firebase.Instance.removeDataAsync(this._collectionType, documentId);
     }
   };
 
