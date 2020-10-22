@@ -9,5 +9,8 @@ npm-debug.*
 *.orig.*
 web-build/
 
+#firebase
+src/constant/Apikeys.ts
+
 # macOS
 .DS_Store
