@@ -24,8 +24,7 @@ import * as _ from "lodash";
 import { DiaryStore, DiaryPageStore } from "../../stores";
 
 import Swiper, { SwiperInternals } from "react-native-swiper";
-import DiaryMyCoverPage from "./component/DiaryMyCoverPage";
-import DiaryMyViewPage from "./component/DiaryMyViewPage";
+import { DiaryMyCoverPage, DiaryMyViewPage } from "./component";
 
 const { width, height } = Dimensions.get("window");
 const imageHeight = height * 0.6;

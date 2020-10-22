@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { RectButton } from "react-native-gesture-handler";
+import { View, Text } from "react-native";
+import { RectButton, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RoundedIconButton from "../RoundedIconButton";
+import { Feather as Icon } from "@expo/vector-icons";
 
 export interface HeaderProps {
   left?: {
@@ -21,9 +22,12 @@ export interface HeaderProps {
 
   title?: string;
   color?: string;
+  onPress?: () => void;
+  icon?: string;
+  iconSize?: number;
 }
 
-const Header = ({ left, right, title, color }: HeaderProps) => {
+const Header = ({ left, right, title, color, icon, iconSize, onPress }: HeaderProps) => {
   const insets = useSafeAreaInsets();
 
   const renderLeftItem = () => {
@@ -72,6 +76,17 @@ const Header = ({ left, right, title, color }: HeaderProps) => {
     }
   };
 
+  const renderCenterItem = () => {
+    return (
+      <View>
+        <TouchableWithoutFeedback style={{ flexDirection: "row" }} {...{ onPress }}>
+          <Text style={{ color: color }}>{title}</Text>
+          {icon && <Icon name={icon} size={iconSize} />}
+        </TouchableWithoutFeedback>
+      </View>
+    );
+  };
+
   return (
     <View
       style={{
@@ -83,7 +98,7 @@ const Header = ({ left, right, title, color }: HeaderProps) => {
       }}
     >
       {renderLeftItem()}
-      <Text style={{ color: color }}>{title}</Text>
+      {renderCenterItem()}
       {renderRightItem()}
     </View>
   );

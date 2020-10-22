@@ -1,3 +1,3 @@
 class GoogleLoginBehaviour {}
 
-export default GoogleLogin
+export default GoogleLoginBehaviour;

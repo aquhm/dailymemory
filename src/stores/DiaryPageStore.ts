@@ -177,13 +177,13 @@ class DiaryPageStore {
     }
 
     yield Firebase.Instance.writeDataAsync(this._collectionType, {
-      contents: contents,
+      contents,
+      place,
+      memoryTime,
       imageUri: this._latestUploadImageUri,
       imagePath: filePath,
       userId: Firebase.Instance.user.uid,
       diaryId: this.rootStore.DiaryStore.currentDiaryId,
-      place: place,
-      memoryTime: memoryTime,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }

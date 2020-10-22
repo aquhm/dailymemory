@@ -6,4 +6,5 @@ export default interface DiaryRecord {
   userId: string | undefined;
   contentCount: Number;
   createdTime?: firebase.firestore.FieldValue;
+  private?: boolean;
 }

@@ -1,5 +1,16 @@
 import React, { createRef } from "react";
-import { View, Image, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions, Alert } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  StatusBar,
+  Dimensions,
+  Alert,
+  ListRenderItemInfo,
+  TouchableOpacity,
+} from "react-native";
 
 import { DiaryNavigatorStackProps } from "../../routes/HomeNavigator";
 import Header from "../../components/common/Header";
@@ -11,7 +22,7 @@ import PlacePopup from "../../components/diary/PlacePopup";
 
 import { Feather as Icon } from "@expo/vector-icons";
 
-import { RectButton } from "react-native-gesture-handler";
+import { FlatList, RectButton } from "react-native-gesture-handler";
 import ImageApi from "../../apis/Image/ImageApi";
 
 import moment from "moment";
@@ -20,6 +31,9 @@ import "moment/locale/ko";
 import * as _ from "lodash";
 
 import { RootStore } from "../../stores";
+
+import { SwipeablePanel } from "rn-swipeable-panel";
+import { DiaryRecord } from "../../shared/records";
 
 const { width, height } = Dimensions.get("window");
 const editHeight = height * 0.3;
@@ -47,6 +61,8 @@ interface State {
   place?: string;
   imageUri?: string;
   contents: string;
+  diaryPicker: boolean;
+  currentDiary?: DiaryRecord;
 }
 
 class DiaryScreen extends React.Component<Props, State> {
@@ -62,6 +78,7 @@ class DiaryScreen extends React.Component<Props, State> {
       dateTime: moment().format("LL"),
       place: undefined,
       contents: "",
+      diaryPicker: false,
     };
 
     this.initialize();
@@ -69,6 +86,16 @@ class DiaryScreen extends React.Component<Props, State> {
   }
 
   initialize = () => {
+    this.InitializeImageMenu();
+
+    this.props.navigation.addListener("focus", () => {
+      this.setState({ currentDiary: undefined });
+    });
+
+    this.props.navigation.addListener("blur", () => {});
+  };
+
+  private InitializeImageMenu = () => {
     menuData[0].onPress = () => {
       // @ts-ignore
       this.centerMenuPopupRef.current?.close();
@@ -98,6 +125,13 @@ class DiaryScreen extends React.Component<Props, State> {
 
   componentDidMount() {
     console.log(" componentDidMount DiaryScreen");
+
+    if (RootStore.Instance.DiaryStore.values.length > 1) {
+      this.setState({ diaryPicker: true });
+    } else {
+      const [first] = RootStore.Instance.DiaryStore.values;
+      this.setState({ currentDiary: first });
+    }
   }
 
   componentWillUnmount() {
@@ -113,8 +147,6 @@ class DiaryScreen extends React.Component<Props, State> {
   };
 
   handleDatePicked = (date: Date) => {
-    console.log("A date has been picked: ", date);
-
     this.setState({ dateTime: moment(date).format("LL") });
 
     this.hideDateTimePicker();
@@ -124,24 +156,31 @@ class DiaryScreen extends React.Component<Props, State> {
     _.isEmpty(pickedPlace) === false && this.setState({ place: pickedPlace });
   };
 
-  sendCreateDiary = async () => {
+  sendCreateDiary = async (completed: () => void) => {
     RootStore.Instance.DiaryPageStore.Add(
       this.state.contents,
       this.state.imageUri,
       this.state.place,
       this.state.dateTime,
-      () => {
-        Alert.alert("Success");
-        //this.props.navigation.goBack();
-      }
+      completed
     );
   };
 
-  header = () => {
+  renderHeader = () => {
+    console.log("this.state.currentDiary = " + this.state.currentDiary);
+    const diaryQuantity = RootStore.Instance.DiaryStore.values.length;
+    const title = this.state.currentDiary != null ? this.state.currentDiary.title : "일기책을 선택해 주세요.";
     return (
       <Header
-        title="일기"
+        {...{ title }}
+        icon="chevron-down"
+        iconSize={18}
         color="black"
+        onPress={() => {
+          if (diaryQuantity > 1) {
+            this.setState({ diaryPicker: true });
+          }
+        }}
         left={{
           icon: "arrow-left",
           onPress: () => {
@@ -152,7 +191,18 @@ class DiaryScreen extends React.Component<Props, State> {
         right={{
           icon: "check",
           onPress: () => {
-            this.sendCreateDiary();
+            if (diaryQuantity > 1 && this.state.currentDiary == null) {
+              this.setState({ diaryPicker: true });
+            } else {
+              if (_.isEmpty(this.state.contents)) {
+                Alert.alert("required contens");
+              } else {
+                this.sendCreateDiary(() => {
+                  this.props.navigation.navigate("DiaryView", { diary: this.state.currentDiary! });
+                  Alert.alert("Success");
+                });
+              }
+            }
           },
           visible: true,
         }}
@@ -228,12 +278,64 @@ class DiaryScreen extends React.Component<Props, State> {
     );
   };
 
+  renderSwiperableItemComponent = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: 10,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+        }}
+      >
+        <View style={{ justifyContent: "flex-start" }}>
+          <Text>{listRenderItemInfo.item.title}</Text>
+          <Text>
+            {listRenderItemInfo.item.private ? "비공개" : "공개"} | {listRenderItemInfo.item.contentCount}p
+          </Text>
+        </View>
+        <View style={{ alignItems: "center" }}>
+          <TouchableOpacity
+            onPress={() => {
+              this.setState({ diaryPicker: false, currentDiary: listRenderItemInfo.item });
+            }}
+          >
+            <Icon name="circle" size={20} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  renderDiaryPicker = () => {
+    return (
+      <SwipeablePanel
+        isActive={this.state.diaryPicker}
+        onClose={() => {
+          this.setState({ diaryPicker: false });
+        }}
+        closeOnTouchOutside={true}
+      >
+        <Text style={{ margin: 10 }}>내 일기책 선택</Text>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={RootStore.Instance.DiaryStore.values}
+          extraData={RootStore.Instance.DiaryStore.values}
+          renderItem={this.renderSwiperableItemComponent}
+          keyExtractor={(item, _) => item.documentId}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        ></FlatList>
+      </SwipeablePanel>
+    );
+  };
+
   render() {
     return (
       <>
         <StatusBar barStyle="default" />
         <SafeAreaView style={{ flex: 1 }}>
-          {this.header()}
+          {this.renderHeader()}
           <View style={styles.container}>
             <View style={{ flex: 0.4 }}>
               <LineTextInput
@@ -251,6 +353,7 @@ class DiaryScreen extends React.Component<Props, State> {
             </View>
             {_.isEmpty(this.state.imageUri) ? this.renderSettingLayer() : this.renderPickedImage()}
           </View>
+
           <DateTimePicker
             isVisible={this.state.isDateTimePickerVisible}
             onConfirm={this.handleDatePicked}
@@ -266,6 +369,7 @@ class DiaryScreen extends React.Component<Props, State> {
             }}
           />
           <CenterMenuPopup ref={this.centerMenuPopupRef} data={menuData} />
+          {this.renderDiaryPicker()}
         </SafeAreaView>
       </>
     );
