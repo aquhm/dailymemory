@@ -156,18 +156,20 @@ class DiaryScreen extends React.Component<Props, State> {
     _.isEmpty(pickedPlace) === false && this.setState({ place: pickedPlace });
   };
 
-  sendCreateDiary = async (completed: () => void) => {
-    RootStore.Instance.DiaryPageStore.Add(
-      this.state.contents,
-      this.state.imageUri,
-      this.state.place,
-      this.state.dateTime,
-      completed
-    );
+  createDiaryPage = async (completed: () => void) => {
+    if (this.state.currentDiary != null) {
+      RootStore.Instance.DiaryPageStore.Add(
+        this.state.currentDiary,
+        this.state.contents,
+        this.state.imageUri,
+        this.state.place,
+        this.state.dateTime,
+        completed
+      );
+    }
   };
 
   renderHeader = () => {
-    console.log("this.state.currentDiary = " + this.state.currentDiary);
     const diaryQuantity = RootStore.Instance.DiaryStore.values.length;
     const title = this.state.currentDiary != null ? this.state.currentDiary.title : "일기책을 선택해 주세요.";
     return (
@@ -197,7 +199,7 @@ class DiaryScreen extends React.Component<Props, State> {
               if (_.isEmpty(this.state.contents)) {
                 Alert.alert("required contens");
               } else {
-                this.sendCreateDiary(() => {
+                this.createDiaryPage(() => {
                   this.props.navigation.navigate("DiaryView", { diary: this.state.currentDiary! });
                   Alert.alert("Success");
                 });

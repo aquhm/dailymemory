@@ -110,9 +110,7 @@ class Firebase {
     return this.db.collection("diary_records");
   }
 
-  private getCollection<T extends CollectionType>(
-    collection: T
-  ): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
+  private getCollection<T extends CollectionType>(collection: T): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
     return this.db.collection(collection);
   }
 
@@ -128,13 +126,7 @@ class Firebase {
     return this.auth.onAuthStateChanged(callback);
   }
 
-  public signUpAsync = async (
-    name: string,
-    email: string,
-    password: string,
-    rememberSession: boolean = true,
-    emailVerification: boolean = false
-  ) => {
+  public signUpAsync = async (name: string, email: string, password: string, rememberSession: boolean = true, emailVerification: boolean = false) => {
     try {
       const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
 
@@ -173,22 +165,13 @@ class Firebase {
     return await docRef.delete();
   };
 
-  public writeDataByDocumentIdAsync = async <T extends CollectionType>(
-    collection: T,
-    documentId: string,
-    data: any
-  ) => {
+  public writeDataByDocumentIdAsync = async <T extends CollectionType>(collection: T, documentId: string, data: any) => {
     const col = this.getCollection(collection);
     const docRef = col.doc(documentId);
     await docRef?.set(data, { merge: true });
   };
 
-  public getDataWithFilterAsync = async <T extends CollectionType>(
-    collection: T,
-    field: string,
-    operator: WhereFilterOp,
-    value: any
-  ) => {
+  public getDataWithFilterAsync = async <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
     const col = this.getCollection(collection);
     const query = col.where(field, operator, value);
 
@@ -242,22 +225,12 @@ class Firebase {
     return await query?.get();
   };
 
-  public getDatasWithFilterAsync = async <T extends CollectionType>(
-    collection: T,
-    field: string,
-    operator: WhereFilterOp,
-    value: any
-  ) => {
+  public getDatasWithFilterAsync = async <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
     const query = this.createQuery(collection, field, operator, value);
     return await query.get();
   };
 
-  public createQuery = <T extends CollectionType>(
-    collection: T,
-    field: string,
-    operator: WhereFilterOp,
-    value: any
-  ) => {
+  public createQuery = <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
     const col = this.getCollection(collection);
     const query = col.where(field, operator, value);
     return query;

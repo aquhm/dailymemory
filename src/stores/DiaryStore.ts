@@ -137,12 +137,16 @@ class DiaryStore {
     return this._diaryRecords.length;
   }
 
-  public Add = (title: string, uri?: string, uploadCompleted?: () => void) => {
-    const task = this.addTask(title, uri, (downloadUrl: string) => {
-      this._latestUploadImageUri = downloadUrl;
-      task.next();
-      uploadCompleted && uploadCompleted();
-    });
+  public Add = (title: string, uri?: string, addCompleted?: () => void) => {
+    const task = this.addTask(
+      title,
+      uri,
+      (downloadUrl: string) => {
+        this._latestUploadImageUri = downloadUrl;
+        task.next();
+      },
+      addCompleted
+    );
 
     task.next();
   };
@@ -152,20 +156,26 @@ class DiaryStore {
   2. Db Insert
   3. Document get
   */
-  private *addTask(title: string, uri?: string, uploadCompleted?: (downloadUrl: string) => void) {
-    let filePath: string = "";
-    if (uri != null) {
-      filePath = ImageApi.makeStorageFilePath(StorageImagePathType.DiaryCover, uri);
-      yield ImageApi.uploadImageAsync(filePath, uri, uploadCompleted);
+  private *addTask(title: string, imageFileUri?: string, imageUploadComplete?: (downloadImageUri: string) => void, addCompleted?: () => void) {
+    let storagePath: string = "";
+    let downloadImageUri: string = "";
+    if (imageFileUri != null) {
+      storagePath = ImageApi.makeStorageFilePath(StorageImagePathType.DiaryCover, imageFileUri);
+      yield ImageApi.uploadImageAsync(storagePath, imageFileUri, (downloadUri) => {
+        downloadImageUri = downloadUri;
+        imageUploadComplete && imageUploadComplete(downloadUri);
+      });
     }
 
-    yield Firebase.Instance.writeDataAsync("diaries", {
+    yield Firebase.Instance.writeDataAsync(this._collectionType, {
       title: title,
-      coverImageUri: this._latestUploadImageUri,
-      coverImagePath: filePath,
+      coverImageUri: downloadImageUri,
+      coverImagePath: storagePath,
       userId: Firebase.Instance.user.uid,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
       contentCount: 0,
+    }).then(() => {
+      addCompleted && addCompleted();
     });
   }
 }

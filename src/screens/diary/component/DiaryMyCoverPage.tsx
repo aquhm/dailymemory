@@ -22,7 +22,7 @@ interface DiaryMyCoverPageProps {
 const DiaryMyCoverPage = ({ diary, navigation }: DiaryMyCoverPageProps) => {
   if (diary != null) {
     return (
-      <View key={diary.documentId} style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.picture}>
           <Image source={{ uri: diary.coverImageUri }} style={styles.image} />
           <View style={{ ...StyleSheet.absoluteFillObject, flexDirection: "column-reverse" }}>

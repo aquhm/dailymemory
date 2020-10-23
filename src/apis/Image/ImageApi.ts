@@ -74,11 +74,7 @@ class ImageApi {
     return `${targetPath}/${fileName}`;
   }
 
-  public static async uploadImageAsync(
-    targetStoragePath: string,
-    imageUri: string,
-    uploadCompleted?: (downloadUrl: string) => void
-  ) {
+  public static async uploadImageAsync(targetStoragePath: string, imageUri: string, uploadCompleted?: (downloadUrl: string) => void) {
     try {
       var ref = Firebase.Instance.storage.ref().child(targetStoragePath);
 
@@ -100,8 +96,6 @@ class ImageApi {
         },
         () => {
           ref.getDownloadURL().then((url) => {
-            //this.setProfileImage(url);
-
             uploadCompleted && uploadCompleted(url);
           });
         }
@@ -111,11 +105,7 @@ class ImageApi {
     }
   }
 
-  public static async removeImageAsync(
-    targetPath: StorageImagePathType,
-    imageUri: string,
-    removeCompleted?: () => void
-  ) {
+  public static async removeImageAsync(targetPath: StorageImagePathType, imageUri: string, removeCompleted?: () => void) {
     try {
       var ref = Firebase.Instance.storage.ref().child(imageUri);
 

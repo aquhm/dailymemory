@@ -6,20 +6,18 @@ import * as firebase from "firebase/app";
 import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis/Image/ImageApi";
 import * as _ from "lodash";
-import { DiaryPageRecord } from "../shared/records";
+import { DiaryPageRecord, DiaryRecord } from "../shared/records";
 
 class DiaryPageStore {
   private _currentDiaryId?: string;
   private _rootStore: RootStore;
   private _collectionType: CollectionType;
-  private _latestUploadImageUri: string;
 
   @observable private _diaryPageRecords: Array<DiaryPageRecord> = [];
 
   constructor(private rootStore: RootStore, private collectionType: CollectionType) {
     this._rootStore = rootStore;
     this._collectionType = collectionType;
-    this._latestUploadImageUri = "";
   }
 
   public get values(): Array<DiaryPageRecord> {
@@ -148,12 +146,18 @@ class DiaryPageStore {
     return this._diaryPageRecords.find((element) => element.documentId == documentId);
   };
 
-  public Add = (contents: string, uri?: string, place?: string, memoryTime?: string, uploadCompleted?: () => void) => {
-    const task = this.addTask(contents, uri, place, memoryTime, (downdloadUrl: string) => {
-      this._latestUploadImageUri = downdloadUrl;
-      task.next();
-      uploadCompleted && uploadCompleted();
-    });
+  public Add = (diaryRecord: DiaryRecord, contents: string, uri?: string, place?: string, memoryTime?: string, addCompleted?: () => void) => {
+    const task = this.addTask(
+      diaryRecord,
+      contents,
+      uri,
+      place,
+      memoryTime,
+      (downloadImageUri: string) => {
+        task.next(downloadImageUri);
+      },
+      addCompleted
+    );
 
     task.next();
   };
@@ -164,27 +168,35 @@ class DiaryPageStore {
   3. Document get
   */
   private *addTask(
+    diaryRecord: DiaryRecord,
     contents: string,
-    uri?: string,
+    imageFileUri?: string,
     place?: string,
     memoryTime?: string,
-    uploadCompleted?: (downdloadUrl: string) => void
+    imageUploadComplete?: (downloadImageUri: string) => void,
+    addCompleted?: () => void
   ) {
-    let filePath: string = "";
-    if (uri != null) {
-      filePath = ImageApi.makeStorageFilePath(StorageImagePathType.Diary, uri);
-      yield ImageApi.uploadImageAsync(filePath, uri, uploadCompleted);
+    let storagePath: string = "";
+    let downloadImageUri: string = "";
+    if (imageFileUri != null) {
+      storagePath = ImageApi.makeStorageFilePath(StorageImagePathType.Diary, imageFileUri);
+      yield ImageApi.uploadImageAsync(storagePath, imageFileUri, (downloadUri) => {
+        downloadImageUri = downloadUri;
+        imageUploadComplete && imageUploadComplete(downloadUri);
+      });
     }
 
     yield Firebase.Instance.writeDataAsync(this._collectionType, {
-      contents,
-      place,
-      memoryTime,
-      imageUri: this._latestUploadImageUri,
-      imagePath: filePath,
+      contents: contents,
+      place: place || "",
+      memoryTime: memoryTime,
+      imageUri: downloadImageUri,
+      imagePath: storagePath,
       userId: Firebase.Instance.user.uid,
-      diaryId: this.rootStore.DiaryStore.currentDiaryId,
+      diaryId: diaryRecord.documentId,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
+    }).then(() => {
+      addCompleted && addCompleted();
     });
   }
 
