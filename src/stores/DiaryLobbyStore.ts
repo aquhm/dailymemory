@@ -1,15 +1,13 @@
 import { action, observable, computed } from "mobx";
 
-import * as firebase from "firebase/app";
 import Firebase, { QueryOption, CollectionType } from "../utility/Firebase";
 
 import RootStore from "./RootStore";
-import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
 import * as _ from "lodash";
 
 import { DiaryRecord } from "../shared/records";
 
-class DiaryStore {
+class DiaryLobbyStore {
   private _collectionType: CollectionType;
   private _currentDiaryId?: string;
   private _rootStore: RootStore;
@@ -17,7 +15,7 @@ class DiaryStore {
   @observable private _diaryRecords: Array<DiaryRecord> = [];
 
   constructor(private rootStore: RootStore, private collectionType: CollectionType) {
-    console.log(DiaryStore.name);
+    console.log(DiaryLobbyStore.name);
 
     this._collectionType = collectionType;
     this._rootStore = rootStore;
@@ -91,15 +89,15 @@ class DiaryStore {
         query.onSnapshot((querySnapshot) => {
           querySnapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
-              console.log(`${DiaryStore.name} diary added !!`);
+              console.log(`${DiaryLobbyStore.name} diary added !!`);
             }
             if (change.type === "modified") {
-              console.log(`${DiaryStore.name} Modified !! `);
+              console.log(`${DiaryLobbyStore.name} Modified !! `);
 
               this.update(change.doc.id, change.doc.data() as DiaryRecord);
             }
             if (change.type === "removed") {
-              console.log(`${DiaryStore.name} Remove Data: `, change.doc.data());
+              console.log(`${DiaryLobbyStore.name} Remove Data: `, change.doc.data());
 
               this.remove(change.doc.id, change.doc.data() as DiaryRecord);
             }
@@ -134,57 +132,6 @@ class DiaryStore {
   public findByDocumentId = (documentId: string): DiaryRecord | undefined => {
     return this._diaryRecords.find((element) => element.documentId == documentId);
   };
-
-  private requstUpdate = (diaryRecord: DiaryRecord, data: any) => {
-    if (this.findByDocumentId(diaryRecord.documentId)) {
-      Firebase.Instance.updateDataByDocumentIdAsync(this._collectionType, diaryRecord.documentId, data);
-    }
-  };
-
-  public requestUpdateContentCount(diaryRecord: DiaryRecord) {
-    this.requstUpdate(diaryRecord, { contentCount: diaryRecord.contentCount + 1 });
-  }
-
-  public Add = (title: string, uri?: string, addCompleted?: () => void) => {
-    const task = this.addTask(
-      title,
-      uri,
-      (downloadImageUri: string) => {
-        task.next(downloadImageUri);
-      },
-      addCompleted
-    );
-
-    task.next();
-  };
-
-  /*Todo :
-  1. 이미지 업로드.
-  2. Db Insert
-  3. Document get
-  */
-  private *addTask(title: string, imageFileUri?: string, imageUploadComplete?: (downloadImageUri: string) => void, addCompleted?: () => void) {
-    let storagePath: string = "";
-    let downloadImageUri: string = "";
-    if (imageFileUri != null) {
-      storagePath = ImageApi.makeStorageFilePath(StorageImagePathType.DiaryCover, imageFileUri);
-      yield ImageApi.uploadImageAsync(storagePath, imageFileUri, (downloadUri) => {
-        downloadImageUri = downloadUri;
-        imageUploadComplete && imageUploadComplete(downloadUri);
-      });
-    }
-
-    yield Firebase.Instance.writeDataAsync(this._collectionType, {
-      title: title,
-      coverImageUri: downloadImageUri,
-      coverImagePath: storagePath,
-      userId: Firebase.Instance.user.uid,
-      createdTime: firebase.firestore.FieldValue.serverTimestamp(),
-      contentCount: 0,
-    }).then(() => {
-      addCompleted && addCompleted();
-    });
-  }
 }
 
-export default DiaryStore;
+export default DiaryLobbyStore;

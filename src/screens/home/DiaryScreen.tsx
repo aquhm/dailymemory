@@ -1,16 +1,5 @@
 import React, { createRef } from "react";
-import {
-  View,
-  Image,
-  StyleSheet,
-  Text,
-  SafeAreaView,
-  StatusBar,
-  Dimensions,
-  Alert,
-  ListRenderItemInfo,
-  TouchableOpacity,
-} from "react-native";
+import { View, Image, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions, Alert, ListRenderItemInfo, TouchableOpacity } from "react-native";
 
 import { DiaryNavigatorStackProps } from "../../routes/HomeNavigator";
 import Header from "../../components/common/Header";
@@ -356,11 +345,7 @@ class DiaryScreen extends React.Component<Props, State> {
             {_.isEmpty(this.state.imageUri) ? this.renderSettingLayer() : this.renderPickedImage()}
           </View>
 
-          <DateTimePicker
-            isVisible={this.state.isDateTimePickerVisible}
-            onConfirm={this.handleDatePicked}
-            onCancel={this.hideDateTimePicker}
-          />
+          <DateTimePicker isVisible={this.state.isDateTimePickerVisible} onConfirm={this.handleDatePicked} onCancel={this.hideDateTimePicker} />
           <PlacePopup
             ref={this.placePopupRef}
             title="장소"

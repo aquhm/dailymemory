@@ -1,12 +1,14 @@
 import AuthStore from "./AuthStore";
 import DiaryStore from "./DiaryStore";
 import DiaryPageStore from "./DiaryPageStore";
+import DiaryLobbyStore from "./DiaryLobbyStore";
 
 class RootStore {
   static _rootStore?: RootStore;
-  public _authStore: AuthStore;
-  public _diaryStore: DiaryStore;
-  public _diaryPageRecords: DiaryPageStore;
+  private _authStore: AuthStore;
+  private _diaryStore: DiaryStore;
+  private _diaryPageRecords: DiaryPageStore;
+  private _diaryLobbytore: DiaryLobbyStore;
 
   static get Instance() {
     if (!this._rootStore) {
@@ -21,6 +23,7 @@ class RootStore {
     this._authStore = new AuthStore(this, "users");
     this._diaryStore = new DiaryStore(this, "diaries");
     this._diaryPageRecords = new DiaryPageStore(this, "diary_records");
+    this._diaryLobbytore = new DiaryLobbyStore(this, "diary_lobbies");
 
     console.log("Initialize RootStore");
   }
@@ -37,10 +40,15 @@ class RootStore {
     return this._diaryPageRecords;
   }
 
+  public get DiaryLobbyStore() {
+    return this._diaryLobbytore;
+  }
+
   public Initialize = () => {
     this._authStore.Initialize();
     this._diaryStore.Initialize();
     this._diaryPageRecords.Initialize();
+    this._diaryLobbytore.Initialize();
   };
 }
 

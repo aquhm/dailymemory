@@ -49,6 +49,7 @@ export default class App extends React.Component<{}, State> {
         authStore={RootStore.Instance.AuthStore}
         diaryStore={RootStore.Instance.DiaryStore}
         diaryPageStore={RootStore.Instance.DiaryPageStore}
+        diaryLobbyStore={RootStore.Instance.DiaryLobbyStore}
       >
         <SafeAreaProvider>
           <RouteContainer />

@@ -5,8 +5,6 @@ import { StackNavigationProp, createStackNavigator } from "@react-navigation/sta
 
 import { CompositeNavigationProp } from "@react-navigation/native";
 
-import DiaryScreen from "../screens/home/DiaryScreen";
-import LobbyScreen from "../screens/home/LobbyScreen";
 import NoticeScreen from "../screens/home/NoticeScreen";
 import SubscribeScreen from "../screens/home/SubscribeScreen";
 
@@ -20,6 +18,7 @@ import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons"
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
 import { DiaryRecord } from "../shared/records";
+import LobbyNavigator from "./LobbyNavigator";
 
 type HomeNavigatorBottomParamList = {
   Lobby: undefined;
@@ -29,10 +28,7 @@ type HomeNavigatorBottomParamList = {
   UserInformation: undefined;
 };
 
-type HomeNavigatorBottomProps<T extends keyof HomeNavigatorBottomParamList> = BottomTabNavigationProp<
-  HomeNavigatorBottomParamList,
-  T
->;
+type HomeNavigatorBottomProps<T extends keyof HomeNavigatorBottomParamList> = BottomTabNavigationProp<HomeNavigatorBottomParamList, T>;
 
 type HomeNavigatorDrawerParamList = {
   Home: undefined;
@@ -40,10 +36,7 @@ type HomeNavigatorDrawerParamList = {
   Profile: undefined;
 };
 
-type HomeNavigatorDrawerProps<T extends keyof HomeNavigatorDrawerParamList> = DrawerNavigationProp<
-  HomeNavigatorDrawerParamList,
-  T
->;
+type HomeNavigatorDrawerProps<T extends keyof HomeNavigatorDrawerParamList> = DrawerNavigationProp<HomeNavigatorDrawerParamList, T>;
 
 type DiaryNavigatorStackParamList = {
   Diary: undefined;
@@ -53,20 +46,17 @@ type DiaryNavigatorStackParamList = {
   Map: undefined;
 };
 
-type DiaryNavigatorStackProps<T extends keyof DiaryNavigatorStackParamList> = StackNavigationProp<
-  DiaryNavigatorStackParamList,
-  T
+type DiaryNavigatorStackProps<T extends keyof DiaryNavigatorStackParamList> = StackNavigationProp<DiaryNavigatorStackParamList, T>;
+
+type HomeNavigationProps<T1 extends keyof HomeNavigatorDrawerParamList, T2 extends keyof HomeNavigatorBottomParamList> = CompositeNavigationProp<
+  HomeNavigatorDrawerProps<T1>,
+  HomeNavigatorBottomProps<T2>
 >;
 
-type HomeNavigationProps<
-  T1 extends keyof HomeNavigatorDrawerParamList,
-  T2 extends keyof HomeNavigatorBottomParamList
-> = CompositeNavigationProp<HomeNavigatorDrawerProps<T1>, HomeNavigatorBottomProps<T2>>;
-
-type DiaryNavigationProps<
-  T1 extends keyof DiaryNavigatorStackParamList,
-  T2 extends keyof HomeNavigatorBottomParamList
-> = CompositeNavigationProp<DiaryNavigatorStackProps<T1>, HomeNavigatorBottomProps<T2>>;
+type DiaryNavigationProps<T1 extends keyof DiaryNavigatorStackParamList, T2 extends keyof HomeNavigatorBottomParamList> = CompositeNavigationProp<
+  DiaryNavigatorStackProps<T1>,
+  HomeNavigatorBottomProps<T2>
+>;
 
 type HomeNavigationDrawProps<T extends keyof HomeNavigatorDrawerParamList> = HomeNavigatorDrawerProps<T>;
 
@@ -78,7 +68,7 @@ const HomeBottomNavigator = () => {
     <BottomTab.Navigator initialRouteName="Lobby">
       <BottomTab.Screen
         name="Lobby"
-        component={LobbyScreen}
+        component={LobbyNavigator}
         options={{
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home" color={color} size={size} />,
@@ -89,9 +79,7 @@ const HomeBottomNavigator = () => {
         component={DiaryNavigator}
         options={{
           tabBarLabel: "Diary",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="book-open-variant" color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="book-open-variant" color={color} size={size} />,
         }}
       />
       <BottomTab.Screen
@@ -99,9 +87,7 @@ const HomeBottomNavigator = () => {
         component={SubscribeScreen}
         options={{
           tabBarLabel: "Subscribe",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bookmark-multiple" color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bookmark-multiple" color={color} size={size} />,
         }}
       />
       <BottomTab.Screen
