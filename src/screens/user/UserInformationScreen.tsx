@@ -1,23 +1,10 @@
 import React from "react";
-import {
-  View,
-  Image,
-  Text,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  StatusBar,
-  ListRenderItemInfo,
-  Dimensions,
-} from "react-native";
+import { View, Image, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, ListRenderItemInfo, Dimensions } from "react-native";
 
 import { FlatList } from "react-native-gesture-handler";
 import { FontAwesome as Icon } from "@expo/vector-icons";
 
-import {
-  UserInformationStackNavigationProps,
-  UserInformationStackRouteProps,
-} from "../../routes/UserInformationNavigator";
+import { UserInformationStackNavigationProps, UserInformationStackRouteProps } from "../../routes/UserInformationNavigator";
 
 import { observer, inject } from "mobx-react";
 import { DefaultProfileImage } from "../../constants/Images";
@@ -130,7 +117,15 @@ class UserInformationScreen extends React.Component<Props, State> {
             flex: 1,
           }}
         >
-          <Image source={{ uri: listRenderItemInfo.item.coverImageUri }} style={{ width: "100%", height: "50%" }} />
+          <Image
+            source={
+              _.isEmpty(listRenderItemInfo.item.coverImageUri) == false
+                ? { uri: listRenderItemInfo.item.coverImageUri }
+                : require("../../../assets/diary_default_img.png")
+            }
+            defaultSource={require("../../../assets/diary_default_img.png")}
+            style={{ width: "100%", height: "50%" }}
+          />
 
           <View
             style={{
@@ -174,11 +169,7 @@ class UserInformationScreen extends React.Component<Props, State> {
     return (
       <View style={{ flex: 1, padding: 15 }}>
         <View style={{ flexDirection: "row" }}>
-          <ProfileRoundImage
-            imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage}
-            size={80}
-            onPress={() => {}}
-          />
+          <ProfileRoundImage imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage} size={80} onPress={() => {}} />
           <View style={{ flex: 1, marginLeft: 20, marginTop: 5 }}>
             <Text style={{ fontSize: 12 }}>
               {`안녕하세요? 일기를 쓰고 있는 세줄작가 ${RootStore.Instance.AuthStore.user.name} 입니다. 제 삶의 이야기 책들을 만나보세요.`}

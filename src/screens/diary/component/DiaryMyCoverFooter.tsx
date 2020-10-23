@@ -6,14 +6,7 @@ import DiaryViewFooter from "../interface/DiaryViewFooter";
 
 export interface DiaryMyCoverFooterProps extends DiaryViewFooter {}
 
-const DiaryMyCoverFooter = ({
-  open,
-  height,
-  color,
-  backgroundBarColor,
-  onPrevPress,
-  right,
-}: DiaryMyCoverFooterProps) => {
+const DiaryMyCoverFooter = ({ open, height, color, backgroundBarColor, onPrevPress, right }: DiaryMyCoverFooterProps) => {
   const subscribe = (
     <View>
       <Text style={{ color: "white" }}> {open ? "0명 구독중" : "비공개"}</Text>
@@ -39,8 +32,12 @@ const DiaryMyCoverFooter = ({
       </View>
       <View style={{ flexDirection: "row" }}>
         {right &&
-          right.buttons.map((value, _) => {
-            return <View style={{ margin: 5 }}>{value}</View>;
+          right.buttons.map((value, index) => {
+            return (
+              <View key={index.toString()} style={{ margin: 5 }}>
+                {value}
+              </View>
+            );
           })}
       </View>
     </View>

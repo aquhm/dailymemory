@@ -2,13 +2,14 @@ import React from "react";
 import { View, Image, StyleSheet, Text, Dimensions } from "react-native";
 import IconButton from "../../../components/IconButton";
 import ProfileRoundImage from "../../../components/ProfileRoundImage";
-import { DefaultProfileImage } from "../../../constants/Images";
+import { DefaultDiaryImage, DefaultProfileImage } from "../../../constants/Images";
 import { UserInformationStackNavigationProps } from "../../../routes/UserInformationNavigator";
 import { DiaryRecord } from "../../../shared/records";
 import { RootStore } from "../../../stores";
 import UiHelper from "../../../utility/UiHelper";
 
 import DiaryMyCoverFooter from "./DiaryMyCoverFooter";
+import * as _ from "lodash";
 
 const { width, height } = Dimensions.get("window");
 
@@ -24,13 +25,14 @@ const DiaryMyCoverPage = ({ diary, navigation }: DiaryMyCoverPageProps) => {
     return (
       <View style={styles.container}>
         <View style={styles.picture}>
-          <Image source={{ uri: diary.coverImageUri }} style={styles.image} />
+          <Image
+            source={_.isEmpty(diary.coverImageUri) == false ? { uri: diary.coverImageUri } : require("../../../../assets/diary_default_img.png")}
+            defaultSource={require("../../../../assets/diary_default_img.png")}
+            style={styles.image}
+          />
           <View style={{ ...StyleSheet.absoluteFillObject, flexDirection: "column-reverse" }}>
             <View style={styles.profileArea}>
-              <ProfileRoundImage
-                imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage}
-                size={50}
-              />
+              <ProfileRoundImage imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage} size={50} />
               <Text style={{ margin: 10 }}>{RootStore.Instance.AuthStore.user.name}</Text>
             </View>
           </View>

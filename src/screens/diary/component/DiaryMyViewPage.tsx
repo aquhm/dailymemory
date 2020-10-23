@@ -2,11 +2,14 @@ import React from "react";
 import { View, Image, StyleSheet, Text, Dimensions } from "react-native";
 import IconButton from "../../../components/IconButton";
 import TextWithIconButton from "../../../components/TextWithIconButton";
+import { DefaultDiaryImage } from "../../../constants/Images";
 import { UserInformationStackNavigationProps } from "../../../routes/UserInformationNavigator";
 
 import { DiaryPageRecord } from "../../../shared/records";
 import UiHelper from "../../../utility/UiHelper";
 import DiaryMyViewFooter from "./DiaryMyViewFooter";
+
+import * as _ from "lodash";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,10 +23,15 @@ interface DiaryMyViewPageProps {
 
 const DiaryMyViewPage = ({ diaryPageRecord, navigation, onPress }: DiaryMyViewPageProps) => {
   if (diaryPageRecord != null) {
+    console.log(` DiaryMyViewPage imageUri = ${diaryPageRecord.imageUri}`);
     return (
       <View style={styles.container}>
         <View key={diaryPageRecord.documentId} style={styles.picture}>
-          <Image source={{ uri: diaryPageRecord.imageUri }} style={styles.image} />
+          <Image
+            source={_.isEmpty(diaryPageRecord.imageUri) == false ? { uri: diaryPageRecord.imageUri } : require("../../../../assets/diary_default_img.png")}
+            defaultSource={require("../../../../assets/diary_default_img.png")}
+            style={styles.image}
+          />
         </View>
         <Text style={{ margin: 10, maxHeight: 100 }}>{diaryPageRecord.contents}</Text>
         <Text style={{ margin: 10, textAlign: "right" }}>{diaryPageRecord.memoryTime}</Text>
