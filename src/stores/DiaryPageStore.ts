@@ -146,6 +146,12 @@ class DiaryPageStore {
     return this._diaryPageRecords.find((element) => element.documentId == documentId);
   };
 
+  private requstUpdate = (diaryPageRecord: DiaryPageRecord, data: any) => {
+    if (this.findByDocumentId(diaryPageRecord.documentId)) {
+      Firebase.Instance.updateDataByDocumentIdAsync(this._collectionType, diaryPageRecord.documentId, data);
+    }
+  };
+
   public Add = (diaryRecord: DiaryRecord, contents: string, uri?: string, place?: string, memoryTime?: string, addCompleted?: () => void) => {
     const task = this.addTask(
       diaryRecord,
@@ -196,6 +202,7 @@ class DiaryPageStore {
       diaryId: diaryRecord.documentId,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
     }).then(() => {
+      this._rootStore.DiaryStore.requestUpdateContentCount(diaryRecord);
       addCompleted && addCompleted();
     });
   }

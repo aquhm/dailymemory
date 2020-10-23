@@ -95,8 +95,7 @@ class AuthStore {
 
   public Login = async (email: string, password: string) => await Firebase.Instance.loginAsync(email, password);
 
-  public SignUp = async (name: string, email: string, password: string) =>
-    await Firebase.Instance.signUpAsync(name, email, password);
+  public SignUp = async (name: string, email: string, password: string) => await Firebase.Instance.signUpAsync(name, email, password);
 
   public SignOut = async () => await Firebase.Instance.auth.signOut();
 
@@ -134,7 +133,7 @@ class AuthStore {
       yield ImageApi.uploadImageAsync(StorageImagePathType.UserProfile, uri, uploadCompleted);
     }
 
-    yield Firebase.Instance.updateDataByDocumentIdAsync("users", this.firebaseUser.uid, {
+    yield Firebase.Instance.updateDataByDocumentIdAsync(this._collectionType, this.firebaseUser.uid, {
       profile_uri: this._user?.profile_uri,
     });
   }

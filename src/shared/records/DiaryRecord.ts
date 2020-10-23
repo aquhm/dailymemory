@@ -4,7 +4,7 @@ export default interface DiaryRecord {
   coverImageUri?: string | undefined;
   coverImagePath?: string | undefined;
   userId: string | undefined;
-  contentCount: Number;
+  contentCount: number;
   createdTime?: firebase.firestore.FieldValue;
   private?: boolean;
 }
