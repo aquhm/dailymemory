@@ -32,8 +32,8 @@ class DiaryPageStore {
   public Initialize = () => {};
 
   private setListner = (diaryId: string, queryOption: QueryOption) => {
-    if (Firebase.Instance.user.uid != null) {
-      const query = Firebase.Instance.createQueryWithOption(this._collectionType, queryOption);
+    if (Firebase.Instance.User.uid != null) {
+      const query = Firebase.Instance.CollectionCenter.createQueryWithOption(this._collectionType, queryOption);
 
       if (query) {
         query.onSnapshot((querySnapshot) => {
@@ -90,7 +90,7 @@ class DiaryPageStore {
     this._currentDiaryId = diaryId;
     let queryOption: QueryOption = {
       wheres: [
-        { field: "userId", operator: "==", value: Firebase.Instance.user.uid },
+        { field: "userId", operator: "==", value: Firebase.Instance.User.uid },
         { field: "diaryId", operator: "==", value: diaryId },
       ],
     };
@@ -100,7 +100,7 @@ class DiaryPageStore {
   }
 
   private getListAsync = async (diaryId: string, queryOption: QueryOption) => {
-    const snapshot = await Firebase.Instance.getDataWithMultiFilterAsync(this._collectionType, queryOption);
+    const snapshot = await Firebase.Instance.CollectionCenter.getDataWithMultiFilterAsync(this._collectionType, queryOption);
     if (snapshot != null) {
       if (snapshot.empty == false) {
         this.clear(diaryId);
@@ -148,7 +148,7 @@ class DiaryPageStore {
 
   private requstUpdate = (diaryPageRecord: DiaryPageRecord, data: any) => {
     if (this.findByDocumentId(diaryPageRecord.documentId)) {
-      Firebase.Instance.updateDataByDocumentIdAsync(this._collectionType, diaryPageRecord.documentId, data);
+      Firebase.Instance.CollectionCenter.updateDataByDocumentIdAsync(this._collectionType, diaryPageRecord.documentId, data);
     }
   };
 
@@ -192,13 +192,13 @@ class DiaryPageStore {
       });
     }
 
-    yield Firebase.Instance.writeDataAsync(this._collectionType, {
+    yield Firebase.Instance.CollectionCenter.writeDataAsync(this._collectionType, {
       contents: contents,
       place: place || "",
       memoryTime: memoryTime,
       imageUri: downloadImageUri,
       imagePath: storagePath,
-      userId: Firebase.Instance.user.uid,
+      userId: Firebase.Instance.User.uid,
       diaryId: diaryRecord.documentId,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
     }).then(() => {
@@ -209,7 +209,7 @@ class DiaryPageStore {
 
   public Remove = (documentId: string) => {
     if (this.findByDocumentId(documentId) != null) {
-      Firebase.Instance.removeDataAsync(this._collectionType, documentId);
+      Firebase.Instance.CollectionCenter.removeDataAsync(this._collectionType, documentId);
     }
   };
 

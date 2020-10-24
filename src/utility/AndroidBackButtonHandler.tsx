@@ -1,5 +1,4 @@
 import { ToastAndroid, Alert, BackHandler, NativeEventSubscription } from "react-native";
-import * as common from "./common";
 import { RootStore } from "../stores";
 
 class AndroidBackButtonHandler {
@@ -24,8 +23,6 @@ class AndroidBackButtonHandler {
   }
 
   handleAndroidBackButton = (callBack: () => any = this.exitSecondTimeAlert) => {
-    common.getFunctionCallerName();
-
     this._backAction = () => {
       callBack();
       return true;
@@ -37,8 +34,6 @@ class AndroidBackButtonHandler {
   };
 
   removeAndroidBackButtonHandler = () => {
-    common.getFunctionCallerName();
-
     this._latestBackHandler?.remove();
 
     if (this._backAction != null) {

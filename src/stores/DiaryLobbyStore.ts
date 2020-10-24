@@ -1,6 +1,7 @@
 import { action, observable, computed } from "mobx";
 
-import Firebase, { QueryOption, CollectionType } from "../utility/Firebase";
+import Firebase from "../utility/Firebase";
+import { QueryOption, CollectionType } from "../utility/FirebaseCollectionCenter";
 
 import RootStore from "./RootStore";
 import * as _ from "lodash";
@@ -82,8 +83,8 @@ class DiaryLobbyStore {
   }
 
   public setListner = (queryOption: QueryOption) => {
-    if (Firebase.Instance.user.uid != null) {
-      const query = Firebase.Instance.createQueryWithOption(this._collectionType, queryOption);
+    if (Firebase.Instance.User.uid != null) {
+      const query = Firebase.Instance.CollectionCenter.createQueryWithOption(this._collectionType, queryOption);
 
       if (query) {
         query.onSnapshot((querySnapshot) => {
@@ -109,12 +110,12 @@ class DiaryLobbyStore {
 
   public getListAsync = async () => {
     let queryOption: QueryOption = {
-      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.user.uid }],
+      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.User.uid }],
     };
 
     this.setListner(queryOption);
 
-    const snapshot = await Firebase.Instance.getDatasWithFilterAsync1(this._collectionType, queryOption);
+    const snapshot = await Firebase.Instance.CollectionCenter.getDatasWithFilterAsync1(this._collectionType, queryOption);
 
     if (snapshot && snapshot.empty == false) {
       snapshot.forEach((doc) => {

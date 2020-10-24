@@ -97,11 +97,11 @@ class AuthStore {
 
   public SignUp = async (name: string, email: string, password: string) => await Firebase.Instance.signUpAsync(name, email, password);
 
-  public SignOut = async () => await Firebase.Instance.auth.signOut();
+  public SignOut = async () => await Firebase.Instance.Auth.signOut();
 
   private getUserAsync = async () => {
     try {
-      const userDoc = Firebase.Instance.userCollection.doc(this.firebaseUser.uid);
+      const userDoc = Firebase.Instance.CollectionCenter.User.doc(this.firebaseUser.uid);
       const userCol = await userDoc.get();
 
       if (!userCol.exists) {
@@ -133,7 +133,7 @@ class AuthStore {
       yield ImageApi.uploadImageAsync(StorageImagePathType.UserProfile, uri, uploadCompleted);
     }
 
-    yield Firebase.Instance.updateDataByDocumentIdAsync(this._collectionType, this.firebaseUser.uid, {
+    yield Firebase.Instance.CollectionCenter.updateDataByDocumentIdAsync(this._collectionType, this.firebaseUser.uid, {
       profile_uri: this._user?.profile_uri,
     });
   }
