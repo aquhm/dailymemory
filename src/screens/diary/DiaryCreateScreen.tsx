@@ -1,5 +1,5 @@
 import React, { createRef } from "react";
-import { View, Image, StyleSheet, Text, SafeAreaView, StatusBar, Dimensions, Alert } from "react-native";
+import { View, Image, StyleSheet, Text, Switch, SafeAreaView, StatusBar, Dimensions, Alert } from "react-native";
 import { UserInformationStackNavigationProps } from "../../routes/UserInformationNavigator";
 
 import { observer, inject } from "mobx-react";
@@ -40,7 +40,8 @@ interface Props {
 
 interface State {
   title: string;
-  imageUri?: string;
+  imageUri: string;
+  open: boolean;
 }
 
 @inject("authStore")
@@ -56,6 +57,7 @@ class DiaryCreateScreen extends React.Component<Props, State> {
     this.state = {
       title: "",
       imageUri: "",
+      open: true,
     };
 
     this.initialize();
@@ -98,7 +100,9 @@ class DiaryCreateScreen extends React.Component<Props, State> {
   }
 
   sendCreateDiary = async () => {
-    RootStore.Instance.DiaryStore.Add(this.state.title, this.state.imageUri, () => {
+    const { title, open, imageUri } = this.state;
+
+    RootStore.Instance.DiaryStore.Create(title, open, imageUri, () => {
       Alert.alert("Success");
       this.props.navigation.goBack();
     });
@@ -181,6 +185,16 @@ class DiaryCreateScreen extends React.Component<Props, State> {
                 textAlignVertical="top"
                 value={this.state.title}
               />
+
+              <View style={{ flexDirection: "row-reverse", alignItems: "center" }}>
+                <Text>공개</Text>
+                <Switch
+                  trackColor={{ false: "#767577", true: "#81b0ff" }}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={(toggle) => this.setState({ open: !this.state.open })}
+                  value={this.state.open}
+                />
+              </View>
             </View>
             {_.isEmpty(this.state.imageUri) ? this.renderSettingLayer() : this.renderPickedImage()}
           </View>

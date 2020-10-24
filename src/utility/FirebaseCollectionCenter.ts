@@ -31,7 +31,7 @@ class FirebaseCollectionCenter {
     this._db = db;
   }
 
-  get db() {
+  get Db() {
     if (!this._db) {
       throw new Error("db is null");
     }
@@ -39,23 +39,30 @@ class FirebaseCollectionCenter {
     return <firebase.firestore.Firestore>this._db;
   }
   get User() {
-    return this.db.collection("users");
+    return this.Db.collection("users");
   }
 
   get Diary() {
-    return this.db.collection("diaries");
+    return this.Db.collection("diaries");
   }
   get DiaryPage() {
-    return this.db.collection("diary_records");
+    return this.Db.collection("diary_records");
   }
 
   get DiaryLobby() {
-    return this.db.collection("diary_lobbies");
+    return this.Db.collection("diary_lobbies");
   }
 
   private getCollection<T extends CollectionType>(collection: T): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
-    return this.db.collection(collection);
+    return this.Db.collection(collection);
   }
+
+  private getDocument = <T extends CollectionType>(collection: T, documentId: string) => {
+    const col = this.getCollection(collection);
+    const docRef = col.doc(documentId);
+
+    return docRef;
+  };
 
   public writeDataAsync = async <T extends CollectionType>(collection: T, data: any) => {
     const col = this.getCollection(collection);
@@ -63,44 +70,16 @@ class FirebaseCollectionCenter {
 
     await docRef?.set(data, { merge: true });
   };
-
-  public removeDataAsync = async <T extends CollectionType>(collection: T, documentId: string) => {
-    const docRef = this.getDocument(collection, documentId);
-    return await docRef.delete();
-  };
-
   public writeDataByDocumentIdAsync = async <T extends CollectionType>(collection: T, documentId: string, data: any) => {
     const col = this.getCollection(collection);
     const docRef = col.doc(documentId);
     await docRef?.set(data, { merge: true });
   };
 
-  public getDataWithFilterAsync = async <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
+  public createQuery = <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
     const col = this.getCollection(collection);
     const query = col.where(field, operator, value);
-
-    return query.get();
-  };
-
-  public getDataWithMultiFilterAsync = async <T extends CollectionType>(collection: T, option: QueryOption) => {
-    let col = this.getCollection(collection);
-
-    let query;
-    if (option.wheres.length > 0) {
-      for (let w of option.wheres) {
-        query = col.where(w.field, w.operator, w.value);
-      }
-    }
-
-    if (option.orderBy) {
-      query?.orderBy(option.orderBy.field, option.orderBy.direction);
-    }
-
-    if (option.limit) {
-      query?.limit(option.limit);
-    }
-
-    return query?.get();
+    return query;
   };
 
   public createQueryWithOption = <T extends CollectionType>(collection: T, option: QueryOption) => {
@@ -124,9 +103,25 @@ class FirebaseCollectionCenter {
     return query;
   };
 
-  public getDatasWithFilterAsync1 = async <T extends CollectionType>(collection: T, option: QueryOption) => {
-    const query = this.createQueryWithOption(collection, option);
-    return await query?.get();
+  public getDataAsync = async <T extends CollectionType>(collection: T, documentId?: string) => {
+    try {
+      if (documentId != null) {
+        const docRef = this.getDocument(collection, documentId);
+        return docRef?.get();
+      } else {
+        const col = this.getCollection(collection);
+        return col?.get();
+      }
+    } catch (error) {
+      throw new Error(`Function [${this.getDataAsync.name}] ${error}`);
+    }
+  };
+
+  public getDataWithFilterAsync = async <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
+    const col = this.getCollection(collection);
+    const query = col.where(field, operator, value);
+
+    return query.get();
   };
 
   public getDatasWithFilterAsync = async <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
@@ -134,10 +129,30 @@ class FirebaseCollectionCenter {
     return await query.get();
   };
 
-  public createQuery = <T extends CollectionType>(collection: T, field: string, operator: WhereFilterOp, value: any) => {
-    const col = this.getCollection(collection);
-    const query = col.where(field, operator, value);
-    return query;
+  public getDatasWithFilterAsync1 = async <T extends CollectionType>(collection: T, option: QueryOption) => {
+    const query = this.createQueryWithOption(collection, option);
+    return await query?.get();
+  };
+
+  public getDataWithMultiFilterAsync = async <T extends CollectionType>(collection: T, option: QueryOption) => {
+    let col = this.getCollection(collection);
+
+    let query;
+    if (option.wheres.length > 0) {
+      for (let w of option.wheres) {
+        query = col.where(w.field, w.operator, w.value);
+      }
+    }
+
+    if (option.orderBy) {
+      query?.orderBy(option.orderBy.field, option.orderBy.direction);
+    }
+
+    if (option.limit) {
+      query?.limit(option.limit);
+    }
+
+    return query?.get();
   };
 
   public updateDataByDocumentIdAsync = async <T extends CollectionType>(
@@ -151,20 +166,9 @@ class FirebaseCollectionCenter {
     await docRef?.update(data);
   };
 
-  private getDocument = <T extends CollectionType>(collection: T, documentId: string) => {
-    const col = this.getCollection(collection);
-    const docRef = col.doc(documentId);
-
-    return docRef;
-  };
-
-  public getDataAsync = async <T extends CollectionType>(collection: T, documentId: string) => {
-    try {
-      const docRef = this.getDocument(collection, documentId);
-      return docRef?.get();
-    } catch (error) {
-      throw new Error(`Function [${this.getDataAsync.name}] ${error}`);
-    }
+  public removeDataAsync = async <T extends CollectionType>(collection: T, documentId: string) => {
+    const docRef = this.getDocument(collection, documentId);
+    return await docRef.delete();
   };
 }
 

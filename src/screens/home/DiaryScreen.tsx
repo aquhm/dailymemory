@@ -47,8 +47,8 @@ interface Props {
 interface State {
   isDateTimePickerVisible: boolean;
   dateTime: string;
-  place?: string;
-  imageUri?: string;
+  place: string;
+  imageUri: string;
   contents: string;
   diaryPicker: boolean;
   currentDiary?: DiaryRecord;
@@ -65,8 +65,9 @@ class DiaryScreen extends React.Component<Props, State> {
     this.state = {
       isDateTimePickerVisible: false,
       dateTime: moment().format("LL"),
-      place: undefined,
+      place: "",
       contents: "",
+      imageUri: "",
       diaryPicker: false,
     };
 
@@ -147,14 +148,8 @@ class DiaryScreen extends React.Component<Props, State> {
 
   createDiaryPage = async (completed: () => void) => {
     if (this.state.currentDiary != null) {
-      RootStore.Instance.DiaryPageStore.Add(
-        this.state.currentDiary,
-        this.state.contents,
-        this.state.imageUri,
-        this.state.place,
-        this.state.dateTime,
-        completed
-      );
+      const { currentDiary, contents, imageUri, place, dateTime } = this.state;
+      RootStore.Instance.DiaryPageStore.Create(currentDiary, contents, imageUri, place, dateTime, completed);
     }
   };
 

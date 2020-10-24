@@ -84,8 +84,8 @@ class DiaryStore {
   }
 
   public setListner = (queryOption: QueryOption) => {
-    if (Firebase.Instance.user.uid != null) {
-      const query = Firebase.Instance.createQueryWithOption(this._collectionType, queryOption);
+    if (Firebase.Instance.User.uid != null) {
+      const query = Firebase.Instance.CollectionCenter.createQueryWithOption(this._collectionType, queryOption);
 
       if (query) {
         query.onSnapshot((querySnapshot) => {
@@ -111,12 +111,12 @@ class DiaryStore {
 
   public getListAsync = async () => {
     let queryOption: QueryOption = {
-      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.user.uid }],
+      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.User.uid }],
     };
 
     this.setListner(queryOption);
 
-    const snapshot = await Firebase.Instance.getDatasWithFilterAsync1(this._collectionType, queryOption);
+    const snapshot = await Firebase.Instance.CollectionCenter.getDatasWithFilterAsync1(this._collectionType, queryOption);
 
     if (snapshot && snapshot.empty == false) {
       snapshot.forEach((doc) => {
@@ -137,7 +137,7 @@ class DiaryStore {
 
   private requstUpdate = (diaryRecord: DiaryRecord, data: any) => {
     if (this.findByDocumentId(diaryRecord.documentId)) {
-      Firebase.Instance.updateDataByDocumentIdAsync(this._collectionType, diaryRecord.documentId, data);
+      Firebase.Instance.CollectionCenter.updateDataByDocumentIdAsync(this._collectionType, diaryRecord.documentId, data);
     }
   };
 
@@ -145,9 +145,10 @@ class DiaryStore {
     this.requstUpdate(diaryRecord, { contentCount: diaryRecord.contentCount + 1 });
   }
 
-  public Add = (title: string, uri?: string, addCompleted?: () => void) => {
-    const task = this.addTask(
+  public Create = (title: string, open: boolean, uri: string, addCompleted?: () => void) => {
+    const task = this.createTask(
       title,
+      open,
       uri,
       (downloadImageUri: string) => {
         task.next(downloadImageUri);
@@ -163,10 +164,10 @@ class DiaryStore {
   2. Db Insert
   3. Document get
   */
-  private *addTask(title: string, imageFileUri?: string, imageUploadComplete?: (downloadImageUri: string) => void, addCompleted?: () => void) {
+  private *createTask(title: string, open: boolean, imageFileUri: string, imageUploadComplete?: (downloadImageUri: string) => void, addCompleted?: () => void) {
     let storagePath: string = "";
     let downloadImageUri: string = "";
-    if (imageFileUri != null) {
+    if (_.isEmpty(imageFileUri) == false) {
       storagePath = ImageApi.makeStorageFilePath(StorageImagePathType.DiaryCover, imageFileUri);
       yield ImageApi.uploadImageAsync(storagePath, imageFileUri, (downloadUri) => {
         downloadImageUri = downloadUri;
@@ -174,11 +175,12 @@ class DiaryStore {
       });
     }
 
-    yield Firebase.Instance.writeDataAsync(this._collectionType, {
+    yield Firebase.Instance.CollectionCenter.writeDataAsync(this._collectionType, {
       title: title,
+      open: open,
       coverImageUri: downloadImageUri,
       coverImagePath: storagePath,
-      userId: Firebase.Instance.user.uid,
+      userId: Firebase.Instance.User.uid,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
       contentCount: 0,
     }).then(() => {

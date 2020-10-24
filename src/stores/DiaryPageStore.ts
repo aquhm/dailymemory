@@ -152,8 +152,8 @@ class DiaryPageStore {
     }
   };
 
-  public Add = (diaryRecord: DiaryRecord, contents: string, uri?: string, place?: string, memoryTime?: string, addCompleted?: () => void) => {
-    const task = this.addTask(
+  public Create = (diaryRecord: DiaryRecord, contents: string, uri: string, place: string, memoryTime?: string, addCompleted?: () => void) => {
+    const task = this.createTask(
       diaryRecord,
       contents,
       uri,
@@ -173,18 +173,18 @@ class DiaryPageStore {
   2. Db Insert
   3. Document get
   */
-  private *addTask(
+  private *createTask(
     diaryRecord: DiaryRecord,
     contents: string,
-    imageFileUri?: string,
-    place?: string,
+    imageFileUri: string,
+    place: string,
     memoryTime?: string,
     imageUploadComplete?: (downloadImageUri: string) => void,
     addCompleted?: () => void
   ) {
     let storagePath: string = "";
     let downloadImageUri: string = "";
-    if (imageFileUri != null) {
+    if (_.isEmpty(imageFileUri) == false) {
       storagePath = ImageApi.makeStorageFilePath(StorageImagePathType.Diary, imageFileUri);
       yield ImageApi.uploadImageAsync(storagePath, imageFileUri, (downloadUri) => {
         downloadImageUri = downloadUri;
@@ -194,7 +194,7 @@ class DiaryPageStore {
 
     yield Firebase.Instance.CollectionCenter.writeDataAsync(this._collectionType, {
       contents: contents,
-      place: place || "",
+      place: place,
       memoryTime: memoryTime,
       imageUri: downloadImageUri,
       imagePath: storagePath,
