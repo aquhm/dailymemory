@@ -82,47 +82,43 @@ class DiaryLobbyStore {
     return this._diaryRecords.length;
   }
 
-  public setListner = (queryOption: QueryOption) => {
+  public setListner = () => {
     if (Firebase.Instance.User.uid != null) {
-      const query = Firebase.Instance.CollectionCenter.createQueryWithOption(this._collectionType, queryOption);
+      Firebase.Instance.CollectionCenter.DiaryLobby.onSnapshot((querySnapshot) => {
+        querySnapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            console.log(`${DiaryLobbyStore.name} diary added !!`);
+          }
+          if (change.type === "modified") {
+            console.log(`${DiaryLobbyStore.name} Modified !! `);
 
-      if (query) {
-        query.onSnapshot((querySnapshot) => {
-          querySnapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-              console.log(`${DiaryLobbyStore.name} diary added !!`);
-            }
-            if (change.type === "modified") {
-              console.log(`${DiaryLobbyStore.name} Modified !! `);
+            this.update(change.doc.id, change.doc.data() as DiaryRecord);
+          }
+          if (change.type === "removed") {
+            console.log(`${DiaryLobbyStore.name} Remove Data: `, change.doc.data());
 
-              this.update(change.doc.id, change.doc.data() as DiaryRecord);
-            }
-            if (change.type === "removed") {
-              console.log(`${DiaryLobbyStore.name} Remove Data: `, change.doc.data());
-
-              this.remove(change.doc.id, change.doc.data() as DiaryRecord);
-            }
-          });
+            this.remove(change.doc.id, change.doc.data() as DiaryRecord);
+          }
         });
-      }
+      });
+    }
+  };
+
+  private upsert = (documentSnapshop: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>) => {
+    const diaryRecord = documentSnapshop.data() as DiaryRecord;
+
+    if (this.update(documentSnapshop.id, diaryRecord) == false) {
+      this.add(documentSnapshop.id, diaryRecord);
     }
   };
 
   public getListAsync = async () => {
-    let queryOption: QueryOption = {
-      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.User.uid }],
-    };
+    this.setListner();
 
-    this.setListner(queryOption);
-
-    const snapshot = await Firebase.Instance.CollectionCenter.getDatasWithFilterAsync1(this._collectionType, queryOption);
+    const snapshot = await Firebase.Instance.CollectionCenter.getDatasAsync(this._collectionType);
 
     if (snapshot && snapshot.empty == false) {
-      snapshot.forEach((doc) => {
-        if (this.update(doc.id, doc.data() as DiaryRecord) == false) {
-          this.add(doc.id, doc.data() as DiaryRecord);
-        }
-      });
+      snapshot.forEach((doc) => this.upsert(doc));
     }
   };
 

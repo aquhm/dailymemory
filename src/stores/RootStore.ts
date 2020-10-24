@@ -23,7 +23,7 @@ class RootStore {
     this._authStore = new AuthStore(this, "users");
     this._diaryStore = new DiaryStore(this, "diaries");
     this._diaryPageRecords = new DiaryPageStore(this, "diary_records");
-    this._diaryLobbytore = new DiaryLobbyStore(this, "diary_lobbies");
+    this._diaryLobbytore = new DiaryLobbyStore(this, "diaries");
 
     console.log("Initialize RootStore");
   }

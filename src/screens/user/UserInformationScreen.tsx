@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Image, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, ListRenderItemInfo, Dimensions } from "react-native";
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, ListRenderItemInfo, Dimensions } from "react-native";
 
 import { FlatList } from "react-native-gesture-handler";
 import { FontAwesome as Icon } from "@expo/vector-icons";
@@ -17,6 +17,7 @@ import { RootStore, DiaryStore, AuthStore } from "../../stores";
 import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
+import DiaryEntry from "../diary/component/DiaryEntry";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
@@ -100,46 +101,12 @@ class UserInformationScreen extends React.Component<Props, State> {
 
   renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
     return (
-      <TouchableWithoutFeedback
+      <DiaryEntry
+        diaryRecord={listRenderItemInfo.item}
         onPress={() => {
           this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
         }}
-      >
-        <View
-          style={{
-            justifyContent: "flex-start",
-            alignItems: "center",
-            width: diaryEntryWidth,
-            height: diaryEntryHeight,
-            margin: 1,
-            borderColor: "black",
-            borderWidth: 1,
-            flex: 1,
-          }}
-        >
-          <Image
-            source={
-              _.isEmpty(listRenderItemInfo.item.coverImageUri) == false
-                ? { uri: listRenderItemInfo.item.coverImageUri }
-                : require("../../../assets/diary_default_img.png")
-            }
-            defaultSource={require("../../../assets/diary_default_img.png")}
-            style={{ width: "100%", height: "50%" }}
-          />
-
-          <View
-            style={{
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              width: "100%",
-            }}
-          >
-            <Text style={{ left: 5 }}>{listRenderItemInfo.item.title}</Text>
-            <Text style={{ left: 5 }}>세줄일기</Text>
-            <Text style={{ left: 5 }}>{`${listRenderItemInfo.item.contentCount}p`}</Text>
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
+      />
     );
   };
 

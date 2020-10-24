@@ -83,35 +83,41 @@ class FirebaseCollectionCenter {
   };
 
   public createQueryWithOption = <T extends CollectionType>(collection: T, option: QueryOption) => {
-    let col = this.getCollection(collection);
+    let { wheres, orderBy, limit } = option;
+
+    let colRef = this.getCollection(collection);
 
     let query;
-    if (option.wheres.length > 0) {
-      for (let w of option.wheres) {
-        query = col.where(w.field, w.operator, w.value);
+    if (wheres.length > 0) {
+      for (let w of wheres) {
+        query = colRef.where(w.field, w.operator, w.value);
       }
     }
 
-    if (option.orderBy) {
-      query?.orderBy(option.orderBy.field, option.orderBy.direction);
+    if (orderBy) {
+      query?.orderBy(orderBy.field, orderBy.direction);
     }
 
-    if (option.limit) {
-      query?.limit(option.limit);
+    if (limit) {
+      query?.limit(limit);
     }
 
     return query;
   };
 
-  public getDataAsync = async <T extends CollectionType>(collection: T, documentId?: string) => {
+  public getDatasAsync = async <T extends CollectionType>(collection: T) => {
     try {
-      if (documentId != null) {
-        const docRef = this.getDocument(collection, documentId);
-        return docRef?.get();
-      } else {
-        const col = this.getCollection(collection);
-        return col?.get();
-      }
+      const col = this.getCollection(collection);
+      return col?.get();
+    } catch (error) {
+      throw new Error(`Function [${this.getDataAsync.name}] ${error}`);
+    }
+  };
+
+  public getDataAsync = async <T extends CollectionType>(collection: T, documentId: string) => {
+    try {
+      const docRef = this.getDocument(collection, documentId);
+      return docRef?.get();
     } catch (error) {
       throw new Error(`Function [${this.getDataAsync.name}] ${error}`);
     }

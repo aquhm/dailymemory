@@ -13,10 +13,12 @@ import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
 import { LobbyStackNavigationProps, LobbyStackRouteProps } from "../../routes/LobbyNavigator";
+import DiaryEntry from "../diary/component/DiaryEntry";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
 const diaryEntryHeight = height * 0.25;
+const headerHeight = height * 0.25;
 
 interface Props {
   navigation: LobbyStackNavigationProps<"Lobby">;
@@ -57,57 +59,27 @@ class LobbyScreen extends React.Component<Props, State> {
     console.log("UserInformationScreen componentWillUnmount");
   }
 
-  renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
+  renderItem = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
     return (
-      <TouchableWithoutFeedback
+      <DiaryEntry
+        diaryRecord={listRenderItemInfo.item}
         onPress={() => {
           this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
         }}
-      >
-        <View
-          style={{
-            justifyContent: "flex-start",
-            alignItems: "center",
-            width: diaryEntryWidth,
-            height: diaryEntryHeight,
-            margin: 1,
-            borderColor: "black",
-            borderWidth: 1,
-            flex: 1,
-          }}
-        >
-          <Image
-            source={
-              _.isEmpty(listRenderItemInfo.item.coverImageUri) == false
-                ? { uri: listRenderItemInfo.item.coverImageUri }
-                : require("../../../assets/diary_default_img.png")
-            }
-            defaultSource={require("../../../assets/diary_default_img.png")}
-            style={{ width: "100%", height: "50%" }}
-          />
-
-          <View
-            style={{
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              width: "100%",
-            }}
-          >
-            <Text style={{ left: 5 }}>{listRenderItemInfo.item.title}</Text>
-            <Text style={{ left: 5 }}>세줄일기</Text>
-            <Text style={{ left: 5 }}>{`${listRenderItemInfo.item.contentCount}p`}</Text>
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
+      />
     );
-  };
-
-  renderItem = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
-    return this.renderDiaryEntry(listRenderItemInfo);
   };
 
   renderSetperator = () => {
     return <View style={{ backgroundColor: "gray", height: StyleSheet.hairlineWidth }}></View>;
+  };
+
+  renderHeader = () => {
+    return (
+      <View style={{ justifyContent: "center", height: headerHeight }}>
+        <Text style={{ fontSize: 16, alignSelf: "center" }}>세줄 일기</Text>
+      </View>
+    );
   };
 
   render() {
@@ -116,7 +88,7 @@ class LobbyScreen extends React.Component<Props, State> {
       <>
         <StatusBar barStyle="default" />
         <SafeAreaView style={{ flex: 1 }}>
-          <Text style={{ fontSize: 10, alignSelf: "center" }}>하루를 돌아보며 나의 삶을 기업합니다.</Text>
+          {this.renderHeader()}
 
           <ScrollView style={{ flex: 1 }}>
             <FlatList
