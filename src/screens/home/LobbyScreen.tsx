@@ -36,10 +36,10 @@ class LobbyScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    this.updateDiaryList();
+
     this.props.navigation.addListener("focus", () => {
       console.log("LobbyScreen focus");
-
-      this.updateDiaryList();
     });
 
     this.props.navigation.addListener("blur", () => {
@@ -83,7 +83,8 @@ class LobbyScreen extends React.Component<Props, State> {
   };
 
   render() {
-    const dataSource = this.props.diaryLobbyStore.values.slice();
+    console.log("LobbyScreen render!!");
+    const dataSource = this.props.diaryLobbyStore.Values.slice();
     return (
       <>
         <StatusBar barStyle="default" />

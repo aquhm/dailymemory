@@ -8,19 +8,19 @@ import { DiaryRecord } from "../../../shared/records";
 import { RootStore } from "../../../stores";
 import UiHelper from "../../../utility/UiHelper";
 
-import DiaryMyCoverFooter from "./DiaryMyCoverFooter";
+import DiaryMyCoverFooter from "./DiaryCoverFooter";
 import * as _ from "lodash";
 
 const { width, height } = Dimensions.get("window");
 
 const imageHeight = height * 0.6;
 
-interface DiaryMyCoverPageProps {
+interface DiaryCoverPageProps {
   diary: DiaryRecord;
   navigation: UserInformationStackNavigationProps<"DiaryView">;
 }
 
-const DiaryMyCoverPage = ({ diary, navigation }: DiaryMyCoverPageProps) => {
+const DiaryCoverPage = ({ diary, navigation }: DiaryCoverPageProps) => {
   if (diary != null) {
     return (
       <View style={styles.container}>
@@ -32,8 +32,8 @@ const DiaryMyCoverPage = ({ diary, navigation }: DiaryMyCoverPageProps) => {
           />
           <View style={{ ...StyleSheet.absoluteFillObject, flexDirection: "column-reverse" }}>
             <View style={styles.profileArea}>
-              <ProfileRoundImage imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage} size={50} />
-              <Text style={{ margin: 10 }}>{RootStore.Instance.AuthStore.user.name}</Text>
+              <ProfileRoundImage imageUri={diary.user?.profile_uri ?? DefaultProfileImage} size={50} />
+              <Text style={{ margin: 10 }}>{diary.user?.name}</Text>
             </View>
           </View>
         </View>
@@ -88,4 +88,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DiaryMyCoverPage;
+export default DiaryCoverPage;

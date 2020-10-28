@@ -1,19 +1,8 @@
 import React, { createRef } from "react";
 
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Dimensions,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, StatusBar, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 
-import {
-  UserInformationStackNavigationProps,
-  UserInformationStackRouteProps,
-} from "../../routes/UserInformationNavigator";
+import { UserInformationStackNavigationProps, UserInformationStackRouteProps } from "../../routes/UserInformationNavigator";
 
 import { observer, inject } from "mobx-react";
 
@@ -24,7 +13,7 @@ import * as _ from "lodash";
 import { DiaryStore, DiaryPageStore } from "../../stores";
 
 import Swiper, { SwiperInternals } from "react-native-swiper";
-import { DiaryMyCoverPage, DiaryMyViewPage } from "./component";
+import { DiaryCoverPage, DiaryViewPage } from "./component";
 
 const { width, height } = Dimensions.get("window");
 const imageHeight = height * 0.6;
@@ -56,9 +45,9 @@ interface Props {
 @inject("diaryPageStore")
 @observer
 class DiaryViewScreen extends React.Component<Props, State> {
-  centerMenuPopupRef = createRef<typeof CenterMenuPopup>();
-
+  private _centerMenuPopupRef = createRef<typeof CenterMenuPopup>();
   private _swipeRef = createRef<Swiper>();
+
   constructor(props: Props) {
     super(props);
 
@@ -68,7 +57,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
 
     this.props.navigation.addListener("focus", () => {
       const { diary } = this.props.route.params;
-      +this.props.diaryPageStore.getDiaryList(diary.documentId);
+      this.props.diaryPageStore.getListAsync(diary.documentId);
     });
 
     this.props.navigation.addListener("blur", () => {});
@@ -89,9 +78,9 @@ class DiaryViewScreen extends React.Component<Props, State> {
 
   renderPages = () => {
     const { diary } = this.props.route.params;
-    const diaryPageRecords = this.props.diaryPageStore.values.slice();
+    const diaryPageRecords = this.props.diaryPageStore.Values.slice();
 
-    const cover = <DiaryMyCoverPage key={diary.documentId} {...{ diary }} navigation={this.props.navigation} />;
+    const cover = <DiaryCoverPage key={diary.documentId} {...{ diary }} navigation={this.props.navigation} />;
 
     const onPressPrev = () => {
       //@ts-ignore
@@ -99,12 +88,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
     };
 
     const diaryList = diaryPageRecords.map((diaryPageRecord, _) => (
-      <DiaryMyViewPage
-        key={diaryPageRecord.documentId}
-        {...{ diaryPageRecord }}
-        navigation={this.props.navigation}
-        onPress={() => onPressPrev()}
-      />
+      <DiaryViewPage key={diaryPageRecord.documentId} {...{ diaryPageRecord }} navigation={this.props.navigation} onPress={() => onPressPrev()} />
     ));
 
     const renderList = [cover, ...diaryList];
@@ -137,7 +121,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
         <StatusBar barStyle="default" />
         <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
           {this.renderPages()}
-          <CenterMenuPopup ref={this.centerMenuPopupRef} data={menuData} />
+          <CenterMenuPopup ref={this._centerMenuPopupRef} data={menuData} />
         </SafeAreaView>
       </>
     );

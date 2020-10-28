@@ -7,7 +7,7 @@ import { UserInformationStackNavigationProps } from "../../../routes/UserInforma
 
 import { DiaryPageRecord } from "../../../shared/records";
 import UiHelper from "../../../utility/UiHelper";
-import DiaryMyViewFooter from "./DiaryMyViewFooter";
+import DiaryMyViewFooter from "./DiaryViewFooter";
 
 import * as _ from "lodash";
 
@@ -15,13 +15,13 @@ const { width, height } = Dimensions.get("window");
 
 const imageHeight = height * 0.6;
 
-interface DiaryMyViewPageProps {
+interface DiaryViewPageProps {
   diaryPageRecord: DiaryPageRecord;
   navigation: UserInformationStackNavigationProps<"DiaryView">;
   onPress: () => void;
 }
 
-const DiaryMyViewPage = ({ diaryPageRecord, navigation, onPress }: DiaryMyViewPageProps) => {
+const DiaryViewPage = ({ diaryPageRecord, navigation, onPress }: DiaryViewPageProps) => {
   if (diaryPageRecord != null) {
     console.log(` DiaryMyViewPage imageUri = ${diaryPageRecord.imageUri}`);
     return (
@@ -107,4 +107,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DiaryMyViewPage;
+export default DiaryViewPage;

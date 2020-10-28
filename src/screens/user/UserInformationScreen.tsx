@@ -18,6 +18,7 @@ import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
 import DiaryEntry from "../diary/component/DiaryEntry";
+import My from "../../utility/My";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
@@ -54,17 +55,13 @@ class UserInformationScreen extends React.Component<Props, State> {
     this.props.navigation.addListener("focus", () => {
       console.log("UserInformationScreen focus");
 
-      this.updateDiaryList();
+      My.LatestDiariesAsync();
     });
 
     this.props.navigation.addListener("blur", () => {
       console.log("UserInformationScreen blur");
     });
   }
-
-  updateDiaryList = async () => {
-    await RootStore.Instance.DiaryStore.getListAsync();
-  };
 
   componentDidMount() {
     console.log("UserInformationScreen componentDidMount");

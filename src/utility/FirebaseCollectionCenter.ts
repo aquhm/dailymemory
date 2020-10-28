@@ -53,11 +53,11 @@ class FirebaseCollectionCenter {
     return this.Db.collection("diary_lobbies");
   }
 
-  private getCollection<T extends CollectionType>(collection: T): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
+  public getCollection<T extends CollectionType>(collection: T): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
     return this.Db.collection(collection);
   }
 
-  private getDocument = <T extends CollectionType>(collection: T, documentId: string) => {
+  public getDocument = <T extends CollectionType>(collection: T, documentId: string) => {
     const col = this.getCollection(collection);
     const docRef = col.doc(documentId);
 

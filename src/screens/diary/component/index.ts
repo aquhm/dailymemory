@@ -1,6 +1,6 @@
-import DiaryMyCoverFooter from "./DiaryMyCoverFooter";
-import DiaryMyViewFooter from "./DiaryMyViewFooter";
-import DiaryMyCoverPage from "./DiaryMyCoverPage";
-import DiaryMyViewPage from "./DiaryMyViewPage";
+import DiaryCoverPage from "./DiaryCoverPage";
+import DiaryCoverFooter from "./DiaryCoverFooter";
+import DiaryViewPage from "./DiaryViewPage";
+import DiaryViewFooter from "./DiaryViewFooter";
 
-export { DiaryMyCoverFooter, DiaryMyViewFooter, DiaryMyCoverPage, DiaryMyViewPage };
+export { DiaryCoverFooter, DiaryViewFooter, DiaryCoverPage, DiaryViewPage };

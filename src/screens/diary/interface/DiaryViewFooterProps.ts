@@ -1,6 +1,6 @@
 import { DiaryRecord } from "../../../shared/records";
 
-export default interface DiaryViewFooter {
+export default interface BaseDiaryViewFooterProps {
   height?: number;
   diary?: DiaryRecord;
   color?: string;

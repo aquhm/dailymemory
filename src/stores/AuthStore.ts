@@ -9,6 +9,8 @@ import "firebase/storage";
 import RootStore from "./RootStore";
 
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
+import _ from "lodash";
+import My from "../utility/My";
 
 export interface User {
   name: string;
@@ -81,7 +83,7 @@ class AuthStore {
       this.setFirebaseUser(user);
       this.getUserAsync();
 
-      this._rootStore.DiaryStore.getListAsync();
+      My.LatestDiariesAsync();
     } else {
       console.log("AuthStore onAuthStateChanged logout");
       this.setFirebaseUser(undefined);
@@ -90,7 +92,7 @@ class AuthStore {
 
   @computed
   get isAuthenticated(): boolean {
-    return this._firebaseUser !== null;
+    return this._firebaseUser !== null && _.isEmpty(this.firebaseUser.uid) == false;
   }
 
   public Login = async (email: string, password: string) => await Firebase.Instance.loginAsync(email, password);

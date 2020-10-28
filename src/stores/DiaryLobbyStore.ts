@@ -1,16 +1,15 @@
 import { action, observable, computed } from "mobx";
 
 import Firebase from "../utility/Firebase";
-import { QueryOption, CollectionType } from "../utility/FirebaseCollectionCenter";
+import { CollectionType } from "../utility/FirebaseCollectionCenter";
 
 import RootStore from "./RootStore";
 import * as _ from "lodash";
 
-import { DiaryRecord } from "../shared/records";
+import { UserRecord, DiaryRecord } from "../shared/records";
 
 class DiaryLobbyStore {
   private _collectionType: CollectionType;
-  private _currentDiaryId?: string;
   private _rootStore: RootStore;
 
   @observable private _diaryRecords: Array<DiaryRecord> = [];
@@ -24,20 +23,13 @@ class DiaryLobbyStore {
 
   public Initialize = () => {};
 
-  public get values(): Array<DiaryRecord> {
+  public get Values(): Array<DiaryRecord> {
     return this._diaryRecords;
   }
 
-  public get currentDiaryId(): string | undefined {
-    if (this._currentDiaryId == null) {
-      if (this.values.length == 1) this._currentDiaryId = this.values[0].documentId;
-    }
-
-    return this._currentDiaryId;
-  }
-
-  public set currentDiaryId(id: string | undefined) {
-    this._currentDiaryId = id;
+  @computed
+  get count(): number {
+    return this._diaryRecords.length;
   }
 
   @action
@@ -62,7 +54,7 @@ class DiaryLobbyStore {
       newRecord.documentId = documentId;
       this._diaryRecords.push(newRecord);
     } else {
-      console.log("add : !! error" + documentId);
+      console.log("add : error documendId = " + documentId);
     }
   };
 
@@ -77,17 +69,12 @@ class DiaryLobbyStore {
     }
   };
 
-  @computed
-  get count(): number {
-    return this._diaryRecords.length;
-  }
-
   public setListner = () => {
     if (Firebase.Instance.User.uid != null) {
-      Firebase.Instance.CollectionCenter.DiaryLobby.onSnapshot((querySnapshot) => {
+      Firebase.Instance.CollectionCenter.Diary.onSnapshot((querySnapshot) => {
         querySnapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
-            console.log(`${DiaryLobbyStore.name} diary added !!`);
+            console.log(`${DiaryLobbyStore.name} Added !!`);
           }
           if (change.type === "modified") {
             console.log(`${DiaryLobbyStore.name} Modified !! `);
@@ -107,11 +94,22 @@ class DiaryLobbyStore {
   private upsert = (documentSnapshop: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>) => {
     const diaryRecord = documentSnapshop.data() as DiaryRecord;
 
-    if (this.update(documentSnapshop.id, diaryRecord) == false) {
-      this.add(documentSnapshop.id, diaryRecord);
+    if (diaryRecord.userReference != null) {
+      diaryRecord.userReference.get().then((res) => {
+        diaryRecord.user = res.data() as UserRecord;
+
+        console.log("diaryRecord.user = " + diaryRecord.user.profile_uri);
+
+        if (this.update(documentSnapshop.id, diaryRecord) == false) {
+          this.add(documentSnapshop.id, diaryRecord);
+        }
+      });
+    } else {
+      throw new Error("[DiaryLobbyStore] function upsert =>  diaryRecord.userReference is null");
     }
   };
 
+  @action
   public getListAsync = async () => {
     this.setListner();
 

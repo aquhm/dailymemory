@@ -1,15 +1,15 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import IconButton from "../../../components/IconButton";
-import DiaryViewFooter from "../interface/DiaryViewFooter";
+import BaseDiaryViewFooterProps from "../interface/DiaryViewFooterProps";
 
-export interface DiaryMyViewFooterProps extends DiaryViewFooter {
+export interface DiaryViewFooterProps extends BaseDiaryViewFooterProps {
   left?: {
     buttons: any[];
   };
 }
 
-const DiaryMyViewFooter = ({ height, color, backgroundBarColor, onPrevPress, left, right }: DiaryMyViewFooterProps) => {
+const DiaryViewFooter = ({ height, color, backgroundBarColor, onPrevPress, left, right }: DiaryViewFooterProps) => {
   return (
     <View
       style={[
@@ -45,7 +45,7 @@ const DiaryMyViewFooter = ({ height, color, backgroundBarColor, onPrevPress, lef
   );
 };
 
-DiaryMyViewFooter.defaultProps = {
+DiaryViewFooter.defaultProps = {
   height: 40,
   color: "white",
   backgroundBarColor: "black",
@@ -66,4 +66,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DiaryMyViewFooter;
+export default DiaryViewFooter;

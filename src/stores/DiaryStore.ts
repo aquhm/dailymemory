@@ -7,11 +7,17 @@ import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
 import * as _ from "lodash";
 
-import { DiaryRecord } from "../shared/records";
+import { DiaryRecord, UserRecord } from "../shared/records";
+import FirebaseHelper from "../utility/FirebaseHelper";
+import My from "../utility/My";
 
+/*Todo:
+ 
+*/
 class DiaryStore {
   private _collectionType: CollectionType;
   private _currentDiaryId?: string;
+  private _currentUserId?: string;
   private _rootStore: RootStore;
 
   @observable private _diaryRecords: Array<DiaryRecord> = [];
@@ -109,21 +115,40 @@ class DiaryStore {
     }
   };
 
-  public getListAsync = async () => {
+  private upsert = (documentSnapshop: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>) => {
+    const diaryRecord = documentSnapshop.data() as DiaryRecord;
+
+    if (diaryRecord.userReference != null) {
+      diaryRecord.userReference.get().then((res) => {
+        diaryRecord.user = res.data() as UserRecord;
+
+        if (this.update(documentSnapshop.id, diaryRecord) == false) {
+          this.add(documentSnapshop.id, diaryRecord);
+        }
+      });
+    } else {
+      throw new Error("[DiaryStore] function upsert =>  diaryRecord.userReference is null");
+    }
+  };
+
+  private clear = () => this._diaryRecords.slice(0, this._diaryRecords.length);
+
+  public getListAsync = async (userId: string) => {
+    if (this._currentUserId != userId) {
+      this.clear();
+      this._currentUserId = userId;
+    }
+
     let queryOption: QueryOption = {
-      wheres: [{ field: "userId", operator: "==", value: Firebase.Instance.User.uid }],
+      wheres: [{ field: "userId", operator: "==", value: userId }],
     };
 
     this.setListner(queryOption);
 
     const snapshot = await Firebase.Instance.CollectionCenter.getDatasWithFilterAsync1(this._collectionType, queryOption);
 
-    if (snapshot && snapshot.empty == false) {
-      snapshot.forEach((doc) => {
-        if (this.update(doc.id, doc.data() as DiaryRecord) == false) {
-          this.add(doc.id, doc.data() as DiaryRecord);
-        }
-      });
+    if (snapshot != null && snapshot.empty == false) {
+      snapshot.forEach((doc) => this.upsert(doc));
     }
   };
 
@@ -159,8 +184,8 @@ class DiaryStore {
     task.next();
   };
 
-  /*Todo :
-  1. 이미지 업로드.
+  /*Todo
+  1. Image Upload
   2. Db Insert
   3. Document get
   */
@@ -180,7 +205,8 @@ class DiaryStore {
       open: open,
       coverImageUri: downloadImageUri,
       coverImagePath: storagePath,
-      userId: Firebase.Instance.User.uid,
+      userId: My.UserId,
+      userRefrence: My.UserDocumentReference,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
       contentCount: 0,
     }).then(() => {

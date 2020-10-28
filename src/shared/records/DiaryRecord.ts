@@ -1,5 +1,6 @@
-export default interface DiaryRecord {
-  documentId: string;
+import { UserRecord, BaseRecord } from ".";
+
+export default interface DiaryRecord extends BaseRecord {
   title: string;
   coverImageUri?: string | undefined;
   coverImagePath?: string | undefined;
@@ -7,4 +8,6 @@ export default interface DiaryRecord {
   contentCount: number;
   createdTime?: firebase.firestore.FieldValue;
   private?: boolean;
+  userReference?: firebase.firestore.DocumentReference;
+  user?: UserRecord;
 }

@@ -20,7 +20,7 @@ class DiaryPageStore {
     this._collectionType = collectionType;
   }
 
-  public get values(): Array<DiaryPageRecord> {
+  public get Values(): Array<DiaryPageRecord> {
     return this._diaryPageRecords;
   }
 
@@ -86,8 +86,12 @@ class DiaryPageStore {
   }
 
   @action
-  public getDiaryList(diaryId: string) {
-    this._currentDiaryId = diaryId;
+  public getListAsync = async (diaryId: string) => {
+    if (this._currentDiaryId != diaryId) {
+      this.clear(diaryId);
+      this._currentDiaryId = diaryId;
+    }
+
     let queryOption: QueryOption = {
       wheres: [
         { field: "userId", operator: "==", value: Firebase.Instance.User.uid },
@@ -96,17 +100,11 @@ class DiaryPageStore {
     };
 
     this.setListner(diaryId, queryOption);
-    this.getListAsync(diaryId, queryOption);
-  }
 
-  private getListAsync = async (diaryId: string, queryOption: QueryOption) => {
     const snapshot = await Firebase.Instance.CollectionCenter.getDataWithMultiFilterAsync(this._collectionType, queryOption);
-    if (snapshot != null) {
-      if (snapshot.empty == false) {
-        this.clear(diaryId);
 
-        snapshot.forEach((doc) => this.upsert(doc));
-      }
+    if (snapshot != null && snapshot.empty == false) {
+      snapshot.forEach((doc) => this.upsert(doc));
     }
   };
 
