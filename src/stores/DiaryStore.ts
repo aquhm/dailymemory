@@ -206,7 +206,7 @@ class DiaryStore {
       coverImageUri: downloadImageUri,
       coverImagePath: storagePath,
       userId: My.UserId,
-      userRefrence: My.UserDocumentReference,
+      userReference: My.UserDocumentReference,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
       contentCount: 0,
     }).then(() => {
