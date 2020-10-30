@@ -18,19 +18,11 @@ import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
 import DiaryEntry from "../diary/component/DiaryEntry";
-import My from "../../utility/My";
+import { Diary } from "../../stores/object";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
 const diaryEntryHeight = height * 0.25;
-
-const defaultData: DiaryRecord = {
-  userId: "",
-  documentId: "",
-  title: "새 일기책 만들기",
-  coverImageUri: "",
-  contentCount: 0,
-};
 
 interface Props {
   navigation: UserInformationStackNavigationProps<"UserInformation">;
@@ -40,28 +32,46 @@ interface Props {
 }
 
 interface State {
-  data: DiaryRecord[];
+  data: Diary[];
+  updating: boolean;
 }
 
 @inject("authStore")
 @inject("diaryStore")
 @observer
 class UserInformationScreen extends React.Component<Props, State> {
+  private defaultData: Diary;
   constructor(props: Props) {
     super(props);
 
-    this.state = { data: [defaultData] };
+    this.defaultData = new Diary({ userId: "", documentId: "", title: "새 일기책 만들기", coverImageUri: "", contentCount: 0 }, "diaries");
+    this.state = { data: [this.defaultData], updating: false };
 
     this.props.navigation.addListener("focus", () => {
       console.log("UserInformationScreen focus");
 
-      My.LatestDiariesAsync();
+      this.updateList();
+      //My.LatestDiariesAsync();
     });
 
     this.props.navigation.addListener("blur", () => {
       console.log("UserInformationScreen blur");
     });
   }
+
+  updateList = async () => {
+    const { user } = this.props.route.params;
+
+    user && (await RootStore.Instance.DiaryStore.getListAsync(user.Record.documentId));
+
+    this.setState({ data: [this.defaultData, ...this.props.diaryStore.Values.slice()] });
+  };
+
+  /*
+  shouldComponentUpdate(nextProps: IAppProps, nextState: IAppState) {
+    return this.state.data !== nextState.data;
+  }
+  */
 
   componentDidMount() {
     console.log("UserInformationScreen componentDidMount");
@@ -71,35 +81,25 @@ class UserInformationScreen extends React.Component<Props, State> {
     console.log("UserInformationScreen componentWillUnmount");
   }
 
-  renderCreateButton = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
+  renderCreateButton = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
     return (
       <TouchableWithoutFeedback
         onPress={() => {
           this.props.navigation.navigate("DiaryCreate");
         }}
       >
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            width: diaryEntryWidth,
-            height: diaryEntryHeight,
-            margin: 1,
-            borderColor: "black",
-            borderWidth: 1,
-          }}
-        >
+        <View style={styles.createButton}>
           <Icon name="book" size={24} />
-          <Text>{listRenderItemInfo.item.title}</Text>
+          <Text>{listRenderItemInfo.item.Record.title}</Text>
         </View>
       </TouchableWithoutFeedback>
     );
   };
 
-  renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
+  renderDiaryEntry = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
     return (
       <DiaryEntry
-        diaryRecord={listRenderItemInfo.item}
+        diary={listRenderItemInfo.item}
         onPress={() => {
           this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
         }}
@@ -107,8 +107,8 @@ class UserInformationScreen extends React.Component<Props, State> {
     );
   };
 
-  renderItem = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
-    if (_.isEmpty(listRenderItemInfo.item.userId)) {
+  renderItem = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
+    if (_.isEmpty(listRenderItemInfo.item.Record.userId)) {
       return this.renderCreateButton(listRenderItemInfo);
     } else {
       return this.renderDiaryEntry(listRenderItemInfo);
@@ -130,14 +130,14 @@ class UserInformationScreen extends React.Component<Props, State> {
   };
 
   profile = () => {
+    const { user } = this.props.route.params;
+
     return (
       <View style={{ flex: 1, padding: 15 }}>
         <View style={{ flexDirection: "row" }}>
-          <ProfileRoundImage imageUri={RootStore.Instance.AuthStore.profileImageUri ?? DefaultProfileImage} size={80} onPress={() => {}} />
+          <ProfileRoundImage imageUri={user?.Record.profile_uri ?? DefaultProfileImage} size={80} onPress={() => {}} />
           <View style={{ flex: 1, marginLeft: 20, marginTop: 5 }}>
-            <Text style={{ fontSize: 12 }}>
-              {`안녕하세요? 일기를 쓰고 있는 세줄작가 ${RootStore.Instance.AuthStore.user.name} 입니다. 제 삶의 이야기 책들을 만나보세요.`}
-            </Text>
+            <Text style={{ fontSize: 12 }}>{`안녕하세요? 일기를 쓰고 있는 세줄작가 ${user?.Record.name} 입니다. 제 삶의 이야기 책들을 만나보세요.`}</Text>
 
             <View style={{ flexDirection: "row" }}>
               <RectButton>
@@ -165,7 +165,8 @@ class UserInformationScreen extends React.Component<Props, State> {
   };
 
   render() {
-    const dataSource = [defaultData, ...this.props.diaryStore.values.slice()];
+    console.log("UserInformationScreen render");
+    //const dataSource = [defaultData, ...this.props.diaryStore.values.slice()];
     return (
       <>
         <StatusBar barStyle="default" />
@@ -176,10 +177,10 @@ class UserInformationScreen extends React.Component<Props, State> {
 
           <ScrollView style={{ flex: 1 }}>
             <FlatList
+              refreshing={this.state.updating}
               showsVerticalScrollIndicator={false}
-              data={dataSource}
+              data={this.state.data}
               renderItem={this.renderItem}
-              extraData={dataSource}
               keyExtractor={(item, _) => item.toString()}
               ItemSeparatorComponent={this.renderSetperator}
               contentContainerStyle={{ paddingBottom: 40 }}
@@ -214,6 +215,16 @@ const styles = StyleSheet.create({
     alignContent: "stretch",
     borderBottomColor: "gray",
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+
+  createButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: diaryEntryWidth,
+    height: diaryEntryHeight,
+    margin: 1,
+    borderColor: "black",
+    borderWidth: 1,
   },
 });
 

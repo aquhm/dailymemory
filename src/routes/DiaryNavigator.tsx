@@ -4,20 +4,17 @@ import { StackNavigationProp, createStackNavigator } from "@react-navigation/sta
 import DiaryScreen from "../screens/home/DiaryScreen";
 import MapScreen from "../screens/map/MapScreen";
 import DiaryViewScreen from "../screens/diary/DiaryViewScreen";
-import { DiaryRecord } from "../shared/records";
+import { Diary } from "../stores/object";
 
 export type DiaryStackParamList = {
   Diary: undefined;
   Map: undefined;
   DiaryView: {
-    diary: DiaryRecord;
+    diary: Diary;
   };
 };
 
-export type DiaryStackNavigationProps<T extends keyof DiaryStackParamList> = StackNavigationProp<
-  DiaryStackParamList,
-  T
->;
+export type DiaryStackNavigationProps<T extends keyof DiaryStackParamList> = StackNavigationProp<DiaryStackParamList, T>;
 
 const DiaryNavigator = () => {
   const Stack = createStackNavigator<DiaryStackParamList>();

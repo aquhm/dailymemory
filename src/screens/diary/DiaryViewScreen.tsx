@@ -57,7 +57,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
 
     this.props.navigation.addListener("focus", () => {
       const { diary } = this.props.route.params;
-      this.props.diaryPageStore.getListAsync(diary.documentId);
+      this.props.diaryPageStore.getListAsync(diary.Record.documentId);
     });
 
     this.props.navigation.addListener("blur", () => {});
@@ -80,7 +80,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
     const { diary } = this.props.route.params;
     const diaryPageRecords = this.props.diaryPageStore.Values.slice();
 
-    const cover = <DiaryCoverPage key={diary.documentId} {...{ diary }} navigation={this.props.navigation} />;
+    const cover = <DiaryCoverPage key={diary.Record.documentId} {...{ diary }} navigation={this.props.navigation} />;
 
     const onPressPrev = () => {
       //@ts-ignore

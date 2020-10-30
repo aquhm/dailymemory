@@ -1,5 +1,5 @@
 import React from "react";
-import { AppState } from "react-native";
+import { AppState, YellowBox } from "react-native";
 import { AppLoading } from "expo";
 import RouteContainer from "./src/routes/AppNavigator";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -20,7 +20,9 @@ export default class App extends React.Component<{}, State> {
     super(props);
     console.log("App constructor");
 
-    RootStore.Instance.Initialize();
+    YellowBox.ignoreWarnings(["Setting a timer"]);
+
+    RootStore.Instance.PreInitialize();
   }
 
   handleAppStateChange = (nextAppState: any) => {

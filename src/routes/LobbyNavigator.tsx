@@ -4,13 +4,17 @@ import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp, createStackNavigator } from "@react-navigation/stack";
 
 import DiaryViewScreen from "../screens/diary/DiaryViewScreen";
-import { DiaryRecord } from "../shared/records";
 import LobbyScreen from "../screens/home/LobbyScreen";
+import UserInformationScreen from "../screens/user/UserInformationScreen";
+import { Diary, User } from "../stores/object";
 
 export type LobbyStackParamList = {
   Lobby: undefined;
   DiaryView: {
-    diary: DiaryRecord;
+    diary: Diary;
+  };
+  UserInformation: {
+    user: User;
   };
 };
 
@@ -24,6 +28,7 @@ const LobbyNavigator = () => {
     <Stack.Navigator initialRouteName="Lobby" headerMode="none">
       <Stack.Screen name="Lobby" component={LobbyScreen} />
       <Stack.Screen name="DiaryView" component={DiaryViewScreen} />
+      <Stack.Screen name="UserInformation" component={UserInformationScreen} />
     </Stack.Navigator>
   );
 };

@@ -7,6 +7,7 @@ import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis/Image/ImageApi";
 import * as _ from "lodash";
 import { DiaryPageRecord, DiaryRecord } from "../shared/records";
+import { Diary } from "./object";
 
 class DiaryPageStore {
   private _currentDiaryId?: string;
@@ -150,7 +151,7 @@ class DiaryPageStore {
     }
   };
 
-  public Create = (diaryRecord: DiaryRecord, contents: string, uri: string, place: string, memoryTime?: string, addCompleted?: () => void) => {
+  public Create = (diaryRecord: Diary, contents: string, uri: string, place: string, memoryTime?: string, addCompleted?: () => void) => {
     const task = this.createTask(
       diaryRecord,
       contents,
@@ -172,7 +173,7 @@ class DiaryPageStore {
   3. Document get
   */
   private *createTask(
-    diaryRecord: DiaryRecord,
+    diary: Diary,
     contents: string,
     imageFileUri: string,
     place: string,
@@ -197,10 +198,10 @@ class DiaryPageStore {
       imageUri: downloadImageUri,
       imagePath: storagePath,
       userId: Firebase.Instance.User.uid,
-      diaryId: diaryRecord.documentId,
+      diaryId: diary.Record.documentId,
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
     }).then(() => {
-      this._rootStore.DiaryStore.requestUpdateContentCount(diaryRecord);
+      this._rootStore.DiaryStore.requestUpdateContentCount(diary);
       addCompleted && addCompleted();
     });
   }

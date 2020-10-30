@@ -11,13 +11,16 @@ import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
 import _ from "lodash";
 import My from "../utility/My";
+import { User } from "./object";
+import { UserRecord } from "../shared/records";
 
+/*
 export interface User {
   name: string;
   email: string;
   profile_uri: string | undefined;
 }
-
+*/
 class AuthStore {
   private _collectionType: CollectionType;
   private _rootStore: RootStore;
@@ -38,7 +41,7 @@ class AuthStore {
 
   public Initialize = () => {};
 
-  public get user(): User {
+  public get User(): User {
     if (!this._user) {
       throw new Error(`${AuthStore.name}  _user is null`);
     }
@@ -73,15 +76,16 @@ class AuthStore {
   };
 
   @action
-  private setUser = (user: User): void => {
-    this._user = user;
+  private setUser = (user: UserRecord): void => {
+    this._user = new User(user, "users");
   };
 
   private onAuthStateChanged = (user: firebase.User): void => {
     if (user != null) {
       console.log("AuthStore onAuthStateChanged login");
       this.setFirebaseUser(user);
-      this.getUserAsync();
+      RootStore.Instance.PostInitialize();
+      this.loginTaskAsync(user);
 
       My.LatestDiariesAsync();
     } else {
@@ -101,16 +105,31 @@ class AuthStore {
 
   public SignOut = async () => await Firebase.Instance.Auth.signOut();
 
+  private loginTaskAsync = async (user: firebase.User) => {
+    await this.updateLastLoginTime();
+    await this.getUserAsync();
+  };
+
+  private updateLastLoginTime = async () => {
+    if (this.isLogin == true) {
+      await Firebase.Instance.CollectionCenter.writeDataByDocumentIdAsync(this._collectionType, this.firebaseUser.uid, {
+        lastLoginTime: new Date(),
+      });
+    }
+  };
+
   private getUserAsync = async () => {
     try {
-      const userDoc = Firebase.Instance.CollectionCenter.User.doc(this.firebaseUser.uid);
-      const userCol = await userDoc.get();
+      const userDocRef = Firebase.Instance.CollectionCenter.getDocument(this._collectionType, this.firebaseUser.uid);
+      const userDocData = await userDocRef.get();
 
-      if (!userCol.exists) {
+      if (!userDocData.exists) {
         console.log(`No such user uid = ${this.firebaseUser.uid}`);
       } else {
-        this.setUser(userCol.data() as User);
-        this.setProfileImage(this._user?.profile_uri);
+        const userRecord = userDocData.data() as UserRecord;
+        userRecord.documentId = this.firebaseUser.uid;
+
+        this.setUser(userRecord);
       }
     } catch (error) {
       console.error("Error getting document", error);
@@ -120,7 +139,7 @@ class AuthStore {
   public UploadImage = (uri: string, uploadCompleted?: () => void) => {
     const task = this.uploadImageTask(uri, (downloadUrl: string) => {
       if (this._user) {
-        this._user.profile_uri = downloadUrl;
+        this._user.Record.profile_uri = downloadUrl;
       }
 
       task.next();
@@ -136,7 +155,7 @@ class AuthStore {
     }
 
     yield Firebase.Instance.CollectionCenter.updateDataByDocumentIdAsync(this._collectionType, this.firebaseUser.uid, {
-      profile_uri: this._user?.profile_uri,
+      profile_uri: this._user?.Record.profile_uri,
     });
   }
 }

@@ -17,15 +17,17 @@ import SettingScreen from "../screens/home/SettingScreen";
 import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons";
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
-import { DiaryRecord } from "../shared/records";
 import LobbyNavigator from "./LobbyNavigator";
+import { Diary } from "../stores/object";
 
 type HomeNavigatorBottomParamList = {
   Lobby: undefined;
   Diary: undefined;
   Subscribe: undefined;
   Notice: undefined;
-  UserInformation: undefined;
+  UserInformation: {
+    userId: string;
+  };
 };
 
 type HomeNavigatorBottomProps<T extends keyof HomeNavigatorBottomParamList> = BottomTabNavigationProp<HomeNavigatorBottomParamList, T>;
@@ -41,7 +43,7 @@ type HomeNavigatorDrawerProps<T extends keyof HomeNavigatorDrawerParamList> = Dr
 type DiaryNavigatorStackParamList = {
   Diary: undefined;
   DiaryView: {
-    diary: DiaryRecord;
+    diary: Diary;
   };
   Map: undefined;
 };

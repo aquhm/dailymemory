@@ -4,52 +4,53 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import * as _ from "lodash";
 
-import { DiaryRecord } from "../../../shared/records";
+import { Diary } from "../../../stores/object";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
 const diaryEntryHeight = height * 0.25;
 
 interface DiaryEntryProps {
-  diaryRecord: DiaryRecord;
+  diary: Diary;
   onPress: () => void;
 }
 
-const DiaryEntry = ({ diaryRecord, onPress }: DiaryEntryProps) => {
+const DiaryEntry = ({ diary, onPress }: DiaryEntryProps) => {
   return (
     <TouchableWithoutFeedback {...{ onPress }}>
-      <View
-        style={{
-          justifyContent: "flex-start",
-          alignItems: "center",
-          width: diaryEntryWidth,
-          height: diaryEntryHeight,
-          margin: 1,
-          borderColor: "black",
-          borderWidth: 1,
-          flex: 1,
-        }}
-      >
+      <View style={styles.container}>
         <Image
-          source={_.isEmpty(diaryRecord.coverImageUri) == false ? { uri: diaryRecord.coverImageUri } : require("../../../../assets/diary_default_img.png")}
+          source={_.isEmpty(diary.Record.coverImageUri) == false ? { uri: diary.Record.coverImageUri } : require("../../../../assets/diary_default_img.png")}
           defaultSource={require("../../../../assets/diary_default_img.png")}
           style={{ width: "100%", height: "50%" }}
         />
 
-        <View
-          style={{
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
-            width: "100%",
-          }}
-        >
-          <Text style={{ left: 5 }}>{diaryRecord.title}</Text>
+        <View style={styles.text}>
+          <Text style={{ left: 5 }}>{diary.Record.title}</Text>
           <Text style={{ left: 5 }}>세줄일기</Text>
-          <Text style={{ left: 5 }}>{`${diaryRecord.contentCount}p`}</Text>
+          <Text style={{ left: 5 }}>{`${diary.Record.contentCount}p`}</Text>
         </View>
       </View>
     </TouchableWithoutFeedback>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    width: diaryEntryWidth,
+    height: diaryEntryHeight,
+    margin: 1,
+    borderColor: "black",
+    borderWidth: 1,
+    flex: 1,
+  },
+  text: {
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    width: "100%",
+  },
+});
 
 export default DiaryEntry;

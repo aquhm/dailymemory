@@ -23,6 +23,7 @@ import { RootStore } from "../../stores";
 
 import { SwipeablePanel } from "rn-swipeable-panel";
 import { DiaryRecord } from "../../shared/records";
+import { Diary } from "../../stores/object";
 
 const { width, height } = Dimensions.get("window");
 const editHeight = height * 0.3;
@@ -51,7 +52,7 @@ interface State {
   imageUri: string;
   contents: string;
   diaryPicker: boolean;
-  currentDiary?: DiaryRecord;
+  currentDiary?: Diary;
 }
 
 class DiaryScreen extends React.Component<Props, State> {
@@ -116,10 +117,10 @@ class DiaryScreen extends React.Component<Props, State> {
   componentDidMount() {
     console.log(" componentDidMount DiaryScreen");
 
-    if (RootStore.Instance.DiaryStore.values.length > 1) {
+    if (RootStore.Instance.DiaryStore.Values.length > 1) {
       this.setState({ diaryPicker: true });
     } else {
-      const [first] = RootStore.Instance.DiaryStore.values;
+      const [first] = RootStore.Instance.DiaryStore.Values;
       this.setState({ currentDiary: first });
     }
   }
@@ -154,8 +155,8 @@ class DiaryScreen extends React.Component<Props, State> {
   };
 
   renderHeader = () => {
-    const diaryQuantity = RootStore.Instance.DiaryStore.values.length;
-    const title = this.state.currentDiary != null ? this.state.currentDiary.title : "일기책을 선택해 주세요.";
+    const diaryQuantity = RootStore.Instance.DiaryStore.Values.length;
+    const title = this.state.currentDiary != null ? this.state.currentDiary.Record.title : "일기책을 선택해 주세요.";
     return (
       <Header
         {...{ title }}
@@ -264,7 +265,7 @@ class DiaryScreen extends React.Component<Props, State> {
     );
   };
 
-  renderSwiperableItemComponent = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
+  renderSwiperableItemComponent = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
     return (
       <View
         style={{
@@ -276,9 +277,9 @@ class DiaryScreen extends React.Component<Props, State> {
         }}
       >
         <View style={{ justifyContent: "flex-start" }}>
-          <Text>{listRenderItemInfo.item.title}</Text>
+          <Text>{listRenderItemInfo.item.Record.title}</Text>
           <Text>
-            {listRenderItemInfo.item.private ? "비공개" : "공개"} | {listRenderItemInfo.item.contentCount}p
+            {listRenderItemInfo.item.Record.private ? "비공개" : "공개"} | {listRenderItemInfo.item.Record.contentCount}p
           </Text>
         </View>
         <View style={{ alignItems: "center" }}>
@@ -306,10 +307,10 @@ class DiaryScreen extends React.Component<Props, State> {
         <Text style={{ margin: 10 }}>내 일기책 선택</Text>
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={RootStore.Instance.DiaryStore.values}
-          extraData={RootStore.Instance.DiaryStore.values}
+          data={RootStore.Instance.DiaryStore.Values}
+          extraData={RootStore.Instance.DiaryStore.Values}
           renderItem={this.renderSwiperableItemComponent}
-          keyExtractor={(item, _) => item.documentId}
+          keyExtractor={(item, _) => item.Record.documentId}
           contentContainerStyle={{ paddingBottom: 40 }}
         ></FlatList>
       </SwipeablePanel>

@@ -102,6 +102,7 @@ class Firebase {
       if (userCredential != null) {
         if (userCredential.user != null) {
           await this.CollectionCenter.writeDataByDocumentIdAsync("users", userCredential.user.uid, {
+            documentId: userCredential.user.uid,
             name: name,
             email: email,
           });

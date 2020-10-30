@@ -1,4 +1,5 @@
 import { RootStore } from "../stores";
+import { User } from "../stores/object";
 import Firebase, { CollectionType } from "./Firebase";
 
 class My {
@@ -6,6 +7,10 @@ class My {
 
   public static get UserId(): string {
     return Firebase.Instance.User.uid;
+  }
+
+  public static get User(): User | undefined {
+    return RootStore.Instance.UserStore.findByDocumentId(My.UserId);
   }
 
   public static get UserDocumentReference() {

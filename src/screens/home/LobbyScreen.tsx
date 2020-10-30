@@ -1,19 +1,17 @@
 import React from "react";
-import { View, Image, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, ListRenderItemInfo, Dimensions } from "react-native";
-
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, ListRenderItemInfo, Dimensions } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-
 import { observer, inject } from "mobx-react";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-
-import Header from "../../components/common/Header";
-
-import { RootStore, DiaryLobbyStore } from "../../stores";
-import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
+
 import { LobbyStackNavigationProps, LobbyStackRouteProps } from "../../routes/LobbyNavigator";
+
+import { RootStore, DiaryLobbyStore } from "../../stores";
+
 import DiaryEntry from "../diary/component/DiaryEntry";
+import { Diary } from "../../stores/object";
+import { toJS } from "mobx";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
@@ -27,7 +25,7 @@ interface Props {
 }
 
 interface State {
-  data: DiaryRecord[];
+  data: Diary[];
 }
 
 @inject("diaryLobbyStore")
@@ -36,10 +34,9 @@ class LobbyScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.updateDiaryList();
-
     this.props.navigation.addListener("focus", () => {
       console.log("LobbyScreen focus");
+      this.updateDiaryList();
     });
 
     this.props.navigation.addListener("blur", () => {
@@ -59,10 +56,10 @@ class LobbyScreen extends React.Component<Props, State> {
     console.log("UserInformationScreen componentWillUnmount");
   }
 
-  renderItem = (listRenderItemInfo: ListRenderItemInfo<DiaryRecord>) => {
+  renderItem = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
     return (
       <DiaryEntry
-        diaryRecord={listRenderItemInfo.item}
+        diary={listRenderItemInfo.item}
         onPress={() => {
           this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
         }}
@@ -83,8 +80,8 @@ class LobbyScreen extends React.Component<Props, State> {
   };
 
   render() {
-    console.log("LobbyScreen render!!");
-    const dataSource = this.props.diaryLobbyStore.Values.slice();
+    const dataSource = toJS(this.props.diaryLobbyStore.Values);
+
     return (
       <>
         <StatusBar barStyle="default" />
@@ -95,8 +92,8 @@ class LobbyScreen extends React.Component<Props, State> {
             <FlatList
               showsVerticalScrollIndicator={false}
               data={dataSource}
-              renderItem={this.renderItem}
               extraData={dataSource}
+              renderItem={this.renderItem}
               keyExtractor={(item, _) => item.toString()}
               ItemSeparatorComponent={this.renderSetperator}
               contentContainerStyle={{ paddingBottom: 40 }}
@@ -108,30 +105,5 @@ class LobbyScreen extends React.Component<Props, State> {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  head: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    margin: 10,
-  },
-
-  profileArea: {
-    height: 200,
-    alignItems: "center",
-    alignContent: "stretch",
-    borderBottomColor: "gray",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
 
 export default LobbyScreen;
