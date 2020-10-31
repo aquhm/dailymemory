@@ -41,6 +41,7 @@ class AuthStore {
 
   public Initialize = () => {};
 
+  @computed
   public get User(): User {
     if (!this._user) {
       throw new Error(`${AuthStore.name}  _user is null`);

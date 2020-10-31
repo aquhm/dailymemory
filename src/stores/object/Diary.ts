@@ -1,6 +1,6 @@
 import Firebase, { CollectionType } from "../../utility/Firebase";
-import { DiaryRecord, UserRecord } from "../../shared/records";
-import RootStore from "../RootStore";
+import { DiaryRecord } from "../../shared/records";
+import { RootStore } from "../";
 import { User } from ".";
 
 class Diary {

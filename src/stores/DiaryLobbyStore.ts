@@ -101,6 +101,7 @@ class DiaryLobbyStore {
 
     if (diary != null) {
       diary.Record = documentData.data() as DiaryRecord;
+      diary.Record.documentId = documentData.id;
 
       return true;
     } else {

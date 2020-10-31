@@ -134,11 +134,12 @@ class DiaryStore {
 
   private update(documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): boolean {
     const diary = this._diaries.find((t) => {
-      return t.Record.documentId === documentData.id;
+      return t.Record.documentId == documentData.id;
     });
 
     if (diary != null) {
       diary.Record = documentData.data() as DiaryRecord;
+      diary.Record.documentId = documentData.id;
 
       return true;
     } else {

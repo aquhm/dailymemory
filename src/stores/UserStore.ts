@@ -104,6 +104,7 @@ class UserStore {
 
     if (user != null) {
       user.Record = documentData.data() as UserRecord;
+      user.Record.documentId = documentData.id;
 
       return true;
     } else {
@@ -116,9 +117,9 @@ class UserStore {
     const newRecord = documentData.data() as UserRecord;
     newRecord.documentId = documentData.id;
 
-    const newuser = new User(newRecord, this.collectionType);
+    const newUser = new User(newRecord, this.collectionType);
 
-    this._users.push(newuser);
+    this._users.push(newUser);
   };
 
   private remove = (documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): void => {
@@ -129,10 +130,6 @@ class UserStore {
     if (index != -1) {
       this._users.splice(index, 1);
     }
-  };
-
-  public findByUserId = (userId: string): User | undefined => {
-    return this._users.find((t) => t.Record.documentId == userId);
   };
 
   public findByDocumentId = (documentId: string): User | undefined => {

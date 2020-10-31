@@ -14,11 +14,11 @@ import { RectButton, TouchableWithoutFeedback } from "react-native-gesture-handl
 import Header from "../../components/common/Header";
 
 import { RootStore, DiaryStore, AuthStore } from "../../stores";
-import { DiaryRecord } from "../../shared/records";
 
 import * as _ from "lodash";
 import DiaryEntry from "../diary/component/DiaryEntry";
 import { Diary } from "../../stores/object";
+import My from "../../utility/My";
 
 const { width, height } = Dimensions.get("window");
 const diaryEntryWidth = width * 0.33;
@@ -41,44 +41,39 @@ interface State {
 @observer
 class UserInformationScreen extends React.Component<Props, State> {
   private defaultData: Diary;
+  private _unsubscribe: any;
   constructor(props: Props) {
     super(props);
 
     this.defaultData = new Diary({ userId: "", documentId: "", title: "새 일기책 만들기", coverImageUri: "", contentCount: 0 }, "diaries");
     this.state = { data: [this.defaultData], updating: false };
-
-    this.props.navigation.addListener("focus", () => {
-      console.log("UserInformationScreen focus");
-
-      this.updateList();
-      //My.LatestDiariesAsync();
-    });
-
-    this.props.navigation.addListener("blur", () => {
-      console.log("UserInformationScreen blur");
-    });
   }
 
   updateList = async () => {
     const { user } = this.props.route.params;
-
-    user && (await RootStore.Instance.DiaryStore.getListAsync(user.Record.documentId));
+    if (user != null) {
+      await RootStore.Instance.DiaryStore.getListAsync(user.Record.documentId);
+    } else {
+      await My.LatestDiariesAsync();
+    }
 
     this.setState({ data: [this.defaultData, ...this.props.diaryStore.Values.slice()] });
   };
 
-  /*
-  shouldComponentUpdate(nextProps: IAppProps, nextState: IAppState) {
-    return this.state.data !== nextState.data;
-  }
-  */
-
   componentDidMount() {
     console.log("UserInformationScreen componentDidMount");
+
+    this._unsubscribe = this.props.navigation.addListener("focus", () => {
+      console.log("UserInformationScreen focus");
+
+      this.updateList();
+    });
   }
 
   componentWillUnmount() {
     console.log("UserInformationScreen componentWillUnmount");
+
+    this._unsubscribe && this._unsubscribe();
   }
 
   renderCreateButton = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
@@ -130,7 +125,9 @@ class UserInformationScreen extends React.Component<Props, State> {
   };
 
   profile = () => {
-    const { user } = this.props.route.params;
+    let { user } = this.props.route.params;
+
+    if (user == null) user = My.User!;
 
     return (
       <View style={{ flex: 1, padding: 15 }}>

@@ -3,7 +3,7 @@ import { BottomTabNavigationProp, createBottomTabNavigator } from "@react-naviga
 import { DrawerNavigationProp, createDrawerNavigator } from "@react-navigation/drawer";
 import { StackNavigationProp, createStackNavigator } from "@react-navigation/stack";
 
-import { CompositeNavigationProp } from "@react-navigation/native";
+import { CompositeNavigationProp, RouteProp } from "@react-navigation/native";
 
 import NoticeScreen from "../screens/home/NoticeScreen";
 import SubscribeScreen from "../screens/home/SubscribeScreen";
@@ -18,7 +18,8 @@ import { MaterialCommunityIcons, Entypo, FontAwesome } from "@expo/vector-icons"
 
 import { Drawer as DrawerContent, DRAWER_WIDTH } from "../screens/drawer/Drawer";
 import LobbyNavigator from "./LobbyNavigator";
-import { Diary } from "../stores/object";
+import { Diary, User } from "../stores/object";
+import My from "../utility/My";
 
 type HomeNavigatorBottomParamList = {
   Lobby: undefined;
@@ -26,11 +27,12 @@ type HomeNavigatorBottomParamList = {
   Subscribe: undefined;
   Notice: undefined;
   UserInformation: {
-    userId: string;
+    user: User;
   };
 };
 
 type HomeNavigatorBottomProps<T extends keyof HomeNavigatorBottomParamList> = BottomTabNavigationProp<HomeNavigatorBottomParamList, T>;
+type LobbyStackBootomRouteProps<T extends keyof HomeNavigatorBottomParamList> = RouteProp<HomeNavigatorBottomParamList, T>;
 
 type HomeNavigatorDrawerParamList = {
   Home: undefined;
@@ -103,6 +105,7 @@ const HomeBottomNavigator = () => {
       <BottomTab.Screen
         name="UserInformation"
         component={UserInformationNavigator}
+        initialParams={{ user: My.User }}
         options={{
           tabBarLabel: "Me",
           tabBarIcon: ({ color, size }) => <FontAwesome name="user" color={color} size={size} />,
@@ -114,7 +117,6 @@ const HomeBottomNavigator = () => {
 
 const HomeNavigator = () => {
   return (
-    //<Drawer.Navigator drawerContent={(props) => <HomeDrawer {...props} />}>
     <Drawer.Navigator drawerContent={(props) => <DrawerContent {...props} />} drawerStyle={{ width: DRAWER_WIDTH }}>
       <Drawer.Screen name="Home" component={HomeBottomNavigator} />
       <Drawer.Screen name="Setting" component={SettingScreen} />

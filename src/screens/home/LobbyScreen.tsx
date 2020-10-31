@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, ListRenderItemInfo, Dimensions } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { observer, inject } from "mobx-react";
+import { observer, inject, Observer } from "mobx-react";
 
 import * as _ from "lodash";
 
@@ -58,12 +58,16 @@ class LobbyScreen extends React.Component<Props, State> {
 
   renderItem = (listRenderItemInfo: ListRenderItemInfo<Diary>) => {
     return (
-      <DiaryEntry
-        diary={listRenderItemInfo.item}
-        onPress={() => {
-          this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
-        }}
-      />
+      <Observer>
+        {() => (
+          <DiaryEntry
+            diary={listRenderItemInfo.item}
+            onPress={() => {
+              this.props.navigation.navigate("DiaryView", { diary: listRenderItemInfo.item });
+            }}
+          />
+        )}
+      </Observer>
     );
   };
 
@@ -80,6 +84,7 @@ class LobbyScreen extends React.Component<Props, State> {
   };
 
   render() {
+    console.log("-------------------------------UserInformationScreen render");
     const dataSource = toJS(this.props.diaryLobbyStore.Values);
 
     return (

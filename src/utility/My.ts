@@ -10,7 +10,8 @@ class My {
   }
 
   public static get User(): User | undefined {
-    return RootStore.Instance.UserStore.findByDocumentId(My.UserId);
+    //return RootStore.Instance.UserStore.findByDocumentId(My.UserId);
+    return RootStore.Instance.AuthStore.User;
   }
 
   public static get UserDocumentReference() {

@@ -14,7 +14,7 @@ import { Diary, User } from "../stores/object";
 
 export type UserInformationStackParamList = {
   UserInformation: {
-    user?: User;
+    user: User;
   };
   Setting: undefined;
   DiaryCreate: undefined;

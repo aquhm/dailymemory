@@ -36,7 +36,7 @@ const DiaryCoverPage = ({ diary, navigation }: DiaryCoverPageProps) => {
                 imageUri={diary.User?.Record.profile_uri ?? DefaultProfileImage}
                 size={50}
                 onPress={() => {
-                  navigation.navigate("UserInformation", { user: diary.User });
+                  diary.User && navigation.navigate("UserInformation", { user: diary.User });
                 }}
               />
               <Text style={{ margin: 10 }}>{diary.User?.Record.name}</Text>
