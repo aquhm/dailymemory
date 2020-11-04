@@ -1,7 +1,7 @@
 import { action, observable, computed, runInAction } from "mobx";
 
-import Firebase from "../utility/Firebase";
-import { CollectionType } from "../utility/FirebaseCollectionCenter";
+import Firebase from "../utility/Firebase/Firebase";
+import { CollectionType } from "../utility/Firebase/FirebaseCollectionCenter";
 
 import RootStore from "./RootStore";
 import * as _ from "lodash";
@@ -64,16 +64,16 @@ class DiaryLobbyStore {
     updateDocumentDatas.forEach((change) => {
       if (change.type === "added") {
         console.log(`${DiaryLobbyStore.name} diary added !!`);
-      }
-      if (change.type === "modified") {
+      } else if (change.type === "modified") {
         console.log(`${DiaryLobbyStore.name} Modified !! `);
 
         this.update(change.doc);
-      }
-      if (change.type === "removed") {
+      } else if (change.type === "removed") {
         console.log(`${DiaryLobbyStore.name} Remove Data: `, change.doc.data());
 
         this.remove(change.doc.data() as DiaryRecord);
+      } else {
+        //동작 없음.
       }
     });
   };
@@ -94,6 +94,7 @@ class DiaryLobbyStore {
     }
   };
 
+  @action
   private update(documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): boolean {
     const diary = this._diaries.find((t) => {
       return t.Record.documentId === documentData.id;
@@ -109,6 +110,7 @@ class DiaryLobbyStore {
     }
   }
 
+  @action
   private add = (documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): void => {
     const newRecord = documentData.data() as DiaryRecord;
     newRecord.documentId = documentData.id;
@@ -118,6 +120,7 @@ class DiaryLobbyStore {
     this._diaries.push(newDiary);
   };
 
+  @action
   private remove = (removeRecord: DiaryRecord): void => {
     const index = this._diaries.findIndex((t) => {
       return t.Record.documentId === removeRecord.documentId;

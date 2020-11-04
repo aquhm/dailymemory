@@ -1,7 +1,7 @@
 import { action, observable, computed, runInAction, configure } from "mobx";
 
 import * as firebase from "firebase/app";
-import Firebase, { QueryOption, CollectionType } from "../utility/Firebase";
+import Firebase, { QueryOption, CollectionType } from "../utility/Firebase/Firebase";
 
 import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis//Image/ImageApi";
@@ -59,16 +59,16 @@ class DiaryStore {
     updates.forEach((change) => {
       if (change.type === "added") {
         console.log(`${DiaryStore.name} diary added !!`);
-      }
-      if (change.type === "modified") {
+      } else if (change.type === "modified") {
         console.log(`${DiaryStore.name} Modified !! `);
 
         this.update(change.doc);
-      }
-      if (change.type === "removed") {
-        console.log(`${DiaryStore.name} Remove Data: `, change.doc.data());
+      } else if (change.type === "removed") {
+        console.log(`${DiaryStore.name} Remove Data!! `);
 
         this.remove(change.doc);
+      } else {
+        // 동작 없음.
       }
     });
   };
@@ -86,7 +86,7 @@ class DiaryStore {
 
     this.setListner(queryOption);
 
-    const snapshot = await Firebase.Instance.CollectionCenter.getDatasWithFilterAsync1(this._collectionType, queryOption);
+    const snapshot = await Firebase.Instance.CollectionCenter.getDataByCollectionTypeAsync(this._collectionType, queryOption);
 
     if (snapshot != null && snapshot.empty == false) {
       const [first] = snapshot.docs;
@@ -113,7 +113,7 @@ class DiaryStore {
 
   private setListner = (queryOption: QueryOption) => {
     if (My.IsLogin) {
-      const query = Firebase.Instance.CollectionCenter.createQueryWithOption(this._collectionType, queryOption);
+      const query = Firebase.Instance.CollectionCenter.createQueryWithCollectionType(this._collectionType, queryOption);
 
       if (query != null) {
         this._unsubscribe = query.onSnapshot((querySnapshot) => {

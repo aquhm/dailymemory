@@ -1,6 +1,6 @@
 import { RootStore } from "../stores";
 import { User } from "../stores/object";
-import Firebase, { CollectionType } from "./Firebase";
+import Firebase, { CollectionType } from "./Firebase/Firebase";
 
 class My {
   private constructor() {}

@@ -4,7 +4,7 @@ import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
 
-import ApiKeys from "../constants/ApiKeys";
+import ApiKeys from "../../constants/ApiKeys";
 import FirebaseCollectionCenter, { QueryOption, CollectionType } from "./FirebaseCollectionCenter";
 import FirebaseLoginCenter from "./FirebaseLoginCenter";
 

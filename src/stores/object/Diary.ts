@@ -1,16 +1,25 @@
-import Firebase, { CollectionType } from "../../utility/Firebase";
+import Firebase, { CollectionType } from "../../utility/Firebase/Firebase";
 import { DiaryRecord } from "../../shared/records";
 import { RootStore } from "../";
 import { User } from ".";
+import DiaryPageCenter from "../center/DiaryPageCenter";
 
 class Diary {
   private _record: DiaryRecord;
   private _owner?: User | undefined;
   private _collectionType?: CollectionType;
 
+  private _pageCenter?: DiaryPageCenter;
+
   constructor(private record: DiaryRecord, private collectionType?: CollectionType) {
     this._record = record;
     this._collectionType = collectionType;
+
+    this._pageCenter = new DiaryPageCenter(this, "pages");
+  }
+
+  public get CollectionType() {
+    return this._collectionType;
   }
 
   public get Record() {
@@ -28,10 +37,13 @@ class Diary {
 
     return this._owner;
   }
-
   // 임시
   public set User(value: User | undefined) {
     this._owner = value;
+  }
+
+  public get PageCenter() {
+    return this._pageCenter;
   }
 
   private requstUpdate = (data: any) => {

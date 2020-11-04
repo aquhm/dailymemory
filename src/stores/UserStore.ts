@@ -1,7 +1,7 @@
 import { action, observable, computed, runInAction } from "mobx";
 
 import * as firebase from "firebase/app";
-import Firebase, { CollectionType } from "../utility/Firebase";
+import Firebase, { CollectionType } from "../utility/Firebase/Firebase";
 
 import RootStore from "./RootStore";
 import * as _ from "lodash";
@@ -56,16 +56,16 @@ class UserStore {
         console.log(`${UserStore.name} userRecord added !!`);
 
         this.add(change.doc);
-      }
-      if (change.type === "modified") {
+      } else if (change.type === "modified") {
         console.log(`${UserStore.name} userRecord modified !! `);
 
         this.update(change.doc);
-      }
-      if (change.type === "removed") {
+      } else if (change.type === "removed") {
         console.log(`${UserStore.name} userRecord removed !! `);
 
         this.remove(change.doc);
+      } else {
+        // 동작 없음
       }
     });
   };

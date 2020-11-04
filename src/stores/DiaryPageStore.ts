@@ -1,78 +1,106 @@
 import { action, observable, computed } from "mobx";
 
-import Firebase, { QueryOption, CollectionType } from "../utility/Firebase";
+import Firebase, { QueryOption, CollectionType } from "../utility/Firebase/Firebase";
 import * as firebase from "firebase/app";
 
 import RootStore from "./RootStore";
 import ImageApi, { StorageImagePathType } from "../apis/Image/ImageApi";
 import * as _ from "lodash";
 import { DiaryPageRecord, DiaryRecord } from "../shared/records";
-import { Diary } from "./object";
+import { Diary, DiaryPage } from "./object";
+import My from "../utility/My";
+
+interface IGetList {
+  (queryOption: QueryOption): void;
+  (collectionReference: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>): void;
+}
 
 class DiaryPageStore {
-  private _currentDiaryId?: string;
+  private _currentDiary?: Diary;
   private _rootStore: RootStore;
   private _collectionType: CollectionType;
+  private _unsubscribe?: any;
 
-  @observable private _diaryPageRecords: Array<DiaryPageRecord> = [];
+  @observable private _diaryPages: Array<DiaryPage> = [];
 
   constructor(private rootStore: RootStore, private collectionType: CollectionType) {
     this._rootStore = rootStore;
     this._collectionType = collectionType;
   }
 
-  public get Values(): Array<DiaryPageRecord> {
-    return this._diaryPageRecords;
+  @computed
+  public get Values(): Array<DiaryPage> {
+    return this._diaryPages;
   }
 
   @computed
-  public get count(): number {
-    return this._diaryPageRecords.length;
+  public get Count(): number {
+    return this._diaryPages.length;
   }
 
   public Initialize = () => {};
 
-  private setListner = (diaryId: string, queryOption: QueryOption) => {
-    if (Firebase.Instance.User.uid != null) {
-      const query = Firebase.Instance.CollectionCenter.createQueryWithOption(this._collectionType, queryOption);
+  private setListnerByQuery = (queryOption: QueryOption) => {
+    if (My.IsLogin) {
+      const query = Firebase.Instance.CollectionCenter.createQueryWithCollectionType(this._collectionType, queryOption);
 
-      if (query) {
-        query.onSnapshot((querySnapshot) => {
-          querySnapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-              console.log(`${DiaryPageStore.name} diary added !!`);
-              //if (this.findByDocumentId(change.doc.id) == null) {
-              //  this.add(change.doc.data() as Diary);
-              //}
-            }
-            if (change.type === "modified") {
-              console.log(`${DiaryPageStore.name} Modified !! `);
-
-              this.update(change.doc.id, change.doc.data() as DiaryPageRecord);
-            }
-            if (change.type === "removed") {
-              console.log(`${DiaryPageStore.name} Remove Data: `, change.doc.data());
-
-              this.remove(change.doc.id, change.doc.data() as DiaryPageRecord);
-            }
-          });
+      if (query != null) {
+        this._unsubscribe = query.onSnapshot((querySnapshot) => {
+          this.upsertByLisner(querySnapshot.docChanges());
         });
+      } else {
+        // 동작 없음.
       }
-
-      return query;
     } else {
-      return null;
+      // 동작 없음.
     }
   };
 
-  private update(documentId: string, updatedRecord: DiaryPageRecord): boolean {
-    const index = this._diaryPageRecords.findIndex((t) => {
-      return t.documentId === documentId;
+  private setListnerByCollectionReference = (
+    collectionReference: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
+    queryOption: QueryOption
+  ) => {
+    if (My.IsLogin) {
+      const query = Firebase.Instance.CollectionCenter.createQueryWithCollectionReference(collectionReference, queryOption);
+      if (query != null) {
+        this._unsubscribe = collectionReference.onSnapshot((querySnapshot) => {
+          this.upsertByLisner(querySnapshot.docChanges());
+        });
+      } else {
+        // 동작 없음.
+      }
+    } else {
+      // 동작 없음.
+    }
+  };
+
+  @action
+  private upsertByLisner = (updates: firebase.firestore.DocumentChange<firebase.firestore.DocumentData>[]) => {
+    updates.forEach((change) => {
+      if (change.type === "added") {
+        console.log(`${DiaryPageStore.name} diary added !!`);
+      } else if (change.type === "modified") {
+        console.log(`${DiaryPageStore.name} Modified !! `);
+
+        this.update(change.doc);
+      } else if (change.type === "removed") {
+        console.log(`${DiaryPageStore.name} Remove !!`);
+
+        this.remove(change.doc);
+      } else {
+        // 동작 없음.
+      }
+    });
+  };
+
+  private update(documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): boolean {
+    const diaryPage = this._diaryPages.find((t) => {
+      return t.Record.documentId == documentData.id;
     });
 
-    if (index != -1) {
-      updatedRecord.documentId = documentId;
-      this._diaryPageRecords.splice(index, 1, updatedRecord);
+    if (diaryPage != null) {
+      diaryPage.Record = documentData.data() as DiaryPageRecord;
+      diaryPage.Record.documentId = documentData.id;
 
       return true;
     } else {
@@ -80,69 +108,93 @@ class DiaryPageStore {
     }
   }
 
-  private clear(diaryId: string) {
-    if (this._currentDiaryId !== diaryId) {
-      this._diaryPageRecords.slice(0, this._diaryPageRecords.length);
+  private clear() {
+    while (this._diaryPages.length > 0) {
+      this._diaryPages.pop();
     }
+
+    this._unsubscribe && this._unsubscribe();
   }
 
   @action
-  public getListAsync = async (diaryId: string) => {
-    if (this._currentDiaryId != diaryId) {
-      this.clear(diaryId);
-      this._currentDiaryId = diaryId;
+  public getListAsync = async (dairy: Diary) => {
+    if (this._currentDiary !== dairy) {
+      this._currentDiary = dairy;
+      this.clear();
     }
 
     let queryOption: QueryOption = {
       wheres: [
-        { field: "userId", operator: "==", value: Firebase.Instance.User.uid },
-        { field: "diaryId", operator: "==", value: diaryId },
+        { field: "userId", operator: "==", value: dairy.Record.userId },
+        { field: "diaryId", operator: "==", value: dairy.Record.documentId },
       ],
     };
 
-    this.setListner(diaryId, queryOption);
+    this.setListnerByQuery(queryOption);
 
-    const snapshot = await Firebase.Instance.CollectionCenter.getDataWithMultiFilterAsync(this._collectionType, queryOption);
+    const snapshot = await Firebase.Instance.CollectionCenter.getDataByCollectionTypeAsync(this._collectionType, queryOption);
 
     if (snapshot != null && snapshot.empty == false) {
       snapshot.forEach((doc) => this.upsert(doc));
     }
   };
 
-  private upsert = (documentSnapshop: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>) => {
-    const diaryRecord = documentSnapshop.data() as DiaryPageRecord;
+  @action
+  public getListBySubCollectionAsync = async (dairy: Diary) => {
+    const pagesCollectionReference = dairy.PageCenter?.PagesCollectionReference;
+    if (pagesCollectionReference != null) {
+      if (this._currentDiary !== dairy) {
+        this._currentDiary = dairy;
+        this.clear();
+      }
 
-    if (this.update(documentSnapshop.id, diaryRecord) == false) {
-      this.add(documentSnapshop.id, diaryRecord);
+      let queryOption: QueryOption = {
+        orderBy: { field: "createdTime", direction: "asc" },
+      };
+
+      this.setListnerByCollectionReference(pagesCollectionReference, queryOption);
+
+      const snapshot = await Firebase.Instance.CollectionCenter.getDataByCollectionReferenceAsync(pagesCollectionReference, queryOption);
+      if (snapshot != null && snapshot.empty == false) {
+        snapshot.forEach((doc) => this.upsert(doc));
+      }
+    } else {
+      // 동작 없음.
     }
   };
 
-  private add = (documentId: string, newRecord: DiaryPageRecord): void => {
-    if (documentId) {
-      newRecord.documentId = documentId;
-      this._diaryPageRecords.push(newRecord);
-    } else {
-      console.log("add : !! error" + documentId);
+  private upsert = (documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>) => {
+    if (this.update(documentData) == false) {
+      this.add(documentData);
     }
+  };
+
+  private add = (documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): void => {
+    const newRecord = documentData.data() as DiaryPageRecord;
+    newRecord.documentId = documentData.id;
+
+    const newDiary = new DiaryPage(newRecord);
+    //newDiary.Owner = ownerRecord;
+    this._diaryPages.push(newDiary);
   };
 
   @action
-  private remove = (documentId: string, diary: DiaryPageRecord): void => {
-    const index = this._diaryPageRecords.findIndex((t) => {
-      return t.documentId === documentId;
+  private remove = (documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): void => {
+    const index = this._diaryPages.findIndex((t) => {
+      return t.Record.documentId === documentData.id;
     });
 
     if (index != -1) {
-      this._diaryPageRecords.splice(index, 1);
+      this._diaryPages.splice(index, 1);
     }
   };
 
-  private findByUserId = (userId: string): DiaryPageRecord | undefined => {
-    return this._diaryPageRecords.find((element) => element.userId == userId);
+  private findByUserId = (userId: string): DiaryPage | undefined => {
+    return this._diaryPages.find((t) => t.Record.userId == userId);
   };
 
-  private findByDocumentId = (documentId: string): DiaryPageRecord | undefined => {
-    return this._diaryPageRecords.find((element) => element.documentId == documentId);
+  private findByDocumentId = (documentId: string): DiaryPage | undefined => {
+    return this._diaryPages.find((t) => t.Record.documentId == documentId);
   };
 
   private requstUpdate = (diaryPageRecord: DiaryPageRecord, data: any) => {
@@ -151,9 +203,9 @@ class DiaryPageStore {
     }
   };
 
-  public Create = (diaryRecord: Diary, contents: string, uri: string, place: string, memoryTime?: string, addCompleted?: () => void) => {
+  public Create = (diary: Diary, contents: string, uri: string, place: string, memoryTime?: string, addCompleted?: () => void) => {
     const task = this.createTask(
-      diaryRecord,
+      diary,
       contents,
       uri,
       place,

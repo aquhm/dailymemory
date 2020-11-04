@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import { AuthStackNavigationProps } from "../../routes/AuthNavigator";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import Firebase from "../../utility/Firebase";
+import Firebase from "../../utility/Firebase/Firebase";
 import * as _ from "lodash";
 
 import { AuthHeader } from "../../components/Header";
@@ -63,10 +63,7 @@ class SignInScreen extends React.Component<Props> {
           validationSchema={SignInSchema}
           initialValues={{ email: "", password: "" }}
           validateOnMount={false}
-          onSubmit={async (
-            values: { email: string; password: string },
-            actions: { setSubmitting: (arg0: boolean) => void }
-          ) => {
+          onSubmit={async (values: { email: string; password: string }, actions: { setSubmitting: (arg0: boolean) => void }) => {
             actions.setSubmitting(true);
 
             const res = await this.onSignIn(values.email, values.password);

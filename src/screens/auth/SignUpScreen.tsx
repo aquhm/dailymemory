@@ -6,7 +6,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { Formik } from "formik";
 import * as Yup from "yup";
 
-import Firebase from "../../utility/Firebase";
+import Firebase from "../../utility/Firebase/Firebase";
 import { AuthHeader } from "../../components/Header";
 import Theme from "../../constants/Styles";
 
@@ -78,8 +78,7 @@ class SignUpScreen extends React.Component<Props, State> {
     this._unsubscribe();
   }
 
-  onSignUp = async (name: string, email: string, password: string) =>
-    await RootStore.Instance.AuthStore.SignUp(name, email, password);
+  onSignUp = async (name: string, email: string, password: string) => await RootStore.Instance.AuthStore.SignUp(name, email, password);
 
   render() {
     const { navigation } = this.props;

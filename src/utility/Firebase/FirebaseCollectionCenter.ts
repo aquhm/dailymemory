@@ -4,8 +4,10 @@ import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
 import { WhereFilterOp, OrderByDirection } from "@firebase/firestore-types";
+import FirebaseHelper from "./FirebaseHelper";
 
-export type CollectionType = "users" | "diaries" | "diary_records" | "diary_lobbies";
+export type CollectionType = "users" | "diaries" | "diary_records";
+export type SubCollectionType = "pages";
 
 export interface Where {
   field: string;
@@ -19,7 +21,7 @@ export interface OrderBy {
 }
 
 export interface QueryOption {
-  wheres: Array<Where>;
+  wheres?: Array<Where>;
   orderBy?: OrderBy;
   limit?: number;
 }
@@ -31,7 +33,7 @@ class FirebaseCollectionCenter {
     this._db = db;
   }
 
-  get Db() {
+  private get Db() {
     if (!this._db) {
       throw new Error("db is null");
     }
@@ -45,16 +47,21 @@ class FirebaseCollectionCenter {
   get Diary() {
     return this.Db.collection("diaries");
   }
+
   get DiaryPage() {
     return this.Db.collection("diary_records");
   }
 
-  get DiaryLobby() {
-    return this.Db.collection("diary_lobbies");
-  }
-
   public getCollection<T extends CollectionType>(collection: T): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
     return this.Db.collection(collection);
+  }
+
+  public getSubCollection<T1 extends CollectionType, T2 extends SubCollectionType>(
+    collection: T1,
+    documentId: string,
+    subCollection: T2
+  ): firebase.firestore.CollectionReference<firebase.firestore.DocumentData> {
+    return this.Db.collection(FirebaseHelper.ToSubCollectionReferencePath(collection, documentId, subCollection));
   }
 
   public getDocument = <T extends CollectionType>(collection: T, documentId: string) => {
@@ -82,15 +89,39 @@ class FirebaseCollectionCenter {
     return query;
   };
 
-  public createQueryWithOption = <T extends CollectionType>(collection: T, option: QueryOption) => {
+  public createQueryWithCollectionType = <T extends CollectionType>(collection: T, option: QueryOption) => {
     let { wheres, orderBy, limit } = option;
 
     let colRef = this.getCollection(collection);
 
     let query;
-    if (wheres.length > 0) {
+    if (wheres) {
       for (let w of wheres) {
         query = colRef.where(w.field, w.operator, w.value);
+      }
+    }
+
+    if (orderBy) {
+      query?.orderBy(orderBy.field, orderBy.direction);
+    }
+
+    if (limit) {
+      query?.limit(limit);
+    }
+
+    return query;
+  };
+
+  public createQueryWithCollectionReference = (
+    collectionReference: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
+    option: QueryOption
+  ) => {
+    let { wheres, orderBy, limit } = option;
+
+    let query;
+    if (wheres) {
+      for (let w of wheres) {
+        query = collectionReference.where(w.field, w.operator, w.value);
       }
     }
 
@@ -135,30 +166,25 @@ class FirebaseCollectionCenter {
     return await query.get();
   };
 
-  public getDatasWithFilterAsync1 = async <T extends CollectionType>(collection: T, option: QueryOption) => {
-    const query = this.createQueryWithOption(collection, option);
-    return await query?.get();
+  public getDataByCollectionTypeAsync = async <T extends CollectionType>(collection: T, option?: QueryOption) => {
+    if (option != null) {
+      const query = this.createQueryWithCollectionType(collection, option);
+      return query?.get();
+    } else {
+      return this.getDatasAsync(collection);
+    }
   };
 
-  public getDataWithMultiFilterAsync = async <T extends CollectionType>(collection: T, option: QueryOption) => {
-    let col = this.getCollection(collection);
-
-    let query;
-    if (option.wheres.length > 0) {
-      for (let w of option.wheres) {
-        query = col.where(w.field, w.operator, w.value);
-      }
+  public getDataByCollectionReferenceAsync = async (
+    collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
+    option?: QueryOption
+  ) => {
+    if (option != null) {
+      const query = this.createQueryWithCollectionReference(collection, option);
+      return query?.get();
+    } else {
+      return collection.get();
     }
-
-    if (option.orderBy) {
-      query?.orderBy(option.orderBy.field, option.orderBy.direction);
-    }
-
-    if (option.limit) {
-      query?.limit(option.limit);
-    }
-
-    return query?.get();
   };
 
   public updateDataByDocumentIdAsync = async <T extends CollectionType>(

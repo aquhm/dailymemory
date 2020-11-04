@@ -1,4 +1,4 @@
-import { CollectionType } from "../../utility/Firebase";
+import { CollectionType } from "../../utility/Firebase/Firebase";
 import { UserRecord } from "../../shared/records";
 
 class User {

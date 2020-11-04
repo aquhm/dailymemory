@@ -5,7 +5,7 @@ import RouteContainer from "./src/routes/AppNavigator";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { Provider as MobxProvider } from "mobx-react";
-import Firebase from "./src/utility/Firebase";
+import Firebase from "./src/utility/Firebase/Firebase";
 import { RootStore } from "./src/stores";
 
 interface State {
