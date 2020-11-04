@@ -57,7 +57,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
 
     this.props.navigation.addListener("focus", () => {
       const { diary } = this.props.route.params;
-      this.props.diaryPageStore.getListAsync(diary.Record.documentId);
+      this.props.diaryPageStore.getListBySubCollectionAsync(diary);
     });
 
     this.props.navigation.addListener("blur", () => {});
@@ -78,7 +78,7 @@ class DiaryViewScreen extends React.Component<Props, State> {
 
   renderPages = () => {
     const { diary } = this.props.route.params;
-    const diaryPageRecords = this.props.diaryPageStore.Values.slice();
+    const diaryPages = this.props.diaryPageStore.Values.slice();
 
     const cover = <DiaryCoverPage key={diary.Record.documentId} {...{ diary }} navigation={this.props.navigation} />;
 
@@ -87,8 +87,8 @@ class DiaryViewScreen extends React.Component<Props, State> {
       this._swipeRef.current.scrollBy(-1, true);
     };
 
-    const diaryList = diaryPageRecords.map((diaryPageRecord, _) => (
-      <DiaryViewPage key={diaryPageRecord.documentId} {...{ diaryPageRecord }} navigation={this.props.navigation} onPress={() => onPressPrev()} />
+    const diaryList = diaryPages.map((diaryPage, _) => (
+      <DiaryViewPage key={diaryPage.Record.documentId} {...{ diaryPage }} navigation={this.props.navigation} onPress={() => onPressPrev()} />
     ));
 
     const renderList = [cover, ...diaryList];

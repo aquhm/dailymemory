@@ -10,11 +10,6 @@ import { DiaryPageRecord, DiaryRecord } from "../shared/records";
 import { Diary, DiaryPage } from "./object";
 import My from "../utility/My";
 
-interface IGetList {
-  (queryOption: QueryOption): void;
-  (collectionReference: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>): void;
-}
-
 class DiaryPageStore {
   private _currentDiary?: Diary;
   private _rootStore: RootStore;
@@ -141,7 +136,7 @@ class DiaryPageStore {
 
   @action
   public getListBySubCollectionAsync = async (dairy: Diary) => {
-    const pagesCollectionReference = dairy.PageCenter?.PagesCollectionReference;
+    const pagesCollectionReference = dairy.PageCenter!.PagesCollectionReference;
     if (pagesCollectionReference != null) {
       if (this._currentDiary !== dairy) {
         this._currentDiary = dairy;
@@ -157,6 +152,8 @@ class DiaryPageStore {
       const snapshot = await Firebase.Instance.CollectionCenter.getDataByCollectionReferenceAsync(pagesCollectionReference, queryOption);
       if (snapshot != null && snapshot.empty == false) {
         snapshot.forEach((doc) => this.upsert(doc));
+
+        dairy.PageCenter!.Pages = this.Values;
       }
     } else {
       // 동작 없음.
@@ -169,6 +166,7 @@ class DiaryPageStore {
     }
   };
 
+  @action
   private add = (documentData: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>): void => {
     const newRecord = documentData.data() as DiaryPageRecord;
     newRecord.documentId = documentData.id;
@@ -243,19 +241,20 @@ class DiaryPageStore {
       });
     }
 
-    yield Firebase.Instance.CollectionCenter.writeDataAsync(this._collectionType, {
-      contents: contents,
-      place: place,
-      memoryTime: memoryTime,
-      imageUri: downloadImageUri,
-      imagePath: storagePath,
-      userId: Firebase.Instance.User.uid,
-      diaryId: diary.Record.documentId,
-      createdTime: firebase.firestore.FieldValue.serverTimestamp(),
-    }).then(() => {
-      this._rootStore.DiaryStore.requestUpdateContentCount(diary);
-      addCompleted && addCompleted();
-    });
+    yield diary.PageCenter?.PagesCollectionReference &&
+      Firebase.Instance.CollectionCenter.writeDataToCollectionReferenceAsync(diary.PageCenter?.PagesCollectionReference, {
+        contents: contents,
+        place: place,
+        memoryTime: memoryTime,
+        imageUri: downloadImageUri,
+        imagePath: storagePath,
+        userId: Firebase.Instance.User.uid,
+        diaryId: diary.Record.documentId,
+        createdTime: firebase.firestore.FieldValue.serverTimestamp(),
+      }).then(() => {
+        this._rootStore.DiaryStore.requestUpdateContentCount(diary);
+        addCompleted && addCompleted();
+      });
   }
 
   public Remove = (documentId: string) => {

@@ -6,7 +6,7 @@ import { SubCollectionType } from "../../utility/Firebase/FirebaseCollectionCent
 
 class DiaryPageCenter {
   private _owner: Diary;
-  private _pages?: Array<DiaryPage> = [];
+  private _pages: Array<DiaryPage> = [];
   private readonly _subCollectionType?: SubCollectionType;
 
   constructor(private owner: Diary, private subCollectionType: SubCollectionType) {
@@ -15,7 +15,7 @@ class DiaryPageCenter {
   }
 
   public get Pages() {
-    return this._pages!;
+    return this._pages;
   }
 
   public set Pages(value: Array<DiaryPage>) {
@@ -33,7 +33,11 @@ class DiaryPageCenter {
     return pageCollectionRef;
   }
 
-  public getListAsync = async () => await RootStore.Instance.DiaryPageStore.getListBySubCollectionAsync(this._owner);
+  public GetListAsync = async () => await RootStore.Instance.DiaryPageStore.getListBySubCollectionAsync(this._owner);
+
+  public CreateAsync = async (contents: string, uri: string, place: string, memoryTime?: string, addCompleted?: () => void) => {
+    await RootStore.Instance.DiaryPageStore.Create(this._owner, contents, uri, place, memoryTime, addCompleted);
+  };
 }
 
 export default DiaryPageCenter;

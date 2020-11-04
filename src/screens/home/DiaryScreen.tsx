@@ -80,7 +80,14 @@ class DiaryScreen extends React.Component<Props, State> {
     this.InitializeImageMenu();
 
     this.props.navigation.addListener("focus", () => {
-      this.setState({ currentDiary: undefined });
+      //this.setState({ currentDiary: undefined });
+
+      if (RootStore.Instance.DiaryStore.Values.length > 1) {
+        this.setState({ diaryPicker: true });
+      } else {
+        const [first] = RootStore.Instance.DiaryStore.Values;
+        this.setState({ currentDiary: first });
+      }
     });
 
     this.props.navigation.addListener("blur", () => {});
@@ -150,7 +157,9 @@ class DiaryScreen extends React.Component<Props, State> {
   createDiaryPage = async (completed: () => void) => {
     if (this.state.currentDiary != null) {
       const { currentDiary, contents, imageUri, place, dateTime } = this.state;
-      RootStore.Instance.DiaryPageStore.Create(currentDiary, contents, imageUri, place, dateTime, completed);
+
+      await currentDiary.PageCenter?.CreateAsync(contents, imageUri, place, dateTime, completed);
+      //RootStore.Instance.DiaryPageStore.Create(currentDiary, contents, imageUri, place, dateTime, completed);
     }
   };
 

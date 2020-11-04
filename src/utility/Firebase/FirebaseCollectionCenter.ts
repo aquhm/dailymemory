@@ -74,9 +74,17 @@ class FirebaseCollectionCenter {
   public writeDataAsync = async <T extends CollectionType>(collection: T, data: any) => {
     const col = this.getCollection(collection);
     const docRef = col.doc();
-
-    await docRef?.set(data, { merge: true });
+    +(await docRef?.set(data, { merge: true }));
   };
+
+  public writeDataToCollectionReferenceAsync = async (collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>, data: any) => {
+    if (collection) {
+      const docRef = collection.doc();
+
+      await docRef?.set(data, { merge: true });
+    }
+  };
+
   public writeDataByDocumentIdAsync = async <T extends CollectionType>(collection: T, documentId: string, data: any) => {
     const col = this.getCollection(collection);
     const docRef = col.doc(documentId);
@@ -116,13 +124,15 @@ class FirebaseCollectionCenter {
     collectionReference: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
     option: QueryOption
   ) => {
-    let { wheres, orderBy, limit } = option;
+    const { wheres, orderBy, limit } = option;
 
     let query;
     if (wheres) {
-      for (let w of wheres) {
+      for (const w of wheres) {
         query = collectionReference.where(w.field, w.operator, w.value);
       }
+    } else {
+      query = collectionReference;
     }
 
     if (orderBy) {
@@ -176,14 +186,15 @@ class FirebaseCollectionCenter {
   };
 
   public getDataByCollectionReferenceAsync = async (
-    collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
+    collectionReference: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>,
     option?: QueryOption
   ) => {
     if (option != null) {
-      const query = this.createQueryWithCollectionReference(collection, option);
+      const query = this.createQueryWithCollectionReference(collectionReference, option);
+
       return query?.get();
     } else {
-      return collection.get();
+      return collectionReference.get();
     }
   };
 
