@@ -107,6 +107,8 @@ class FirebaseCollectionCenter {
       for (let w of wheres) {
         query = colRef.where(w.field, w.operator, w.value);
       }
+    } else {
+      query = colRef;
     }
 
     if (orderBy) {
